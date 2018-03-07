@@ -40,13 +40,13 @@ Private Sub AppStart
 	Log("AppStart")
 	' Pin 2 is the blue LED
 	' Pin 16 is the red LED
-	' D6 = pin 12 is the logical/signal pin. Use 3.3v pin of Node MCU.
+	' D6 = pin 12 is the logic/signal pin. Use 3.3v pin of Node MCU.
 	
 	pin16.Initialize(16, pin16.MODE_OUTPUT)
 	pin2.Initialize(2, pin2.MODE_OUTPUT)
 	d6.Initialize(d1pins.D6, d6.MODE_OUTPUT)
 	d6.DigitalWrite(False)
-	Timer1.Initialize("Timer1_Tick", 5000) 'For Andy: 2 h = 7200000 ms (1000ms = 1 second)
+	Timer1.Initialize("Timer1_Tick", 5000) 'For Andy: 2 h = 7200000 ms (1000ms = 1 second) 1000 * 60 * 60 * 2
 	Timer1.Enabled = True
 End Sub
 
