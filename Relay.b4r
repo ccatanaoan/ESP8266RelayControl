@@ -51,12 +51,10 @@ Private Sub AppStart
 End Sub
 
 Private Sub Timer1_Tick
-	Dim currentState As Boolean = d6.DigitalRead
-	
-	pin16.DigitalWrite(Not(pin16.DigitalRead))
-	
-	Log("CurrentState: ", currentState)
+	Log("CurrentState: ", d6.DigitalRead)
 	d6.DigitalWrite(Not( d6.DigitalRead))
 	Log("NewState: ", d6.DigitalRead)
+	
+	pin16.DigitalWrite(Not(pin16.DigitalRead))
 End Sub
 

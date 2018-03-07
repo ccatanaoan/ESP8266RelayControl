@@ -62,18 +62,15 @@ b4r_main::_d6 = &be_gann6_3;
 }
 void b4r_main::_timer1_tick(){
 const UInt cp = B4R::StackMemory::cp;
-bool _currentstate = false;
  //BA.debugLineNum = 45;BA.debugLine="Private Sub Timer1_Tick";
- //BA.debugLineNum = 46;BA.debugLine="Dim currentState As Boolean = d6.DigitalRead";
-_currentstate = b4r_main::_d6->DigitalRead();
- //BA.debugLineNum = 48;BA.debugLine="pin16.DigitalWrite(Not(pin16.DigitalRead))";
-b4r_main::_pin16->DigitalWrite(Common_Not(b4r_main::_pin16->DigitalRead()));
- //BA.debugLineNum = 50;BA.debugLine="Log(\"CurrentState: \", currentState)";
-B4R::Common::LogHelper(2,102,F("CurrentState: "),8,_currentstate);
- //BA.debugLineNum = 51;BA.debugLine="d6.DigitalWrite(Not( d6.DigitalRead))";
+ //BA.debugLineNum = 46;BA.debugLine="Log(\"CurrentState: \", d6.DigitalRead)";
+B4R::Common::LogHelper(2,102,F("CurrentState: "),8,b4r_main::_d6->DigitalRead());
+ //BA.debugLineNum = 47;BA.debugLine="d6.DigitalWrite(Not( d6.DigitalRead))";
 b4r_main::_d6->DigitalWrite(Common_Not(b4r_main::_d6->DigitalRead()));
- //BA.debugLineNum = 52;BA.debugLine="Log(\"NewState: \", d6.DigitalRead)";
+ //BA.debugLineNum = 48;BA.debugLine="Log(\"NewState: \", d6.DigitalRead)";
 B4R::Common::LogHelper(2,102,F("NewState: "),8,b4r_main::_d6->DigitalRead());
- //BA.debugLineNum = 53;BA.debugLine="End Sub";
+ //BA.debugLineNum = 50;BA.debugLine="pin16.DigitalWrite(Not(pin16.DigitalRead))";
+b4r_main::_pin16->DigitalWrite(Common_Not(b4r_main::_pin16->DigitalRead()));
+ //BA.debugLineNum = 51;BA.debugLine="End Sub";
 B4R::StackMemory::cp = cp;
 }
