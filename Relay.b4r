@@ -1,0 +1,62 @@
+﻿Version=2.2
+NumberOfModules=0
+Build1=Default,B4RDev
+NumberOfFiles=0
+NumberOfLibraries=2
+Library1=rcore
+Library2=resp8266
+@EndOfDesignText@
+
+#Region Project Attributes
+	#AutoFlushLogs: True
+	#CheckArrayBounds: True
+	#StackBufferSize: 300
+#End Region
+
+Sub Process_Globals
+	'These global variables will be declared once when the application starts.
+	'Public variables can be accessed from all modules.
+	Public Serial1 As Serial
+	Private d1pins As D1Pins
+	Private Timer1 As Timer
+	Private pin16 As Pin
+	Private pin2 As Pin
+	Private d6 As Pin
+End Sub
+
+'static const uint8_t D0   = 16;
+'static const uint8_t D1   = 5;
+'static const uint8_t D2   = 4;
+'static const uint8_t D3   = 0;
+'static const uint8_t d4   = 2;
+'static const uint8_t D5   = 14;
+'static const uint8_t D6   = 12;
+'static const uint8_t D7   = 13;
+'static const uint8_t D8   = 15;
+'static const uint8_t D9   = 3;
+'static const uint8_t D10  = 1;
+Private Sub AppStart
+	Serial1.Initialize(115200)
+	Log("AppStart")
+	' Pin 2 is the blue LED
+	' Pin 16 is the red LED
+	' D6 = pin 12 is the logical/signal pin. Use 3.3v pin of Node MCU.
+	
+	pin16.Initialize(16, pin16.MODE_OUTPUT)
+	pin2.Initialize(2, pin2.MODE_OUTPUT)
+	d6.Initialize(d1pins.D6, d6.MODE_OUTPUT)
+	d6.DigitalWrite(False)
+	Timer1.Initialize("Timer1_Tick", 5000) 'For Andy: 2 h = 7200000 ms (1000ms = 1 second)
+	Timer1.Enabled = True
+End Sub
+
+Private Sub Timer1_Tick
+	Dim currentState As Boolean = d6.DigitalRead
+	
+	pin16.DigitalWrite(Not(pin16.DigitalRead))
+	
+	Log("CurrentState: ", currentState)
+	d6.DigitalWrite(Not( d6.DigitalRead))
+	Log("NewState: ", d6.DigitalRead)
+End Sub
+
