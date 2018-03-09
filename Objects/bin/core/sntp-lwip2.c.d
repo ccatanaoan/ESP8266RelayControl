@@ -1,4 +1,4 @@
-C:\Users\CCATAN~1\Desktop\ANDYAR~1\RELAYC~1\Objects\bin\core\sntp-lwip2.c.o: \
+C:\Users\CCATAN~1\Desktop\IoT\RELAYC~1\Objects\bin\core\sntp-lwip2.c.o: \
  C:\Users\ccatanaoan\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.4.0\cores\esp8266\sntp-lwip2.c \
  C:\Users\ccatanaoan\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.4.0/tools/sdk/lwip2/include/lwip/init.h \
  C:\Users\ccatanaoan\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.4.0/tools/sdk/lwip2/include/lwip/opt.h \

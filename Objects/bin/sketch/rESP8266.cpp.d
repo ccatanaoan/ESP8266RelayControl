@@ -1,6 +1,6 @@
-C:\Users\CCATAN~1\Desktop\ANDYAR~1\RELAYC~1\Objects\bin\sketch\rESP8266.cpp.o: \
- C:\Users\CCATAN~1\Desktop\ANDYAR~1\RELAYC~1\Objects\bin\sketch\rESP8266.cpp \
- C:\Users\CCATAN~1\Desktop\ANDYAR~1\RELAYC~1\Objects\bin\sketch\B4RDefines.h \
+C:\Users\CCATAN~1\Desktop\IoT\RELAYC~1\Objects\bin\sketch\rESP8266.cpp.o: \
+ C:\Users\CCATAN~1\Desktop\IoT\RELAYC~1\Objects\bin\sketch\rESP8266.cpp \
+ C:\Users\CCATAN~1\Desktop\IoT\RELAYC~1\Objects\bin\sketch\B4RDefines.h \
  C:\Users\ccatanaoan\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.4.0\cores\esp8266/Arduino.h \
  C:\Users\ccatanaoan\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.4.0/tools/sdk/libc/xtensa-lx106-elf/include/stdlib.h \
  C:\Users\ccatanaoan\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.4.0/tools/sdk/libc/xtensa-lx106-elf/include/machine/ieeefp.h \
@@ -63,6 +63,6 @@ C:\Users\CCATAN~1\Desktop\ANDYAR~1\RELAYC~1\Objects\bin\sketch\rESP8266.cpp.o: \
  C:\Users\ccatanaoan\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.4.0\cores\esp8266/Client.h \
  C:\Users\ccatanaoan\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.4.0\cores\esp8266/IPAddress.h \
  C:\Users\ccatanaoan\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.4.0\cores\esp8266/Printable.h \
- C:\Users\CCATAN~1\Desktop\ANDYAR~1\RELAYC~1\Objects\bin\sketch\rCore.h \
- C:\Users\CCATAN~1\Desktop\ANDYAR~1\RELAYC~1\Objects\bin\sketch\rESP8266.h \
- C:\Users\CCATAN~1\Desktop\ANDYAR~1\RELAYC~1\Objects\bin\sketch\b4r_main.h
+ C:\Users\CCATAN~1\Desktop\IoT\RELAYC~1\Objects\bin\sketch\rCore.h \
+ C:\Users\CCATAN~1\Desktop\IoT\RELAYC~1\Objects\bin\sketch\rESP8266.h \
+ C:\Users\CCATAN~1\Desktop\IoT\RELAYC~1\Objects\bin\sketch\b4r_main.h

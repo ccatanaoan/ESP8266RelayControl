@@ -1,4 +1,4 @@
-C:\Users\CCATAN~1\Desktop\ANDYAR~1\RELAYC~1\Objects\bin\core\core_esp8266_wiring_analog.c.o: \
+C:\Users\CCATAN~1\Desktop\IoT\RELAYC~1\Objects\bin\core\core_esp8266_wiring_analog.c.o: \
  C:\Users\ccatanaoan\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.4.0\cores\esp8266\core_esp8266_wiring_analog.c \
  C:\Users\ccatanaoan\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.4.0\cores\esp8266\wiring_private.h \
  C:\Users\ccatanaoan\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.4.0/tools/sdk/libc/xtensa-lx106-elf/include/stdio.h \
