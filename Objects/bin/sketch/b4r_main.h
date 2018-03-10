@@ -24,6 +24,7 @@ static B4R::B4RString* _mqttpassword;
 static B4R::B4RString* _mqtthostname;
 static Int _mqttport;
 static bool _stoprelay;
+static B4R::B4RESP8266* _esp;
 static void _relayclose(Byte _tag);
 static void _relayopen(Byte _tag);
 };

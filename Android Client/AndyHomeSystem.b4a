@@ -1,0 +1,152 @@
+﻿Build1=Default,andy.home.system
+File1=1.bal
+File2=smiley.png
+FileGroup1=Default Group
+FileGroup2=Default Group
+Group=Default Group
+IconFile=
+Library1=core
+Library2=appcompat
+Library3=javaobject
+Library4=xmllayoutbuilder
+Library5=jmqtt
+Library6=randomaccessfile
+Library7=byteconverter
+ManifestCode='This code will be applied to the manifest file during compilation.~\n~'You do not need to modify it in most cases.~\n~'See this link for for more information: http://www.basic4ppc.com/forum/showthread.php?p=78136~\n~AddManifestText(~\n~<uses-sdk android:minSdkVersion="7" android:targetSdkVersion="21"/>~\n~<supports-screens android:largeScreens="true" ~\n~    android:normalScreens="true" ~\n~    android:smallScreens="true" ~\n~    android:anyDensity="true"/>)~\n~SetApplicationAttribute(android:icon, "@drawable/icon")~\n~SetApplicationAttribute(android:label, "$LABEL$")~\n~'End of default text.~\n~~\n~SetApplicationAttribute(android:theme, "@style/MyAppTheme")~\n~~\n~CreateResource(values, theme.xml,~\n~<resources>~\n~    <style name="MyAppTheme" parent="Theme.AppCompat.Light.NoActionBar">~\n~        <item name="colorPrimary">#0098FF</item>~\n~        <item name="colorPrimaryDark">#007CF5</item>~\n~        <item name="colorAccent">#AAAA00</item>~\n~        <item name="windowNoTitle">true</item>~\n~        <item name="windowActionBar">false</item>~\n~    </style>~\n~</resources>~\n~)
+Module1=Starter
+Module2=B4RSerializator
+NumberOfFiles=2
+NumberOfLibraries=7
+NumberOfModules=2
+Version=7.8
+@EndOfDesignText@
+#Region  Project Attributes 
+	#ApplicationLabel: Andy Home System
+	#VersionCode: 1
+	#VersionName: 1.0
+	'SupportedOrientations possible values: unspecified, landscape or portrait.
+	#SupportedOrientations: unspecified
+	#CanInstallToExternalStorage: False
+	#BridgeLogger:True
+#End Region
+
+#Region  Activity Attributes 
+	#FullScreen: False
+	#IncludeTitle: True
+#End Region
+	#Extends: android.support.v7.app.AppCompatActivity
+Sub Process_Globals
+	Private MQTT As MqttClient
+    Private MQTTUser As String = "dbgdbcqw"
+    Private MQTTPassword As String = "Nc3F4APoO801"
+    Private MQTTServerURI As String = "tcp://m14.cloudmqtt.com:15093"
+    Private BC As ByteConverter
+End Sub
+
+Sub Globals
+	Private ACToolBarLight1 As ACToolBarLight
+	Private ToolbarHelper As ACActionBar
+	Private lblStatus As Label
+	Private btnRefresh As ACButton
+	Private tglRelaySwitch As ACSwitch
+	Private btnRestart As ACButton
+End Sub
+
+Sub Activity_Create(FirstTime As Boolean)
+	If FirstTime Then
+        CallSub(Me, MQTT_Connect)
+    End If
+	Activity.LoadLayout("1")
+	Dim bd As BitmapDrawable
+	bd.Initialize(LoadBitmap(File.DirAssets, "smiley.png"))
+	ACToolBarLight1.NavigationIconDrawable = bd
+	ToolbarHelper.Initialize
+	Dim cs As CSBuilder
+	ToolbarHelper.Title= cs.Initialize.Size(17).Append("Andy Home System").PopAll
+	ToolbarHelper.subTitle = ""
+	ToolbarHelper.ShowUpIndicator = False 'set to true to show the up arrow
+	ACToolBarLight1.InitMenuListener
+	Dim jo As JavaObject = ACToolBarLight1
+	Dim xl As XmlLayoutBuilder
+	jo.RunMethod("setPopupTheme", Array(xl.GetResourceId("style", "ToolbarMenu")))
+End Sub
+
+Sub ACToolBarLight1_NavigationItemClick
+	Log("click1")
+End Sub
+
+Sub Activity_Resume
+
+End Sub
+
+Sub Activity_Pause (UserClosed As Boolean)
+
+End Sub
+
+'Connect to CloudMQTT broker
+Sub MQTT_Connect
+        Dim ClientId As String = Rnd(0, 999999999) 'create a unique id
+        MQTT.Initialize("MQTT", MQTTServerURI, ClientId)
+
+        Dim ConnOpt As MqttConnectOptions
+        ConnOpt.Initialize(MQTTUser, MQTTPassword)
+        MQTT.Connect2(ConnOpt)
+End Sub
+
+Sub MQTT_Connected (Success As Boolean)
+    If Success = False Then
+        Log(LastException)
+        lblStatus.Text = "STATUS: Error connecting"
+    Else
+        lblStatus.Text = "STATUS: Connected to broker"
+        MQTT.Subscribe("Andy", 0)
+    End If
+End Sub
+
+Private Sub MQTT_Disconnected
+    lblStatus.Text = "STATUS: Disconnected from broker"
+End Sub
+
+Private Sub MQTT_MessageArrived (Topic As String, Payload() As Byte)
+	Dim status As String 
+	status = BytesToString(Payload, 0, Payload.Length, "UTF8")
+'    If status = "Relay Close" Then
+'		tglRelaySwitch.Checked = False
+'	Else If status = "Relay Open" Then
+'		tglRelaySwitch.Checked = True
+'	End If
+	lblStatus.Text = "STATUS: " & status
+End Sub
+
+Sub tglRelaySwitch_CheckedChange(Checked As Boolean)
+	If Checked Then
+		MQTT.Publish("Andy", BC.StringToBytes("Remotely open relay", "utf8"))
+	Else
+		MQTT.Publish("Andy", BC.StringToBytes("Remotely close relay", "utf8"))
+	End If
+End Sub
+
+Sub btnRefresh_Click
+	MQTT.Publish("Andy", BC.StringToBytes("Check relay status", "utf8"))
+End Sub
+
+Sub btnRestart_Click
+	MQTT.Publish("Andy", BC.StringToBytes("Restart controller", "utf8"))
+End Sub
+
+Sub Activity_Createmenu(Menu As ACMenu)
+	Menu.Clear
+	Menu.Add(0, 0, "About",Null)
+End Sub
+
+#If Java
+
+public boolean _onCreateOptionsMenu(android.view.Menu menu) {
+    if (processBA.subExists("activity_createmenu")) {
+        processBA.raiseEvent2(null, true, "activity_createmenu", false, new de.amberhome.objects.appcompat.ACMenuWrapper(menu));
+        return true;
+    }
+    else
+        return false;
+}
+#End If
