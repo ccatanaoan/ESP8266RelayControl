@@ -23,6 +23,8 @@
 
 #include "rCore.h"
 #include "rESP8266.h"
+#include "rESP8266WiFi.h"
+#include "rMQTT.h"
 
 
 #include "b4r_main.h"

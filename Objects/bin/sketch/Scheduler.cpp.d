@@ -65,4 +65,26 @@ C:\Users\CCATAN~1\Desktop\IoT\RELAYC~1\Objects\bin\sketch\Scheduler.cpp.o: \
  C:\Users\ccatanaoan\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.4.1\cores\esp8266/Printable.h \
  C:\Users\CCATAN~1\Desktop\IoT\RELAYC~1\Objects\bin\sketch\rCore.h \
  C:\Users\CCATAN~1\Desktop\IoT\RELAYC~1\Objects\bin\sketch\rESP8266.h \
+ C:\Users\CCATAN~1\Desktop\IoT\RELAYC~1\Objects\bin\sketch\rESP8266WiFi.h \
+ C:\Users\ccatanaoan\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.4.1\libraries\ESP8266WiFi\src/ESP8266WiFi.h \
+ C:\Users\ccatanaoan\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.4.1\libraries\ESP8266WiFi\src/include/wl_definitions.h \
+ C:\Users\ccatanaoan\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.4.1\cores\esp8266/IPAddress.h \
+ C:\Users\ccatanaoan\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.4.1\libraries\ESP8266WiFi\src/ESP8266WiFiType.h \
+ C:\Users\ccatanaoan\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.4.1/tools/sdk/include/queue.h \
+ C:\Users\ccatanaoan\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.4.1\libraries\ESP8266WiFi\src/ESP8266WiFiSTA.h \
+ C:\Users\ccatanaoan\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.4.1\libraries\ESP8266WiFi\src/ESP8266WiFiGeneric.h \
+ C:\Users\ccatanaoan\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.4.1\libraries\ESP8266WiFi\src/ESP8266WiFiAP.h \
+ C:\Users\ccatanaoan\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.4.1\libraries\ESP8266WiFi\src/ESP8266WiFiScan.h \
+ C:\Users\ccatanaoan\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.4.1\libraries\ESP8266WiFi\src/WiFiClient.h \
+ C:\Users\ccatanaoan\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.4.1\libraries\ESP8266WiFi\src/include/slist.h \
+ C:\Users\ccatanaoan\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.4.1\libraries\ESP8266WiFi\src/WiFiServer.h \
+ C:\Users\ccatanaoan\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.4.1\cores\esp8266/Server.h \
+ C:\Users\ccatanaoan\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.4.1\libraries\ESP8266WiFi\src/WiFiServerSecure.h \
+ C:\Users\ccatanaoan\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.4.1\libraries\ESP8266WiFi\src/WiFiClientSecure.h \
+ C:\Users\ccatanaoan\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.4.1\libraries\ESP8266WiFi\src/include/ssl.h \
+ C:\Users\ccatanaoan\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.4.1\libraries\ESP8266WiFi\src/WiFiUdp.h \
+ C:\Users\ccatanaoan\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.4.1\cores\esp8266/Udp.h \
+ C:\Users\ccatanaoan\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\2.4.1\libraries\ESP8266WiFi\src/include/slist.h \
+ C:\Users\CCATAN~1\Desktop\IoT\RELAYC~1\Objects\bin\sketch\rMQTT.h \
+ C:\Users\CCATAN~1\Desktop\IoT\RELAYC~1\Objects\bin\sketch\PubSubClient.h \
  C:\Users\CCATAN~1\Desktop\IoT\RELAYC~1\Objects\bin\sketch\b4r_main.h
