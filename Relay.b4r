@@ -122,7 +122,9 @@ Sub mqtt_MessageArrived (Topic As String, Payload() As Byte)
 		MQTT.Publish("Andy","*Restarting relay by remote")
 		ESP.Restart
 	Else If Payload = "Check relay status" Then
-		If d6.DigitalRead Then
+		If StopRelay Then
+			MQTT.Publish("Andy","*Relay is permanently closed")
+		else If d6.DigitalRead Then
 			MQTT.Publish("Andy","*Relay is closed")
 		Else
 			MQTT.Publish("Andy","*Relay is open")

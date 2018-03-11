@@ -61,55 +61,55 @@ void b4r_main::_connecttowifi(){
 const UInt cp = B4R::StackMemory::cp;
 Byte _numberofnetworks = 0;
 Int _c = 0;
-B4R::B4RString be_ann101_8;
-B4R::B4RString be_ann103_4;
-B4R::B4RString be_ann103_6;
-B4R::B4RString be_ann105_8;
-B4R::B4RString be_ann107_4;
-B4R::B4RString be_ann107_6;
- //BA.debugLineNum = 133;BA.debugLine="Sub ConnectToWifi";
- //BA.debugLineNum = 134;BA.debugLine="Dim numberOfNetworks As Byte = WiFi.Scan";
+B4R::B4RString be_ann103_8;
+B4R::B4RString be_ann105_4;
+B4R::B4RString be_ann105_6;
+B4R::B4RString be_ann107_8;
+B4R::B4RString be_ann109_4;
+B4R::B4RString be_ann109_6;
+ //BA.debugLineNum = 135;BA.debugLine="Sub ConnectToWifi";
+ //BA.debugLineNum = 136;BA.debugLine="Dim numberOfNetworks As Byte = WiFi.Scan";
 _numberofnetworks = b4r_main::_wifi->Scan();
- //BA.debugLineNum = 135;BA.debugLine="Dim c As Int";
+ //BA.debugLineNum = 137;BA.debugLine="Dim c As Int";
 _c = 0;
- //BA.debugLineNum = 136;BA.debugLine="Log(\"Found \", numberOfNetworks, \" networks\")";
+ //BA.debugLineNum = 138;BA.debugLine="Log(\"Found \", numberOfNetworks, \" networks\")";
 B4R::Common::LogHelper(3,102,F("Found "),1,_numberofnetworks,102,F(" networks"));
- //BA.debugLineNum = 137;BA.debugLine="For c = 0 To numberOfNetworks - 1";
+ //BA.debugLineNum = 139;BA.debugLine="For c = 0 To numberOfNetworks - 1";
 {
 const int step4 = 1;
 const int limit4 = (Int) (_numberofnetworks-1);
 _c = 0 ;
 for (;(step4 > 0 && _c <= limit4) || (step4 < 0 && _c >= limit4) ;_c = ((Int)(0 + _c + step4))  ) {
- //BA.debugLineNum = 138;BA.debugLine="Log(\"SSID: \", WiFi.ScannedSSID(c), \"|RSSI: \", Wi";
+ //BA.debugLineNum = 140;BA.debugLine="Log(\"SSID: \", WiFi.ScannedSSID(c), \"|RSSI: \", Wi";
 B4R::Common::LogHelper(4,102,F("SSID: "),101,b4r_main::_wifi->ScannedSSID((Byte) (_c))->data,102,F("|RSSI: "),5,b4r_main::_wifi->ScannedRSSI((Byte) (_c)));
- //BA.debugLineNum = 139;BA.debugLine="If WiFi.ScannedSSID(c) = \"CloydNote8\" Then";
-if ((b4r_main::_wifi->ScannedSSID((Byte) (_c)))->equals(be_ann101_8.wrap("CloydNote8"))) { 
- //BA.debugLineNum = 140;BA.debugLine="Log(\"Connecting to CloydNote8 WiFi\")";
+ //BA.debugLineNum = 141;BA.debugLine="If WiFi.ScannedSSID(c) = \"CloydNote8\" Then";
+if ((b4r_main::_wifi->ScannedSSID((Byte) (_c)))->equals(be_ann103_8.wrap("CloydNote8"))) { 
+ //BA.debugLineNum = 142;BA.debugLine="Log(\"Connecting to CloydNote8 WiFi\")";
 B4R::Common::LogHelper(1,102,F("Connecting to CloydNote8 WiFi"));
- //BA.debugLineNum = 141;BA.debugLine="WiFi.Connect2(\"CloydNote8\", \"adjj6347\")";
-b4r_main::_wifi->Connect2(be_ann103_4.wrap("CloydNote8"),be_ann103_6.wrap("adjj6347"));
- //BA.debugLineNum = 142;BA.debugLine="Exit";
+ //BA.debugLineNum = 143;BA.debugLine="WiFi.Connect2(\"CloydNote8\", \"adjj6347\")";
+b4r_main::_wifi->Connect2(be_ann105_4.wrap("CloydNote8"),be_ann105_6.wrap("adjj6347"));
+ //BA.debugLineNum = 144;BA.debugLine="Exit";
 if (true) break;
- }else if((b4r_main::_wifi->ScannedSSID((Byte) (_c)))->equals(be_ann105_8.wrap("Rise Above This Home"))) { 
- //BA.debugLineNum = 144;BA.debugLine="Log(\"Connecting to Rise Above This Home WiFi\")";
+ }else if((b4r_main::_wifi->ScannedSSID((Byte) (_c)))->equals(be_ann107_8.wrap("Rise Above This Home"))) { 
+ //BA.debugLineNum = 146;BA.debugLine="Log(\"Connecting to Rise Above This Home WiFi\")";
 B4R::Common::LogHelper(1,102,F("Connecting to Rise Above This Home WiFi"));
- //BA.debugLineNum = 145;BA.debugLine="WiFi.Connect2(\"Rise Above This Home\", \"SteelRes";
-b4r_main::_wifi->Connect2(be_ann107_4.wrap("Rise Above This Home"),be_ann107_6.wrap("SteelReserve"));
- //BA.debugLineNum = 146;BA.debugLine="Exit";
+ //BA.debugLineNum = 147;BA.debugLine="WiFi.Connect2(\"Rise Above This Home\", \"SteelRes";
+b4r_main::_wifi->Connect2(be_ann109_4.wrap("Rise Above This Home"),be_ann109_6.wrap("SteelReserve"));
+ //BA.debugLineNum = 148;BA.debugLine="Exit";
 if (true) break;
  }else {
  };
  }
 };
- //BA.debugLineNum = 151;BA.debugLine="If WiFi.IsConnected Then";
+ //BA.debugLineNum = 153;BA.debugLine="If WiFi.IsConnected Then";
 if (b4r_main::_wifi->getIsConnected()) { 
- //BA.debugLineNum = 152;BA.debugLine="Log(\"Connected to WiFi, Local IP \", WiFi.LocalIp";
+ //BA.debugLineNum = 154;BA.debugLine="Log(\"Connected to WiFi, Local IP \", WiFi.LocalIp";
 B4R::Common::LogHelper(2,102,F("Connected to WiFi, Local IP "),101,b4r_main::_wifi->getLocalIp()->data);
  }else {
- //BA.debugLineNum = 154;BA.debugLine="Log(\"Not Connected to WiFi\")";
+ //BA.debugLineNum = 156;BA.debugLine="Log(\"Not Connected to WiFi\")";
 B4R::Common::LogHelper(1,102,F("Not Connected to WiFi"));
  };
- //BA.debugLineNum = 156;BA.debugLine="End Sub";
+ //BA.debugLineNum = 158;BA.debugLine="End Sub";
 B4R::StackMemory::cp = cp;
 }
 void b4r_main::_mqtt_connect(Byte _unused){
@@ -137,21 +137,21 @@ B4R::StackMemory::cp = cp;
 }
 void b4r_main::_mqtt_disconnected(){
 const UInt cp = B4R::StackMemory::cp;
- //BA.debugLineNum = 123;BA.debugLine="Sub mqtt_Disconnected";
- //BA.debugLineNum = 124;BA.debugLine="pin16.DigitalWrite(True)";
+ //BA.debugLineNum = 125;BA.debugLine="Sub mqtt_Disconnected";
+ //BA.debugLineNum = 126;BA.debugLine="pin16.DigitalWrite(True)";
 b4r_main::_pin16->DigitalWrite(Common_True);
- //BA.debugLineNum = 125;BA.debugLine="Log(\"Disconnected from broker\")";
+ //BA.debugLineNum = 127;BA.debugLine="Log(\"Disconnected from broker\")";
 B4R::Common::LogHelper(1,102,F("Disconnected from broker"));
- //BA.debugLineNum = 126;BA.debugLine="MQTT.Close";
+ //BA.debugLineNum = 128;BA.debugLine="MQTT.Close";
 b4r_main::_mqtt->Close();
- //BA.debugLineNum = 127;BA.debugLine="If WiFi.IsConnected = False Then";
+ //BA.debugLineNum = 129;BA.debugLine="If WiFi.IsConnected = False Then";
 if (b4r_main::_wifi->getIsConnected()==Common_False) { 
- //BA.debugLineNum = 128;BA.debugLine="ConnectToWifi";
+ //BA.debugLineNum = 130;BA.debugLine="ConnectToWifi";
 _connecttowifi();
  };
- //BA.debugLineNum = 130;BA.debugLine="MQTT_Connect(0)";
+ //BA.debugLineNum = 132;BA.debugLine="MQTT_Connect(0)";
 _mqtt_connect((Byte) (0));
- //BA.debugLineNum = 131;BA.debugLine="End Sub";
+ //BA.debugLineNum = 133;BA.debugLine="End Sub";
 B4R::StackMemory::cp = cp;
 }
 void b4r_main::_mqtt_messagearrived(B4R::B4RString* _topic,B4R::Array* _payload){
@@ -171,6 +171,8 @@ B4R::B4RString be_ann80_4;
 B4R::B4RString be_ann80_6;
 B4R::B4RString be_ann82_4;
 B4R::B4RString be_ann82_6;
+B4R::B4RString be_ann84_4;
+B4R::B4RString be_ann84_6;
  //BA.debugLineNum = 100;BA.debugLine="Sub mqtt_MessageArrived (Topic As String, Payload(";
  //BA.debugLineNum = 101;BA.debugLine="pin16.DigitalWrite(False)";
 b4r_main::_pin16->DigitalWrite(Common_False);
@@ -197,16 +199,19 @@ b4r_main::_mqtt->Publish(be_ann76_4.wrap("Andy"),(be_ann76_6.wrap("*Restarting r
  //BA.debugLineNum = 113;BA.debugLine="ESP.Restart";
 b4r_main::_esp->Restart();
  }else if((_payload)->equals((be_ann78_3.wrap("Check relay status"))->GetBytes())) { 
- //BA.debugLineNum = 115;BA.debugLine="If d6.DigitalRead Then";
-if (b4r_main::_d6->DigitalRead()) { 
- //BA.debugLineNum = 116;BA.debugLine="MQTT.Publish(\"Andy\",\"*Relay is closed\")";
-b4r_main::_mqtt->Publish(be_ann80_4.wrap("Andy"),(be_ann80_6.wrap("*Relay is closed"))->GetBytes());
+ //BA.debugLineNum = 115;BA.debugLine="If StopRelay Then";
+if (b4r_main::_stoprelay) { 
+ //BA.debugLineNum = 116;BA.debugLine="MQTT.Publish(\"Andy\",\"*Relay is permanently clos";
+b4r_main::_mqtt->Publish(be_ann80_4.wrap("Andy"),(be_ann80_6.wrap("*Relay is permanently closed"))->GetBytes());
+ }else if(b4r_main::_d6->DigitalRead()) { 
+ //BA.debugLineNum = 118;BA.debugLine="MQTT.Publish(\"Andy\",\"*Relay is closed\")";
+b4r_main::_mqtt->Publish(be_ann82_4.wrap("Andy"),(be_ann82_6.wrap("*Relay is closed"))->GetBytes());
  }else {
- //BA.debugLineNum = 118;BA.debugLine="MQTT.Publish(\"Andy\",\"*Relay is open\")";
-b4r_main::_mqtt->Publish(be_ann82_4.wrap("Andy"),(be_ann82_6.wrap("*Relay is open"))->GetBytes());
+ //BA.debugLineNum = 120;BA.debugLine="MQTT.Publish(\"Andy\",\"*Relay is open\")";
+b4r_main::_mqtt->Publish(be_ann84_4.wrap("Andy"),(be_ann84_6.wrap("*Relay is open"))->GetBytes());
  };
  };
- //BA.debugLineNum = 121;BA.debugLine="End Sub";
+ //BA.debugLineNum = 123;BA.debugLine="End Sub";
 B4R::StackMemory::cp = cp;
 }
 

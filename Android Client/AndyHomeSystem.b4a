@@ -1,5 +1,5 @@
 ﻿Build1=Default,andy.home.system
-File1=0.jpg
+File1=0.png
 File2=1.bal
 File3=off.png
 File4=on.png
@@ -70,7 +70,7 @@ Sub Activity_Create(FirstTime As Boolean)
 	    End If
 		Activity.LoadLayout("1")
 		Dim bd As BitmapDrawable
-		bd.Initialize(LoadBitmapResize(File.DirAssets, "0.jpg", 32dip, 32dip, True))
+		bd.Initialize(LoadBitmapResize(File.DirAssets, "0.png", 32dip, 32dip, True))
 		ACToolBarLight1.NavigationIconDrawable = bd
 		ToolbarHelper.Initialize
 		Dim cs As CSBuilder
@@ -199,7 +199,7 @@ Sub btnRestart_Click
 	Try	
 		Dim result As Int
 		Dim bd As BitmapDrawable
-		bd.Initialize(LoadBitmapResize(File.DirAssets, "0.jpg", 32dip, 32dip, True))
+		bd.Initialize(LoadBitmapResize(File.DirAssets, "0.png", 32dip, 32dip, True))
 		result = Msgbox2("Restart the controller?", "Andy Home Automation", "Yes", "", "No", bd.Bitmap)
 		If result = DialogResponse.POSITIVE Then
 			If MQTT.IsInitialized = False Or MQTT.Connected = False Then
@@ -226,7 +226,7 @@ End Sub
 Sub ShowAboutMenu
 	Try
 		Dim bd As BitmapDrawable
-		bd.Initialize(LoadBitmapResize(File.DirAssets, "0.jpg", 32dip, 32dip, True))
+		bd.Initialize(LoadBitmapResize(File.DirAssets, "0.png", 32dip, 32dip, True))
 		Msgbox2("Andy Home Automation System v" & GetVersionCode & CRLF & "Developed by Cloyd Catanaoan" & CRLF & "March 13, 2018", "About", "OK", "", "", bd.Bitmap)
 	Catch
 		Log(LastException)
