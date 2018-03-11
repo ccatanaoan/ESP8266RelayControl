@@ -59,7 +59,7 @@ Sub Globals
 	Private tglRelaySwitch As ACSwitch
 	Private btnRestart As ACButton
 	Private clv1 As CustomListView
-	Dim gblACMenu As ACMenu
+	Private gblACMenu As ACMenu
 End Sub
 
 Sub Activity_Create(FirstTime As Boolean)
@@ -84,13 +84,16 @@ Sub Activity_Create(FirstTime As Boolean)
 	Catch
 		ToastMessageShow(LastException,True)
 	End Try
-
 End Sub
 
 Sub Activity_Resume
-	If MQTT.IsInitialized = False Or MQTT.Connected = False Then
-		MQTT_Connect
-	End If
+	Try
+		If MQTT.IsInitialized = False Or MQTT.Connected = False Then
+			MQTT_Connect
+		End If
+	Catch
+		Log(LastException)
+	End Try
 End Sub
 
 Sub Activity_Pause (UserClosed As Boolean)
@@ -109,7 +112,6 @@ Sub MQTT_Connect
 	Catch
 		AddEvent("MQTT_Connect: " & LastException)
 	End Try
-        
 End Sub
 
 Sub MQTT_Connected (Success As Boolean)
@@ -129,9 +131,13 @@ Sub MQTT_Connected (Success As Boolean)
 End Sub
 
 Private Sub MQTT_Disconnected
-	gblACMenu.Clear
-	gblACMenu.Add(0, 0, "About",Null)
-	AddEvent("Disconnected from MQTT broker")
+	Try
+		gblACMenu.Clear
+		gblACMenu.Add(0, 0, "About",Null)
+		AddEvent("Disconnected from MQTT broker")
+	Catch
+		Log(LastException)
+	End Try
 End Sub
 
 Private Sub MQTT_MessageArrived (Topic As String, Payload() As Byte)
@@ -147,7 +153,6 @@ Private Sub MQTT_MessageArrived (Topic As String, Payload() As Byte)
 	Catch
 		AddEvent("MQTT_MessageArrived: " & LastException)
 	End Try
-	
 End Sub
 
 Sub AddEvent(text As String)
@@ -209,75 +214,116 @@ Sub btnRestart_Click
 End Sub
 
 Sub ACToolBarLight1_MenuItemClick (Item As ACMenuItem)
-	If Item.Title = "About" Then
-		ShowAboutMenu
-	End If
+	Try
+		If Item.Title = "About" Then
+			ShowAboutMenu
+		End If
+	Catch
+		Log(LastException)
+	End Try
 End Sub
 
-Sub ShowAboutMenu'
-	Dim bd As BitmapDrawable
-	bd.Initialize(LoadBitmapResize(File.DirAssets, "0.jpg", 32dip, 32dip, True))
-	Msgbox2("Andy Home Automation System v" & GetVersionCode & CRLF & "Developed by Cloyd Catanaoan" & CRLF & "March 13, 2018", "About", "OK", "", "", bd.Bitmap)
+Sub ShowAboutMenu
+	Try
+		Dim bd As BitmapDrawable
+		bd.Initialize(LoadBitmapResize(File.DirAssets, "0.jpg", 32dip, 32dip, True))
+		Msgbox2("Andy Home Automation System v" & GetVersionCode & CRLF & "Developed by Cloyd Catanaoan" & CRLF & "March 13, 2018", "About", "OK", "", "", bd.Bitmap)
+	Catch
+		Log(LastException)
+	End Try
+	
 End Sub
 
 Sub GetVersionCode() As String
-    Dim pm As PackageManager
-    Dim packageName As String
-    packageName =  Application.PackageName
-    Dim AppVersion As String
-    AppVersion = pm.GetVersionName(packageName)
-    Return AppVersion
+	Dim AppVersion As String
+	Try
+		Dim pm As PackageManager
+	    Dim packageName As String
+	    packageName =  Application.PackageName
+	    AppVersion = pm.GetVersionName(packageName)
+	Catch
+		Log(LastException)
+	End Try
+	Return AppVersion
 End Sub
 
 Sub Activity_Createmenu(Menu As ACMenu)
-	Menu.Clear
-	gblACMenu = Menu
-	Menu.Add(0, 0, "About",Null)
+	Try
+		Menu.Clear
+		gblACMenu = Menu
+		Menu.Add(0, 0, "About",Null)
+	Catch
+		Log(LastException)
+	End Try
 End Sub
 
 Sub ShowRelayIcon(state As String)
-	gblACMenu.Clear
-	Dim item As ACMenuItem = ACToolBarLight1.Menu.Add2(0, 0, "relay", Null)
-	item.ShowAsAction = item.SHOW_AS_ACTION_ALWAYS
-	cartBitmap = LoadBitmap(File.DirAssets, state)
-	UpdateIcon("relay", AddBadgeToIcon(cartBitmap, badge))
-	gblACMenu.Add(0, 0, "About",Null)
+	Try
+		gblACMenu.Clear
+		Dim item As ACMenuItem = ACToolBarLight1.Menu.Add2(0, 0, "relay", Null)
+		item.ShowAsAction = item.SHOW_AS_ACTION_ALWAYS
+		cartBitmap = LoadBitmap(File.DirAssets, state)
+		UpdateIcon("relay", AddBadgeToIcon(cartBitmap, badge))
+		gblACMenu.Add(0, 0, "About",Null)
+	Catch
+		Log(LastException)
+	End Try
 End Sub
 
 Sub UpdateIcon(MenuTitle As String, Icon As Bitmap)
-	Dim m As ACMenuItem = GetMenuItem(MenuTitle)
-	m.Icon = BitmapToBitmapDrawable(Icon)
+	Try
+		Dim m As ACMenuItem = GetMenuItem(MenuTitle)
+		m.Icon = BitmapToBitmapDrawable(Icon)
+	Catch
+		Log(LastException)
+	End Try
 End Sub
 
 Sub BitmapToBitmapDrawable (bitmap As Bitmap) As BitmapDrawable
-	Dim bd As BitmapDrawable
-	bd.Initialize(bitmap)
-	Return bd
+	Try
+		Dim bd As BitmapDrawable
+		bd.Initialize(bitmap)
+		Return bd
+	Catch
+		Log(LastException)
+		Return Null
+	End Try
 End Sub
 
 Sub GetMenuItem(Title As String) As ACMenuItem
-	For i = 0 To ACToolBarLight1.Menu.Size - 1
-		Dim m As ACMenuItem = ACToolBarLight1.Menu.GetItem(i)
-		If m.Title = Title Then
-			Return m
-		End If
-	Next
-	Return Null
+	Try
+		For i = 0 To ACToolBarLight1.Menu.Size - 1
+			Dim m As ACMenuItem = ACToolBarLight1.Menu.GetItem(i)
+			If m.Title = Title Then
+				Return m
+			End If
+		Next
+		Return Null
+	Catch
+		Log(LastException)
+		Return Null
+	End Try
+	
 End Sub
 
 Sub AddBadgeToIcon(bmp As Bitmap, Number As Int) As Bitmap
-	Dim cvs As Canvas
 	Dim mbmp As Bitmap
-	mbmp.InitializeMutable(32dip, 32dip)
-	cvs.Initialize2(mbmp)
-	Dim target As Rect
-	target.Initialize(0, 0, mbmp.Width, mbmp.Height)
-	cvs.DrawBitmap(bmp, Null, target)
-	If Number > 0 Then
-		cvs.DrawCircle(mbmp.Width - 8dip, 8dip, 8dip, Colors.Red, True, 0)
-		cvs.DrawText(Min(Number, 9), mbmp.Width - 8dip, 12dip, Typeface.DEFAULT_BOLD, 12, Colors.White, "CENTER")
-	End If
-	Return mbmp
+	Try
+		Dim cvs As Canvas
+		mbmp.InitializeMutable(32dip, 32dip)
+		cvs.Initialize2(mbmp)
+		Dim target As Rect
+		target.Initialize(0, 0, mbmp.Width, mbmp.Height)
+		cvs.DrawBitmap(bmp, Null, target)
+		If Number > 0 Then
+			cvs.DrawCircle(mbmp.Width - 8dip, 8dip, 8dip, Colors.Red, True, 0)
+			cvs.DrawText(Min(Number, 9), mbmp.Width - 8dip, 12dip, Typeface.DEFAULT_BOLD, 12, Colors.White, "CENTER")
+		End If
+		Return mbmp
+	Catch
+		Log(LastException)
+		Return Null
+	End Try
 End Sub
 
 #If Java
