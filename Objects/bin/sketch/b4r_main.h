@@ -7,6 +7,7 @@ public:
 
 static void initializeProcessGlobals();
 static void _appstart();
+static void _connecttowifi();
 static void _mqtt_connect(Byte _unused);
 static void _mqtt_disconnected();
 static void _mqtt_messagearrived(B4R::B4RString* _topic,B4R::Array* _payload);

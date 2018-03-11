@@ -327,12 +327,15 @@ public static String _mqttuser = "";
 public static String _mqttpassword = "";
 public static String _mqttserveruri = "";
 public static anywheresoftware.b4a.agraham.byteconverter.ByteConverter _bc = null;
+public static anywheresoftware.b4a.objects.drawable.CanvasWrapper.BitmapWrapper _cartbitmap = null;
+public static int _badge = 0;
 public de.amberhome.objects.appcompat.ACToolbarLightWrapper _actoolbarlight1 = null;
 public de.amberhome.objects.appcompat.ACActionBar _toolbarhelper = null;
-public anywheresoftware.b4a.objects.LabelWrapper _lblstatus = null;
 public de.amberhome.objects.appcompat.ACButtonWrapper _btnrefresh = null;
 public de.amberhome.objects.appcompat.ACSwitchCompatWrapper _tglrelayswitch = null;
 public de.amberhome.objects.appcompat.ACButtonWrapper _btnrestart = null;
+public andy.home.system.customlistview _clv1 = null;
+public de.amberhome.objects.appcompat.ACMenuWrapper _gblacmenu = null;
 public andy.home.system.starter _starter = null;
 
 public static boolean isAnyActivityVisible() {
@@ -344,150 +347,406 @@ anywheresoftware.b4a.objects.drawable.BitmapDrawable _bd = null;
 anywheresoftware.b4a.objects.CSBuilder _cs = null;
 anywheresoftware.b4j.object.JavaObject _jo = null;
 anywheresoftware.b4a.object.XmlLayoutBuilder _xl = null;
- //BA.debugLineNum = 33;BA.debugLine="Sub Activity_Create(FirstTime As Boolean)";
- //BA.debugLineNum = 34;BA.debugLine="If FirstTime Then";
+ //BA.debugLineNum = 36;BA.debugLine="Sub Activity_Create(FirstTime As Boolean)";
+ //BA.debugLineNum = 37;BA.debugLine="Try";
+try { //BA.debugLineNum = 38;BA.debugLine="If FirstTime Then";
 if (_firsttime) { 
- //BA.debugLineNum = 35;BA.debugLine="CallSub(Me, MQTT_Connect)";
-anywheresoftware.b4a.keywords.Common.CallSubNew(processBA,main.getObject(),_mqtt_connect());
+ //BA.debugLineNum = 40;BA.debugLine="MQTT_Connect";
+_mqtt_connect();
  };
- //BA.debugLineNum = 37;BA.debugLine="Activity.LoadLayout(\"1\")";
+ //BA.debugLineNum = 42;BA.debugLine="Activity.LoadLayout(\"1\")";
 mostCurrent._activity.LoadLayout("1",mostCurrent.activityBA);
- //BA.debugLineNum = 38;BA.debugLine="Dim bd As BitmapDrawable";
+ //BA.debugLineNum = 43;BA.debugLine="Dim bd As BitmapDrawable";
 _bd = new anywheresoftware.b4a.objects.drawable.BitmapDrawable();
- //BA.debugLineNum = 39;BA.debugLine="bd.Initialize(LoadBitmap(File.DirAssets, \"smiley.";
-_bd.Initialize((android.graphics.Bitmap)(anywheresoftware.b4a.keywords.Common.LoadBitmap(anywheresoftware.b4a.keywords.Common.File.getDirAssets(),"smiley.png").getObject()));
- //BA.debugLineNum = 40;BA.debugLine="ACToolBarLight1.NavigationIconDrawable = bd";
+ //BA.debugLineNum = 44;BA.debugLine="bd.Initialize(LoadBitmapResize(File.DirAssets, \"";
+_bd.Initialize((android.graphics.Bitmap)(anywheresoftware.b4a.keywords.Common.LoadBitmapResize(anywheresoftware.b4a.keywords.Common.File.getDirAssets(),"0.jpg",anywheresoftware.b4a.keywords.Common.DipToCurrent((int) (32)),anywheresoftware.b4a.keywords.Common.DipToCurrent((int) (32)),anywheresoftware.b4a.keywords.Common.True).getObject()));
+ //BA.debugLineNum = 45;BA.debugLine="ACToolBarLight1.NavigationIconDrawable = bd";
 mostCurrent._actoolbarlight1.setNavigationIconDrawable((android.graphics.drawable.Drawable)(_bd.getObject()));
- //BA.debugLineNum = 41;BA.debugLine="ToolbarHelper.Initialize";
+ //BA.debugLineNum = 46;BA.debugLine="ToolbarHelper.Initialize";
 mostCurrent._toolbarhelper.Initialize(mostCurrent.activityBA);
- //BA.debugLineNum = 42;BA.debugLine="Dim cs As CSBuilder";
+ //BA.debugLineNum = 47;BA.debugLine="Dim cs As CSBuilder";
 _cs = new anywheresoftware.b4a.objects.CSBuilder();
- //BA.debugLineNum = 43;BA.debugLine="ToolbarHelper.Title= cs.Initialize.Size(17).Appen";
-mostCurrent._toolbarhelper.setTitle(BA.ObjectToCharSequence(_cs.Initialize().Size((int) (17)).Append(BA.ObjectToCharSequence("Andy Home System")).PopAll().getObject()));
- //BA.debugLineNum = 44;BA.debugLine="ToolbarHelper.subTitle = \"\"";
-mostCurrent._toolbarhelper.setSubtitle(BA.ObjectToCharSequence(""));
- //BA.debugLineNum = 45;BA.debugLine="ToolbarHelper.ShowUpIndicator = False 'set to tru";
+ //BA.debugLineNum = 48;BA.debugLine="ToolbarHelper.Title= cs.Initialize.Size(18).Appe";
+mostCurrent._toolbarhelper.setTitle(BA.ObjectToCharSequence(_cs.Initialize().Size((int) (18)).Append(BA.ObjectToCharSequence("Andy Home")).PopAll().getObject()));
+ //BA.debugLineNum = 49;BA.debugLine="ToolbarHelper.subTitle = \"Automation System v\" &";
+mostCurrent._toolbarhelper.setSubtitle(BA.ObjectToCharSequence("Automation System v"+_getversioncode()));
+ //BA.debugLineNum = 50;BA.debugLine="ToolbarHelper.ShowUpIndicator = False 'set to tr";
 mostCurrent._toolbarhelper.setShowUpIndicator(anywheresoftware.b4a.keywords.Common.False);
- //BA.debugLineNum = 46;BA.debugLine="ACToolBarLight1.InitMenuListener";
+ //BA.debugLineNum = 51;BA.debugLine="ACToolBarLight1.InitMenuListener";
 mostCurrent._actoolbarlight1.InitMenuListener();
- //BA.debugLineNum = 47;BA.debugLine="Dim jo As JavaObject = ACToolBarLight1";
+ //BA.debugLineNum = 52;BA.debugLine="Dim jo As JavaObject = ACToolBarLight1";
 _jo = new anywheresoftware.b4j.object.JavaObject();
 _jo.setObject((java.lang.Object)(mostCurrent._actoolbarlight1.getObject()));
- //BA.debugLineNum = 48;BA.debugLine="Dim xl As XmlLayoutBuilder";
+ //BA.debugLineNum = 53;BA.debugLine="Dim xl As XmlLayoutBuilder";
 _xl = new anywheresoftware.b4a.object.XmlLayoutBuilder();
- //BA.debugLineNum = 49;BA.debugLine="jo.RunMethod(\"setPopupTheme\", Array(xl.GetResourc";
+ //BA.debugLineNum = 54;BA.debugLine="jo.RunMethod(\"setPopupTheme\", Array(xl.GetResour";
 _jo.RunMethod("setPopupTheme",new Object[]{(Object)(_xl.GetResourceId("style","ToolbarMenu"))});
- //BA.debugLineNum = 50;BA.debugLine="End Sub";
+ } 
+       catch (Exception e19) {
+			processBA.setLastException(e19); //BA.debugLineNum = 56;BA.debugLine="ToastMessageShow(LastException,True)";
+anywheresoftware.b4a.keywords.Common.ToastMessageShow(BA.ObjectToCharSequence(anywheresoftware.b4a.keywords.Common.LastException(mostCurrent.activityBA).getObject()),anywheresoftware.b4a.keywords.Common.True);
+ };
+ //BA.debugLineNum = 59;BA.debugLine="End Sub";
 return "";
 }
 public static String  _activity_createmenu(de.amberhome.objects.appcompat.ACMenuWrapper _menu) throws Exception{
- //BA.debugLineNum = 115;BA.debugLine="Sub Activity_Createmenu(Menu As ACMenu)";
- //BA.debugLineNum = 116;BA.debugLine="Menu.Clear";
+ //BA.debugLineNum = 203;BA.debugLine="Sub Activity_Createmenu(Menu As ACMenu)";
+ //BA.debugLineNum = 204;BA.debugLine="Menu.Clear";
 _menu.Clear();
- //BA.debugLineNum = 117;BA.debugLine="Menu.Add(0, 0, \"About\",Null)";
+ //BA.debugLineNum = 205;BA.debugLine="gblACMenu = Menu";
+mostCurrent._gblacmenu = _menu;
+ //BA.debugLineNum = 206;BA.debugLine="Menu.Add(0, 0, \"About\",Null)";
 _menu.Add((int) (0),(int) (0),BA.ObjectToCharSequence("About"),(android.graphics.Bitmap)(anywheresoftware.b4a.keywords.Common.Null));
- //BA.debugLineNum = 118;BA.debugLine="End Sub";
+ //BA.debugLineNum = 207;BA.debugLine="End Sub";
 return "";
 }
 public static String  _activity_pause(boolean _userclosed) throws Exception{
- //BA.debugLineNum = 60;BA.debugLine="Sub Activity_Pause (UserClosed As Boolean)";
- //BA.debugLineNum = 62;BA.debugLine="End Sub";
+ //BA.debugLineNum = 67;BA.debugLine="Sub Activity_Pause (UserClosed As Boolean)";
+ //BA.debugLineNum = 69;BA.debugLine="End Sub";
 return "";
 }
 public static String  _activity_resume() throws Exception{
- //BA.debugLineNum = 56;BA.debugLine="Sub Activity_Resume";
- //BA.debugLineNum = 58;BA.debugLine="End Sub";
+ //BA.debugLineNum = 61;BA.debugLine="Sub Activity_Resume";
+ //BA.debugLineNum = 62;BA.debugLine="If MQTT.IsInitialized = False Or MQTT.Connected =";
+if (_mqtt.IsInitialized()==anywheresoftware.b4a.keywords.Common.False || _mqtt.getConnected()==anywheresoftware.b4a.keywords.Common.False) { 
+ //BA.debugLineNum = 63;BA.debugLine="MQTT_Connect";
+_mqtt_connect();
+ };
+ //BA.debugLineNum = 65;BA.debugLine="End Sub";
 return "";
 }
-public static String  _actoolbarlight1_navigationitemclick() throws Exception{
- //BA.debugLineNum = 52;BA.debugLine="Sub ACToolBarLight1_NavigationItemClick";
- //BA.debugLineNum = 53;BA.debugLine="Log(\"click1\")";
-anywheresoftware.b4a.keywords.Common.Log("click1");
- //BA.debugLineNum = 54;BA.debugLine="End Sub";
+public static String  _actoolbarlight1_menuitemclick(de.amberhome.objects.appcompat.ACMenuItemWrapper _item) throws Exception{
+ //BA.debugLineNum = 182;BA.debugLine="Sub ACToolBarLight1_MenuItemClick (Item As ACMenuI";
+ //BA.debugLineNum = 183;BA.debugLine="If Item.Title = \"About\" Then";
+if ((_item.getTitle()).equals("About")) { 
+ //BA.debugLineNum = 184;BA.debugLine="ShowAboutMenu";
+_showaboutmenu();
+ };
+ //BA.debugLineNum = 186;BA.debugLine="End Sub";
 return "";
+}
+public static anywheresoftware.b4a.objects.drawable.CanvasWrapper.BitmapWrapper  _addbadgetoicon(anywheresoftware.b4a.objects.drawable.CanvasWrapper.BitmapWrapper _bmp,int _number) throws Exception{
+anywheresoftware.b4a.objects.drawable.CanvasWrapper _cvs = null;
+anywheresoftware.b4a.objects.drawable.CanvasWrapper.BitmapWrapper _mbmp = null;
+anywheresoftware.b4a.objects.drawable.CanvasWrapper.RectWrapper _target = null;
+ //BA.debugLineNum = 239;BA.debugLine="Sub AddBadgeToIcon(bmp As Bitmap, Number As Int) A";
+ //BA.debugLineNum = 240;BA.debugLine="Dim cvs As Canvas";
+_cvs = new anywheresoftware.b4a.objects.drawable.CanvasWrapper();
+ //BA.debugLineNum = 241;BA.debugLine="Dim mbmp As Bitmap";
+_mbmp = new anywheresoftware.b4a.objects.drawable.CanvasWrapper.BitmapWrapper();
+ //BA.debugLineNum = 242;BA.debugLine="mbmp.InitializeMutable(32dip, 32dip)";
+_mbmp.InitializeMutable(anywheresoftware.b4a.keywords.Common.DipToCurrent((int) (32)),anywheresoftware.b4a.keywords.Common.DipToCurrent((int) (32)));
+ //BA.debugLineNum = 243;BA.debugLine="cvs.Initialize2(mbmp)";
+_cvs.Initialize2((android.graphics.Bitmap)(_mbmp.getObject()));
+ //BA.debugLineNum = 244;BA.debugLine="Dim target As Rect";
+_target = new anywheresoftware.b4a.objects.drawable.CanvasWrapper.RectWrapper();
+ //BA.debugLineNum = 245;BA.debugLine="target.Initialize(0, 0, mbmp.Width, mbmp.Height)";
+_target.Initialize((int) (0),(int) (0),_mbmp.getWidth(),_mbmp.getHeight());
+ //BA.debugLineNum = 246;BA.debugLine="cvs.DrawBitmap(bmp, Null, target)";
+_cvs.DrawBitmap((android.graphics.Bitmap)(_bmp.getObject()),(android.graphics.Rect)(anywheresoftware.b4a.keywords.Common.Null),(android.graphics.Rect)(_target.getObject()));
+ //BA.debugLineNum = 247;BA.debugLine="If Number > 0 Then";
+if (_number>0) { 
+ //BA.debugLineNum = 248;BA.debugLine="cvs.DrawCircle(mbmp.Width - 8dip, 8dip, 8dip, Co";
+_cvs.DrawCircle((float) (_mbmp.getWidth()-anywheresoftware.b4a.keywords.Common.DipToCurrent((int) (8))),(float) (anywheresoftware.b4a.keywords.Common.DipToCurrent((int) (8))),(float) (anywheresoftware.b4a.keywords.Common.DipToCurrent((int) (8))),anywheresoftware.b4a.keywords.Common.Colors.Red,anywheresoftware.b4a.keywords.Common.True,(float) (0));
+ //BA.debugLineNum = 249;BA.debugLine="cvs.DrawText(Min(Number, 9), mbmp.Width - 8dip,";
+_cvs.DrawText(mostCurrent.activityBA,BA.NumberToString(anywheresoftware.b4a.keywords.Common.Min(_number,9)),(float) (_mbmp.getWidth()-anywheresoftware.b4a.keywords.Common.DipToCurrent((int) (8))),(float) (anywheresoftware.b4a.keywords.Common.DipToCurrent((int) (12))),anywheresoftware.b4a.keywords.Common.Typeface.DEFAULT_BOLD,(float) (12),anywheresoftware.b4a.keywords.Common.Colors.White,BA.getEnumFromString(android.graphics.Paint.Align.class,"CENTER"));
+ };
+ //BA.debugLineNum = 251;BA.debugLine="Return mbmp";
+if (true) return _mbmp;
+ //BA.debugLineNum = 252;BA.debugLine="End Sub";
+return null;
+}
+public static void  _addevent(String _text) throws Exception{
+ResumableSub_AddEvent rsub = new ResumableSub_AddEvent(null,_text);
+rsub.resume(processBA, null);
+}
+public static class ResumableSub_AddEvent extends BA.ResumableSub {
+public ResumableSub_AddEvent(andy.home.system.main parent,String _text) {
+this.parent = parent;
+this._text = _text;
+}
+andy.home.system.main parent;
+String _text;
+
+@Override
+public void resume(BA ba, Object[] result) throws Exception{
+
+    while (true) {
+try {
+
+        switch (state) {
+            case -1:
+return;
+
+case 0:
+//C
+this.state = 1;
+ //BA.debugLineNum = 125;BA.debugLine="Try";
+if (true) break;
+
+case 1:
+//try
+this.state = 6;
+this.catchState = 5;
+this.state = 3;
+if (true) break;
+
+case 3:
+//C
+this.state = 6;
+this.catchState = 5;
+ //BA.debugLineNum = 126;BA.debugLine="DateTime.DateFormat = \"MMM d h:mm:ss a\"";
+anywheresoftware.b4a.keywords.Common.DateTime.setDateFormat("MMM d h:mm:ss a");
+ //BA.debugLineNum = 127;BA.debugLine="clv1.AddTextItem(DateTime.Date(DateTime.Now) & \"";
+parent.mostCurrent._clv1._addtextitem((Object)(anywheresoftware.b4a.keywords.Common.DateTime.Date(anywheresoftware.b4a.keywords.Common.DateTime.getNow())+": "+_text),(Object)(_text));
+ //BA.debugLineNum = 128;BA.debugLine="Sleep(100)";
+anywheresoftware.b4a.keywords.Common.Sleep(mostCurrent.activityBA,this,(int) (100));
+this.state = 7;
+return;
+case 7:
+//C
+this.state = 6;
+;
+ //BA.debugLineNum = 129;BA.debugLine="clv1.ScrollToItem(clv1.Size-1)";
+parent.mostCurrent._clv1._scrolltoitem((int) (parent.mostCurrent._clv1._getsize()-1));
+ if (true) break;
+
+case 5:
+//C
+this.state = 6;
+this.catchState = 0;
+ //BA.debugLineNum = 131;BA.debugLine="Log(LastException)";
+anywheresoftware.b4a.keywords.Common.Log(BA.ObjectToString(anywheresoftware.b4a.keywords.Common.LastException(mostCurrent.activityBA)));
+ if (true) break;
+if (true) break;
+
+case 6:
+//C
+this.state = -1;
+this.catchState = 0;
+;
+ //BA.debugLineNum = 133;BA.debugLine="End Sub";
+if (true) break;
+}} 
+       catch (Exception e0) {
+			
+if (catchState == 0)
+    throw e0;
+else {
+    state = catchState;
+processBA.setLastException(e0);}
+            }
+        }
+    }
+}
+public static anywheresoftware.b4a.objects.drawable.BitmapDrawable  _bitmaptobitmapdrawable(anywheresoftware.b4a.objects.drawable.CanvasWrapper.BitmapWrapper _bitmap) throws Exception{
+anywheresoftware.b4a.objects.drawable.BitmapDrawable _bd = null;
+ //BA.debugLineNum = 223;BA.debugLine="Sub BitmapToBitmapDrawable (bitmap As Bitmap) As B";
+ //BA.debugLineNum = 224;BA.debugLine="Dim bd As BitmapDrawable";
+_bd = new anywheresoftware.b4a.objects.drawable.BitmapDrawable();
+ //BA.debugLineNum = 225;BA.debugLine="bd.Initialize(bitmap)";
+_bd.Initialize((android.graphics.Bitmap)(_bitmap.getObject()));
+ //BA.debugLineNum = 226;BA.debugLine="Return bd";
+if (true) return _bd;
+ //BA.debugLineNum = 227;BA.debugLine="End Sub";
+return null;
 }
 public static String  _btnrefresh_click() throws Exception{
- //BA.debugLineNum = 107;BA.debugLine="Sub btnRefresh_Click";
- //BA.debugLineNum = 108;BA.debugLine="MQTT.Publish(\"Andy\", BC.StringToBytes(\"Check rela";
+ //BA.debugLineNum = 152;BA.debugLine="Sub btnRefresh_Click";
+ //BA.debugLineNum = 153;BA.debugLine="Try";
+try { //BA.debugLineNum = 154;BA.debugLine="If MQTT.IsInitialized = False Or MQTT.Connected";
+if (_mqtt.IsInitialized()==anywheresoftware.b4a.keywords.Common.False || _mqtt.getConnected()==anywheresoftware.b4a.keywords.Common.False) { 
+ //BA.debugLineNum = 155;BA.debugLine="MQTT_Connect";
+_mqtt_connect();
+ };
+ //BA.debugLineNum = 157;BA.debugLine="MQTT.Publish(\"Andy\", BC.StringToBytes(\"Check rel";
 _mqtt.Publish("Andy",_bc.StringToBytes("Check relay status","utf8"));
- //BA.debugLineNum = 109;BA.debugLine="End Sub";
+ } 
+       catch (Exception e7) {
+			processBA.setLastException(e7); //BA.debugLineNum = 159;BA.debugLine="AddEvent(\"btnRefresh_Click: \" & LastException)";
+_addevent("btnRefresh_Click: "+BA.ObjectToString(anywheresoftware.b4a.keywords.Common.LastException(mostCurrent.activityBA)));
+ };
+ //BA.debugLineNum = 162;BA.debugLine="End Sub";
 return "";
 }
 public static String  _btnrestart_click() throws Exception{
- //BA.debugLineNum = 111;BA.debugLine="Sub btnRestart_Click";
- //BA.debugLineNum = 112;BA.debugLine="MQTT.Publish(\"Andy\", BC.StringToBytes(\"Restart co";
+int _result = 0;
+anywheresoftware.b4a.objects.drawable.BitmapDrawable _bd = null;
+ //BA.debugLineNum = 164;BA.debugLine="Sub btnRestart_Click";
+ //BA.debugLineNum = 165;BA.debugLine="Try";
+try { //BA.debugLineNum = 166;BA.debugLine="Dim result As Int";
+_result = 0;
+ //BA.debugLineNum = 167;BA.debugLine="Dim bd As BitmapDrawable";
+_bd = new anywheresoftware.b4a.objects.drawable.BitmapDrawable();
+ //BA.debugLineNum = 168;BA.debugLine="bd.Initialize(LoadBitmapResize(File.DirAssets, \"";
+_bd.Initialize((android.graphics.Bitmap)(anywheresoftware.b4a.keywords.Common.LoadBitmapResize(anywheresoftware.b4a.keywords.Common.File.getDirAssets(),"0.jpg",anywheresoftware.b4a.keywords.Common.DipToCurrent((int) (32)),anywheresoftware.b4a.keywords.Common.DipToCurrent((int) (32)),anywheresoftware.b4a.keywords.Common.True).getObject()));
+ //BA.debugLineNum = 169;BA.debugLine="result = Msgbox2(\"Restart the controller?\", \"And";
+_result = anywheresoftware.b4a.keywords.Common.Msgbox2(BA.ObjectToCharSequence("Restart the controller?"),BA.ObjectToCharSequence("Andy Home Automation"),"Yes","","No",_bd.getBitmap(),mostCurrent.activityBA);
+ //BA.debugLineNum = 170;BA.debugLine="If result = DialogResponse.POSITIVE Then";
+if (_result==anywheresoftware.b4a.keywords.Common.DialogResponse.POSITIVE) { 
+ //BA.debugLineNum = 171;BA.debugLine="If MQTT.IsInitialized = False Or MQTT.Connected";
+if (_mqtt.IsInitialized()==anywheresoftware.b4a.keywords.Common.False || _mqtt.getConnected()==anywheresoftware.b4a.keywords.Common.False) { 
+ //BA.debugLineNum = 172;BA.debugLine="MQTT_Connect";
+_mqtt_connect();
+ };
+ //BA.debugLineNum = 174;BA.debugLine="MQTT.Publish(\"Andy\", BC.StringToBytes(\"Restart";
 _mqtt.Publish("Andy",_bc.StringToBytes("Restart controller","utf8"));
- //BA.debugLineNum = 113;BA.debugLine="End Sub";
+ };
+ } 
+       catch (Exception e13) {
+			processBA.setLastException(e13); //BA.debugLineNum = 177;BA.debugLine="AddEvent(\"btnRestart_Click: \" & LastException)";
+_addevent("btnRestart_Click: "+BA.ObjectToString(anywheresoftware.b4a.keywords.Common.LastException(mostCurrent.activityBA)));
+ };
+ //BA.debugLineNum = 180;BA.debugLine="End Sub";
+return "";
+}
+public static de.amberhome.objects.appcompat.ACMenuItemWrapper  _getmenuitem(String _title) throws Exception{
+int _i = 0;
+de.amberhome.objects.appcompat.ACMenuItemWrapper _m = null;
+ //BA.debugLineNum = 229;BA.debugLine="Sub GetMenuItem(Title As String) As ACMenuItem";
+ //BA.debugLineNum = 230;BA.debugLine="For i = 0 To ACToolBarLight1.Menu.Size - 1";
+{
+final int step1 = 1;
+final int limit1 = (int) (mostCurrent._actoolbarlight1.getMenu().Size()-1);
+_i = (int) (0) ;
+for (;(step1 > 0 && _i <= limit1) || (step1 < 0 && _i >= limit1) ;_i = ((int)(0 + _i + step1))  ) {
+ //BA.debugLineNum = 231;BA.debugLine="Dim m As ACMenuItem = ACToolBarLight1.Menu.GetIt";
+_m = new de.amberhome.objects.appcompat.ACMenuItemWrapper();
+_m = mostCurrent._actoolbarlight1.getMenu().GetItem(_i);
+ //BA.debugLineNum = 232;BA.debugLine="If m.Title = Title Then";
+if ((_m.getTitle()).equals(_title)) { 
+ //BA.debugLineNum = 233;BA.debugLine="Return m";
+if (true) return _m;
+ };
+ }
+};
+ //BA.debugLineNum = 236;BA.debugLine="Return Null";
+if (true) return (de.amberhome.objects.appcompat.ACMenuItemWrapper) anywheresoftware.b4a.AbsObjectWrapper.ConvertToWrapper(new de.amberhome.objects.appcompat.ACMenuItemWrapper(), (android.view.MenuItem)(anywheresoftware.b4a.keywords.Common.Null));
+ //BA.debugLineNum = 237;BA.debugLine="End Sub";
+return null;
+}
+public static String  _getversioncode() throws Exception{
+anywheresoftware.b4a.phone.PackageManagerWrapper _pm = null;
+String _packagename = "";
+String _appversion = "";
+ //BA.debugLineNum = 194;BA.debugLine="Sub GetVersionCode() As String";
+ //BA.debugLineNum = 195;BA.debugLine="Dim pm As PackageManager";
+_pm = new anywheresoftware.b4a.phone.PackageManagerWrapper();
+ //BA.debugLineNum = 196;BA.debugLine="Dim packageName As String";
+_packagename = "";
+ //BA.debugLineNum = 197;BA.debugLine="packageName =  Application.PackageName";
+_packagename = anywheresoftware.b4a.keywords.Common.Application.getPackageName();
+ //BA.debugLineNum = 198;BA.debugLine="Dim AppVersion As String";
+_appversion = "";
+ //BA.debugLineNum = 199;BA.debugLine="AppVersion = pm.GetVersionName(packageName)";
+_appversion = _pm.GetVersionName(_packagename);
+ //BA.debugLineNum = 200;BA.debugLine="Return AppVersion";
+if (true) return _appversion;
+ //BA.debugLineNum = 201;BA.debugLine="End Sub";
 return "";
 }
 public static String  _globals() throws Exception{
- //BA.debugLineNum = 24;BA.debugLine="Sub Globals";
- //BA.debugLineNum = 25;BA.debugLine="Private ACToolBarLight1 As ACToolBarLight";
+ //BA.debugLineNum = 26;BA.debugLine="Sub Globals";
+ //BA.debugLineNum = 27;BA.debugLine="Private ACToolBarLight1 As ACToolBarLight";
 mostCurrent._actoolbarlight1 = new de.amberhome.objects.appcompat.ACToolbarLightWrapper();
- //BA.debugLineNum = 26;BA.debugLine="Private ToolbarHelper As ACActionBar";
+ //BA.debugLineNum = 28;BA.debugLine="Private ToolbarHelper As ACActionBar";
 mostCurrent._toolbarhelper = new de.amberhome.objects.appcompat.ACActionBar();
- //BA.debugLineNum = 27;BA.debugLine="Private lblStatus As Label";
-mostCurrent._lblstatus = new anywheresoftware.b4a.objects.LabelWrapper();
- //BA.debugLineNum = 28;BA.debugLine="Private btnRefresh As ACButton";
+ //BA.debugLineNum = 29;BA.debugLine="Private btnRefresh As ACButton";
 mostCurrent._btnrefresh = new de.amberhome.objects.appcompat.ACButtonWrapper();
- //BA.debugLineNum = 29;BA.debugLine="Private tglRelaySwitch As ACSwitch";
+ //BA.debugLineNum = 30;BA.debugLine="Private tglRelaySwitch As ACSwitch";
 mostCurrent._tglrelayswitch = new de.amberhome.objects.appcompat.ACSwitchCompatWrapper();
- //BA.debugLineNum = 30;BA.debugLine="Private btnRestart As ACButton";
+ //BA.debugLineNum = 31;BA.debugLine="Private btnRestart As ACButton";
 mostCurrent._btnrestart = new de.amberhome.objects.appcompat.ACButtonWrapper();
- //BA.debugLineNum = 31;BA.debugLine="End Sub";
+ //BA.debugLineNum = 32;BA.debugLine="Private clv1 As CustomListView";
+mostCurrent._clv1 = new andy.home.system.customlistview();
+ //BA.debugLineNum = 33;BA.debugLine="Dim gblACMenu As ACMenu";
+mostCurrent._gblacmenu = new de.amberhome.objects.appcompat.ACMenuWrapper();
+ //BA.debugLineNum = 34;BA.debugLine="End Sub";
 return "";
 }
 public static String  _mqtt_connect() throws Exception{
 String _clientid = "";
 anywheresoftware.b4j.objects.MqttAsyncClientWrapper.MqttConnectOptionsWrapper _connopt = null;
- //BA.debugLineNum = 65;BA.debugLine="Sub MQTT_Connect";
- //BA.debugLineNum = 66;BA.debugLine="Dim ClientId As String = Rnd(0, 999999999)";
+ //BA.debugLineNum = 72;BA.debugLine="Sub MQTT_Connect";
+ //BA.debugLineNum = 73;BA.debugLine="Try";
+try { //BA.debugLineNum = 74;BA.debugLine="Dim ClientId As String = Rnd(0, 999999999) 'crea";
 _clientid = BA.NumberToString(anywheresoftware.b4a.keywords.Common.Rnd((int) (0),(int) (999999999)));
- //BA.debugLineNum = 67;BA.debugLine="MQTT.Initialize(\"MQTT\", MQTTServerURI, Cli";
+ //BA.debugLineNum = 75;BA.debugLine="MQTT.Initialize(\"MQTT\", MQTTServerURI, Cli";
 _mqtt.Initialize(processBA,"MQTT",_mqttserveruri,_clientid);
- //BA.debugLineNum = 69;BA.debugLine="Dim ConnOpt As MqttConnectOptions";
+ //BA.debugLineNum = 77;BA.debugLine="Dim ConnOpt As MqttConnectOptions";
 _connopt = new anywheresoftware.b4j.objects.MqttAsyncClientWrapper.MqttConnectOptionsWrapper();
- //BA.debugLineNum = 70;BA.debugLine="ConnOpt.Initialize(MQTTUser, MQTTPassword)";
+ //BA.debugLineNum = 78;BA.debugLine="ConnOpt.Initialize(MQTTUser, MQTTPassword)";
 _connopt.Initialize(_mqttuser,_mqttpassword);
- //BA.debugLineNum = 71;BA.debugLine="MQTT.Connect2(ConnOpt)";
+ //BA.debugLineNum = 79;BA.debugLine="MQTT.Connect2(ConnOpt)";
 _mqtt.Connect2((org.eclipse.paho.client.mqttv3.MqttConnectOptions)(_connopt.getObject()));
- //BA.debugLineNum = 72;BA.debugLine="End Sub";
+ } 
+       catch (Exception e8) {
+			processBA.setLastException(e8); //BA.debugLineNum = 81;BA.debugLine="AddEvent(\"MQTT_Connect: \" & LastException)";
+_addevent("MQTT_Connect: "+BA.ObjectToString(anywheresoftware.b4a.keywords.Common.LastException(mostCurrent.activityBA)));
+ };
+ //BA.debugLineNum = 84;BA.debugLine="End Sub";
 return "";
 }
 public static String  _mqtt_connected(boolean _success) throws Exception{
- //BA.debugLineNum = 74;BA.debugLine="Sub MQTT_Connected (Success As Boolean)";
- //BA.debugLineNum = 75;BA.debugLine="If Success = False Then";
+ //BA.debugLineNum = 86;BA.debugLine="Sub MQTT_Connected (Success As Boolean)";
+ //BA.debugLineNum = 87;BA.debugLine="Try";
+try { //BA.debugLineNum = 88;BA.debugLine="If Success = False Then";
 if (_success==anywheresoftware.b4a.keywords.Common.False) { 
- //BA.debugLineNum = 76;BA.debugLine="Log(LastException)";
+ //BA.debugLineNum = 89;BA.debugLine="Log(LastException)";
 anywheresoftware.b4a.keywords.Common.Log(BA.ObjectToString(anywheresoftware.b4a.keywords.Common.LastException(mostCurrent.activityBA)));
- //BA.debugLineNum = 77;BA.debugLine="lblStatus.Text = \"STATUS: Error connecting";
-mostCurrent._lblstatus.setText(BA.ObjectToCharSequence("STATUS: Error connecting"));
+ //BA.debugLineNum = 90;BA.debugLine="AddEvent(\"MQTT error connecting\")";
+_addevent("MQTT error connecting");
  }else {
- //BA.debugLineNum = 79;BA.debugLine="lblStatus.Text = \"STATUS: Connected to bro";
-mostCurrent._lblstatus.setText(BA.ObjectToCharSequence("STATUS: Connected to broker"));
- //BA.debugLineNum = 80;BA.debugLine="MQTT.Subscribe(\"Andy\", 0)";
+ //BA.debugLineNum = 92;BA.debugLine="AddEvent(\"Connected to MQTT broker\")";
+_addevent("Connected to MQTT broker");
+ //BA.debugLineNum = 93;BA.debugLine="MQTT.Subscribe(\"Andy\", 0)";
 _mqtt.Subscribe("Andy",(int) (0));
+ //BA.debugLineNum = 94;BA.debugLine="btnRefresh_Click";
+_btnrefresh_click();
  };
- //BA.debugLineNum = 82;BA.debugLine="End Sub";
+ } 
+       catch (Exception e11) {
+			processBA.setLastException(e11); //BA.debugLineNum = 97;BA.debugLine="AddEvent(\"MQTT_Connected: \" & LastException)";
+_addevent("MQTT_Connected: "+BA.ObjectToString(anywheresoftware.b4a.keywords.Common.LastException(mostCurrent.activityBA)));
+ };
+ //BA.debugLineNum = 100;BA.debugLine="End Sub";
 return "";
 }
 public static String  _mqtt_disconnected() throws Exception{
- //BA.debugLineNum = 84;BA.debugLine="Private Sub MQTT_Disconnected";
- //BA.debugLineNum = 85;BA.debugLine="lblStatus.Text = \"STATUS: Disconnected from br";
-mostCurrent._lblstatus.setText(BA.ObjectToCharSequence("STATUS: Disconnected from broker"));
- //BA.debugLineNum = 86;BA.debugLine="End Sub";
+ //BA.debugLineNum = 102;BA.debugLine="Private Sub MQTT_Disconnected";
+ //BA.debugLineNum = 103;BA.debugLine="gblACMenu.Clear";
+mostCurrent._gblacmenu.Clear();
+ //BA.debugLineNum = 104;BA.debugLine="gblACMenu.Add(0, 0, \"About\",Null)";
+mostCurrent._gblacmenu.Add((int) (0),(int) (0),BA.ObjectToCharSequence("About"),(android.graphics.Bitmap)(anywheresoftware.b4a.keywords.Common.Null));
+ //BA.debugLineNum = 105;BA.debugLine="AddEvent(\"Disconnected from MQTT broker\")";
+_addevent("Disconnected from MQTT broker");
+ //BA.debugLineNum = 106;BA.debugLine="End Sub";
 return "";
 }
 public static String  _mqtt_messagearrived(String _topic,byte[] _payload) throws Exception{
 String _status = "";
- //BA.debugLineNum = 88;BA.debugLine="Private Sub MQTT_MessageArrived (Topic As String,";
- //BA.debugLineNum = 89;BA.debugLine="Dim status As String";
+ //BA.debugLineNum = 108;BA.debugLine="Private Sub MQTT_MessageArrived (Topic As String,";
+ //BA.debugLineNum = 109;BA.debugLine="Try";
+try { //BA.debugLineNum = 110;BA.debugLine="Dim status As String";
 _status = "";
- //BA.debugLineNum = 90;BA.debugLine="status = BytesToString(Payload, 0, Payload.Length";
+ //BA.debugLineNum = 111;BA.debugLine="status = BytesToString(Payload, 0, Payload.Lengt";
 _status = anywheresoftware.b4a.keywords.Common.BytesToString(_payload,(int) (0),_payload.length,"UTF8");
- //BA.debugLineNum = 96;BA.debugLine="lblStatus.Text = \"STATUS: \" & status";
-mostCurrent._lblstatus.setText(BA.ObjectToCharSequence("STATUS: "+_status));
- //BA.debugLineNum = 97;BA.debugLine="End Sub";
+ //BA.debugLineNum = 112;BA.debugLine="If status=\"*Relay has been opened\" Or status = \"";
+if ((_status).equals("*Relay has been opened") || (_status).equals("*Relay is open")) { 
+ //BA.debugLineNum = 113;BA.debugLine="ShowRelayIcon(\"on.png\")";
+_showrelayicon("on.png");
+ }else if((_status).equals("*Relay has been closed") || (_status).equals("*Relay is closed")) { 
+ //BA.debugLineNum = 115;BA.debugLine="ShowRelayIcon(\"off.png\")";
+_showrelayicon("off.png");
+ };
+ //BA.debugLineNum = 117;BA.debugLine="AddEvent(status)";
+_addevent(_status);
+ } 
+       catch (Exception e11) {
+			processBA.setLastException(e11); //BA.debugLineNum = 119;BA.debugLine="AddEvent(\"MQTT_MessageArrived: \" & LastException";
+_addevent("MQTT_MessageArrived: "+BA.ObjectToString(anywheresoftware.b4a.keywords.Common.LastException(mostCurrent.activityBA)));
+ };
+ //BA.debugLineNum = 122;BA.debugLine="End Sub";
 return "";
 }
 
@@ -515,20 +774,79 @@ _mqttpassword = "Nc3F4APoO801";
 _mqttserveruri = "tcp://m14.cloudmqtt.com:15093";
  //BA.debugLineNum = 21;BA.debugLine="Private BC As ByteConverter";
 _bc = new anywheresoftware.b4a.agraham.byteconverter.ByteConverter();
- //BA.debugLineNum = 22;BA.debugLine="End Sub";
+ //BA.debugLineNum = 22;BA.debugLine="Private cartBitmap As Bitmap";
+_cartbitmap = new anywheresoftware.b4a.objects.drawable.CanvasWrapper.BitmapWrapper();
+ //BA.debugLineNum = 23;BA.debugLine="Private badge As Int";
+_badge = 0;
+ //BA.debugLineNum = 24;BA.debugLine="End Sub";
+return "";
+}
+public static String  _showaboutmenu() throws Exception{
+anywheresoftware.b4a.objects.drawable.BitmapDrawable _bd = null;
+ //BA.debugLineNum = 188;BA.debugLine="Sub ShowAboutMenu'";
+ //BA.debugLineNum = 189;BA.debugLine="Dim bd As BitmapDrawable";
+_bd = new anywheresoftware.b4a.objects.drawable.BitmapDrawable();
+ //BA.debugLineNum = 190;BA.debugLine="bd.Initialize(LoadBitmapResize(File.DirAssets, \"0";
+_bd.Initialize((android.graphics.Bitmap)(anywheresoftware.b4a.keywords.Common.LoadBitmapResize(anywheresoftware.b4a.keywords.Common.File.getDirAssets(),"0.jpg",anywheresoftware.b4a.keywords.Common.DipToCurrent((int) (32)),anywheresoftware.b4a.keywords.Common.DipToCurrent((int) (32)),anywheresoftware.b4a.keywords.Common.True).getObject()));
+ //BA.debugLineNum = 191;BA.debugLine="Msgbox2(\"Andy Home Automation System v\" & GetVers";
+anywheresoftware.b4a.keywords.Common.Msgbox2(BA.ObjectToCharSequence("Andy Home Automation System v"+_getversioncode()+anywheresoftware.b4a.keywords.Common.CRLF+"Developed by Cloyd Catanaoan"+anywheresoftware.b4a.keywords.Common.CRLF+"March 13, 2018"),BA.ObjectToCharSequence("About"),"OK","","",_bd.getBitmap(),mostCurrent.activityBA);
+ //BA.debugLineNum = 192;BA.debugLine="End Sub";
+return "";
+}
+public static String  _showrelayicon(String _state) throws Exception{
+de.amberhome.objects.appcompat.ACMenuItemWrapper _item = null;
+ //BA.debugLineNum = 209;BA.debugLine="Sub ShowRelayIcon(state As String)";
+ //BA.debugLineNum = 210;BA.debugLine="gblACMenu.Clear";
+mostCurrent._gblacmenu.Clear();
+ //BA.debugLineNum = 211;BA.debugLine="Dim item As ACMenuItem = ACToolBarLight1.Menu.Add";
+_item = new de.amberhome.objects.appcompat.ACMenuItemWrapper();
+_item = mostCurrent._actoolbarlight1.getMenu().Add2((int) (0),(int) (0),BA.ObjectToCharSequence("relay"),(android.graphics.drawable.Drawable)(anywheresoftware.b4a.keywords.Common.Null));
+ //BA.debugLineNum = 212;BA.debugLine="item.ShowAsAction = item.SHOW_AS_ACTION_ALWAYS";
+_item.setShowAsAction(_item.SHOW_AS_ACTION_ALWAYS);
+ //BA.debugLineNum = 213;BA.debugLine="cartBitmap = LoadBitmap(File.DirAssets, state)";
+_cartbitmap = anywheresoftware.b4a.keywords.Common.LoadBitmap(anywheresoftware.b4a.keywords.Common.File.getDirAssets(),_state);
+ //BA.debugLineNum = 214;BA.debugLine="UpdateIcon(\"relay\", AddBadgeToIcon(cartBitmap, ba";
+_updateicon("relay",_addbadgetoicon(_cartbitmap,_badge));
+ //BA.debugLineNum = 215;BA.debugLine="gblACMenu.Add(0, 0, \"About\",Null)";
+mostCurrent._gblacmenu.Add((int) (0),(int) (0),BA.ObjectToCharSequence("About"),(android.graphics.Bitmap)(anywheresoftware.b4a.keywords.Common.Null));
+ //BA.debugLineNum = 216;BA.debugLine="End Sub";
 return "";
 }
 public static String  _tglrelayswitch_checkedchange(boolean _checked) throws Exception{
- //BA.debugLineNum = 99;BA.debugLine="Sub tglRelaySwitch_CheckedChange(Checked As Boolea";
- //BA.debugLineNum = 100;BA.debugLine="If Checked Then";
+ //BA.debugLineNum = 135;BA.debugLine="Sub tglRelaySwitch_CheckedChange(Checked As Boolea";
+ //BA.debugLineNum = 136;BA.debugLine="Try";
+try { //BA.debugLineNum = 137;BA.debugLine="If MQTT.IsInitialized = False Or MQTT.Connected";
+if (_mqtt.IsInitialized()==anywheresoftware.b4a.keywords.Common.False || _mqtt.getConnected()==anywheresoftware.b4a.keywords.Common.False) { 
+ //BA.debugLineNum = 138;BA.debugLine="MQTT_Connect";
+_mqtt_connect();
+ };
+ //BA.debugLineNum = 141;BA.debugLine="If Checked Then";
 if (_checked) { 
- //BA.debugLineNum = 101;BA.debugLine="MQTT.Publish(\"Andy\", BC.StringToBytes(\"Remotely";
+ //BA.debugLineNum = 142;BA.debugLine="MQTT.Publish(\"Andy\", BC.StringToBytes(\"Remotely";
 _mqtt.Publish("Andy",_bc.StringToBytes("Remotely open relay","utf8"));
  }else {
- //BA.debugLineNum = 103;BA.debugLine="MQTT.Publish(\"Andy\", BC.StringToBytes(\"Remotely";
+ //BA.debugLineNum = 144;BA.debugLine="MQTT.Publish(\"Andy\", BC.StringToBytes(\"Remotely";
 _mqtt.Publish("Andy",_bc.StringToBytes("Remotely close relay","utf8"));
  };
- //BA.debugLineNum = 105;BA.debugLine="End Sub";
+ //BA.debugLineNum = 146;BA.debugLine="btnRefresh_Click";
+_btnrefresh_click();
+ } 
+       catch (Exception e12) {
+			processBA.setLastException(e12); //BA.debugLineNum = 148;BA.debugLine="AddEvent(\"tglRelaySwitch_CheckedChange: \" & Last";
+_addevent("tglRelaySwitch_CheckedChange: "+BA.ObjectToString(anywheresoftware.b4a.keywords.Common.LastException(mostCurrent.activityBA)));
+ };
+ //BA.debugLineNum = 150;BA.debugLine="End Sub";
+return "";
+}
+public static String  _updateicon(String _menutitle,anywheresoftware.b4a.objects.drawable.CanvasWrapper.BitmapWrapper _icon) throws Exception{
+de.amberhome.objects.appcompat.ACMenuItemWrapper _m = null;
+ //BA.debugLineNum = 218;BA.debugLine="Sub UpdateIcon(MenuTitle As String, Icon As Bitmap";
+ //BA.debugLineNum = 219;BA.debugLine="Dim m As ACMenuItem = GetMenuItem(MenuTitle)";
+_m = new de.amberhome.objects.appcompat.ACMenuItemWrapper();
+_m = _getmenuitem(_menutitle);
+ //BA.debugLineNum = 220;BA.debugLine="m.Icon = BitmapToBitmapDrawable(Icon)";
+_m.setIcon((android.graphics.drawable.Drawable)(_bitmaptobitmapdrawable(_icon).getObject()));
+ //BA.debugLineNum = 221;BA.debugLine="End Sub";
 return "";
 }
 

@@ -57,27 +57,7 @@ Private Sub AppStart
 	d6.Initialize(d1pins.D6, d6.MODE_OUTPUT)
 	
 	' Connect to WiFi
-	Dim numberOfNetworks As Byte = WiFi.Scan
-	Dim c As Int
-	Log("Found ", numberOfNetworks, " networks")
-	For c = 0 To numberOfNetworks - 1
-		Log("SSID: ", WiFi.ScannedSSID(c), "|RSSI: ", WiFi.ScannedRSSI(c))
-		If WiFi.ScannedSSID(c) = "Rise Above This Home" Then
-			Log("Connecting to Rise Above This Home WiFi")
-			WiFi.Connect2("Rise Above This Home", "SteelReserve")
-			Exit
-		Else If WiFi.ScannedSSID(c) = "CloydNote8" Then
-			Log("Connecting to CloydNote8 WiFi")
-			WiFi.Connect2("CloydNote8", "adjj6347")
-			Exit
-		End If
-	Next
-
-	If WiFi.IsConnected Then 
-		Log("Connected to WiFi, Local IP ", WiFi.LocalIp) 
-	Else 
-		Log("Not Connected to WiFi")
-	End If
+	ConnectToWifi
 
 	' Connect to CloudMQTT broker
 	Dim ClientId As String = Rnd(0, 999999999) 'create a unique id
@@ -95,6 +75,7 @@ Sub MQTT_Connect(Unused As Byte)
 		MQTT.Connect2(MQTTOpt)
 		CallSubPlus("MQTT_Connect", 1000, 0)
 	Else
+		pin16.DigitalWrite(False)
 		Log("Connected to broker")
 		MQTT.Subscribe("Andy", 0)
 	End If
@@ -104,10 +85,12 @@ Private Sub RelayClose (tag As Byte)
 	If StopRelay Then
 		Return
 	End If
-	Log("Relay Close")
-	MQTT.Publish("Andy","Relay Close")
+	If WiFi.IsConnected = False Then
+		ConnectToWifi
+	End If
+	Log("*Relay has been closed")
+	MQTT.Publish("Andy","*Relay has been closed")
 	d6.DigitalWrite(True)
-	pin16.DigitalWrite(True)
 	CallSubPlus("RelayOpen", 15000, 0)
 End Sub
 
@@ -115,39 +98,69 @@ Private Sub RelayOpen (tag As Byte)
 	If StopRelay Then
 		Return
 	End If
-	Log("Relay Open")
-	MQTT.Publish("Andy","Relay Open")
+	If WiFi.IsConnected = False Then
+		ConnectToWifi
+	End If
+	Log("*Relay has been opened")
+	MQTT.Publish("Andy","*Relay has been opened")
 	d6.DigitalWrite(False)
-	pin16.DigitalWrite(False)
 	CallSubPlus("RelayClose", 5000, 0)
 End Sub
 
 Sub mqtt_MessageArrived (Topic As String, Payload() As Byte)
+	pin16.DigitalWrite(False)
 	Log("Message arrived. Topic=", Topic, " Payload=", Payload)
 	If Payload="Remotely close relay" Then
-		MQTT.Publish("Andy","Closing the relay remotely")
+		MQTT.Publish("Andy","*Closing relay by remote")
 		d6.DigitalWrite(True)
-		pin16.DigitalWrite(True)
 		StopRelay = True
 	Else If Payload="Remotely open relay" Then
-		MQTT.Publish("Andy","Opening the relay remotely")
+		MQTT.Publish("Andy","*Opening relay by remote")
 		StopRelay = False
 		RelayOpen(0)
 	Else If Payload = "Restart controller" Then
-		MQTT.Publish("Andy","Restarting the relay remotely")
+		MQTT.Publish("Andy","*Restarting relay by remote")
 		ESP.Restart
 	Else If Payload = "Check relay status" Then
-		If pin16.DigitalRead Then
-			MQTT.Publish("Andy","Relay is closed")
+		If d6.DigitalRead Then
+			MQTT.Publish("Andy","*Relay is closed")
 		Else
-			MQTT.Publish("Andy","Relay is open")
+			MQTT.Publish("Andy","*Relay is open")
 		End If
 	End If
 End Sub
 
 Sub mqtt_Disconnected
+	pin16.DigitalWrite(True)
 	Log("Disconnected from broker")
 	MQTT.Close
+	If WiFi.IsConnected = False Then
+		ConnectToWifi
+	End If
 	MQTT_Connect(0)
 End Sub
 
+Sub ConnectToWifi
+	Dim numberOfNetworks As Byte = WiFi.Scan
+	Dim c As Int
+	Log("Found ", numberOfNetworks, " networks")
+	For c = 0 To numberOfNetworks - 1
+		Log("SSID: ", WiFi.ScannedSSID(c), "|RSSI: ", WiFi.ScannedRSSI(c))
+		If WiFi.ScannedSSID(c) = "CloydNote8" Then
+			Log("Connecting to CloydNote8 WiFi")
+			WiFi.Connect2("CloydNote8", "adjj6347")
+			Exit
+		else If WiFi.ScannedSSID(c) = "Rise Above This Home" Then
+			Log("Connecting to Rise Above This Home WiFi")
+			WiFi.Connect2("Rise Above This Home", "SteelReserve")
+			Exit
+		Else
+		End If
+	Next
+
+	If WiFi.IsConnected Then
+		Log("Connected to WiFi, Local IP ", WiFi.LocalIp)
+	Else
+		Log("Not Connected to WiFi")
+	End If
+End Sub

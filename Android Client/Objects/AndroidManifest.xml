@@ -14,13 +14,13 @@
 	<uses-permission android:name="android.permission.INTERNET"/>
 	<application
 		android:icon="@drawable/icon"
-		android:label="Andy Home System"
+		android:label="Andy Home Automation"
 		android:theme="@style/MyAppTheme">
 		<activity
 			android:windowSoftInputMode="stateHidden"
 			android:launchMode="singleTop"
 			android:name=".main"
-			android:label="Andy Home System"
+			android:label="Andy Home Automation"
 			android:screenOrientation="unspecified">
 			<intent-filter>
 			   <action android:name="android.intent.action.MAIN" />
