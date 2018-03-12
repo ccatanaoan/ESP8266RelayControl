@@ -2,11 +2,13 @@
 NumberOfModules=0
 Build1=Default,B4RDev
 NumberOfFiles=0
-NumberOfLibraries=4
+NumberOfLibraries=6
 Library1=rcore
 Library2=resp8266
 Library3=resp8266wifi
 Library4=rmqtt
+Library5=reeprom
+Library6=rrandomaccessfile
 @EndOfDesignText@
 
 #Region Project Attributes
@@ -85,6 +87,7 @@ Sub MQTT_Connect(Unused As Byte)
 End Sub
 
 Private Sub RelayClose (tag As Byte)
+	ReadFromEEPROM
 	If WiFi.IsConnected = False Then
 		ConnectToWifi
 	End If
@@ -168,4 +171,64 @@ Sub ConnectToWifi
 	Else
 		Log("Not Connected to WiFi")
 	End If
+End Sub
+
+Sub WriteToEEPROM(WiFiSSID As String, WiFiPassword As String, MQTTUsername As String, MQTT_Password As String, MQTTServer As String, MQTT_Port As Int)
+	'**********************************************************
+	'Variable Definitions for moving objects to EEPROM
+	'**********************************************************
+	' Array("CloydNote8", "SteelReserve","dbgdbcqw", "Nc3F4APoO801", "m14.cloudmqtt.com", 15093)
+	Dim ListOfObjectsToStore() As Object = Array(WiFiSSID, WiFiPassword, MQTTUsername, MQTT_Password, MQTTServer, MQTT_Port)
+	Dim ByteDataToStore() As Byte
+	Dim bc As ByteConverter
+	Dim serializator As B4RSerializator
+	Dim eeprom As EEPROM
+
+	'START OF CODE
+	'Convert the array of objects into a sequence of bytes.
+	ByteDataToStore = serializator.ConvertArrayToBytes(ListOfObjectsToStore)
+ 
+	Log("Writing objects into the EEPROM...")
+	'Store the length of the data being written into the EEPROM as an Integer taking up two bytes at Storage Location 700 in the EEPROM
+	eeprom.WriteBytes(bc.IntsToBytes(Array As Int(ByteDataToStore.Length)), 700)
+	'Now write out all the bytes into the EEPROM
+	eeprom.WriteBytes(ByteDataToStore, 702)
+End Sub
+
+Sub ReadFromEEPROM
+	'**********************************************************
+	'Variable Definitions for moving objects from EEPROM
+	'**********************************************************
+	Dim be(10) As Object 'used as a storage buffer for the serializator
+	Dim bc As ByteConverter
+	Dim serializator As B4RSerializator
+	Dim eeprom As EEPROM
+
+	Dim ByteLengthOfDataInEEPROM() As Byte
+	Dim ActualLengthOfDataInEEPROM As Int
+	Dim ByteDataInEEPROM() As Byte
+	Dim ObjectsInEEPROM() As Object
+	Log("Reading data from the EEPROM...")
+	'Get two bytes out of the EEPROM from location 700
+	ByteLengthOfDataInEEPROM = eeprom.ReadBytes(700, 2)
+	'Convert these two bytes into an Integer - this is the number of bytes making up the objects that are stored in the EEPROM
+	ActualLengthOfDataInEEPROM =  bc.IntsFromBytes(ByteLengthOfDataInEEPROM)(0)
+     
+	'Get all that byte data out of the EEPROM
+	ByteDataInEEPROM = eeprom.ReadBytes(702, ActualLengthOfDataInEEPROM)
+
+	'Convert those bytes back into an array of objects
+	ObjectsInEEPROM = serializator.ConvertBytesToArray(ByteDataInEEPROM, be)
+
+	'Now list all the objects
+'	For Each o As Object In ObjectsInEEPROM
+'		Log(o)
+'	Next
+	' Array(WiFiSSID, WiFiPassword, MQTTUsername, MQTT_Password, MQTTServer, MQTT_Port)
+	Log("WiFiSSID: ",ObjectsInEEPROM(0))
+	Log("WiFiPassword: ",ObjectsInEEPROM(1))
+	Log("MQTTUsername: ",ObjectsInEEPROM(2))
+	Log("MQTT_Password: ",ObjectsInEEPROM(3))
+	Log("MQTTServer: ",ObjectsInEEPROM(4))
+	Log("MQTT_Port: ",ObjectsInEEPROM(5))
 End Sub

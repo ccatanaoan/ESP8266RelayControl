@@ -26,8 +26,10 @@ static B4R::B4RString* _mqtthostname;
 static Int _mqttport;
 static bool _stoprelay;
 static B4R::B4RESP8266* _esp;
+static void _readfromeeprom();
 static void _relayclose(Byte _tag);
 static void _relayopen(Byte _tag);
+static void _writetoeeprom(B4R::B4RString* _wifissid,B4R::B4RString* _wifipassword,B4R::B4RString* _mqttusername,B4R::B4RString* _mqtt_password,B4R::B4RString* _mqttserver,Int _mqtt_port);
 };
 
 #endif

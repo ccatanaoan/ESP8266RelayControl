@@ -20,12 +20,22 @@
     "Includepath": ""
   },
   {
+    "Sourcefile": "C:\\Users\\Cloyd\\Desktop\\ESP826~1\\Objects\\bin\\sketch\\AsyncStreams.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
     "Sourcefile": "C:\\Users\\Cloyd\\Desktop\\ESP826~1\\Objects\\bin\\sketch\\B4RArduino.cpp",
     "Include": "",
     "Includepath": ""
   },
   {
     "Sourcefile": "C:\\Users\\Cloyd\\Desktop\\ESP826~1\\Objects\\bin\\sketch\\B4RCore.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "C:\\Users\\Cloyd\\Desktop\\ESP826~1\\Objects\\bin\\sketch\\B4RSerializator.cpp",
     "Include": "",
     "Includepath": ""
   },
@@ -40,7 +50,17 @@
     "Includepath": ""
   },
   {
+    "Sourcefile": "C:\\Users\\Cloyd\\Desktop\\ESP826~1\\Objects\\bin\\sketch\\ByteConverter.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
     "Sourcefile": "C:\\Users\\Cloyd\\Desktop\\ESP826~1\\Objects\\bin\\sketch\\PubSubClient.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "C:\\Users\\Cloyd\\Desktop\\ESP826~1\\Objects\\bin\\sketch\\RandomAccessFile.cpp",
     "Include": "",
     "Includepath": ""
   },
@@ -51,6 +71,16 @@
   },
   {
     "Sourcefile": "C:\\Users\\Cloyd\\Desktop\\ESP826~1\\Objects\\bin\\sketch\\b4r_main.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "C:\\Users\\Cloyd\\Desktop\\ESP826~1\\Objects\\bin\\sketch\\rEEPROM.cpp",
+    "Include": "EEPROM.h",
+    "Includepath": "C:\\Users\\Cloyd\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.4.1\\libraries\\EEPROM"
+  },
+  {
+    "Sourcefile": "C:\\Users\\Cloyd\\Desktop\\ESP826~1\\Objects\\bin\\sketch\\rEEPROM.cpp",
     "Include": "",
     "Includepath": ""
   },
@@ -121,6 +151,11 @@
   },
   {
     "Sourcefile": "C:\\Users\\Cloyd\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.4.1\\libraries\\ESP8266WiFi\\src\\WiFiUdp.cpp",
+    "Include": "",
+    "Includepath": ""
+  },
+  {
+    "Sourcefile": "C:\\Users\\Cloyd\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\2.4.1\\libraries\\EEPROM\\EEPROM.cpp",
     "Include": "",
     "Includepath": ""
   }
