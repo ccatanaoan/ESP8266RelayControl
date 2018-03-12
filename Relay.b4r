@@ -14,7 +14,7 @@ Library6=rrandomaccessfile
 #Region Project Attributes
 	#AutoFlushLogs: True
 	#CheckArrayBounds: True
-	#StackBufferSize: 300
+	#StackBufferSize: 600
 #End Region
 
 Sub Process_Globals
@@ -34,19 +34,12 @@ Sub Process_Globals
 	Private MQTTPort As Int = 15093
 	Private StopRelay As Boolean = False
 	Private ESP As ESP8266
+	Private WiFiSSID As String = "CloydNote8"
+	Private WiFiPassword As String = "adjj6347"
+	Private RelayOpenDelay As ULong = 5000
+	Private RelayClosedDelay As ULong = 15000
 End Sub
 
-'static const uint8_t D0   = 16;
-'static const uint8_t D1   = 5;
-'static const uint8_t D2   = 4;
-'static const uint8_t D3   = 0;
-'static const uint8_t d4   = 2;
-'static const uint8_t D5   = 14;
-'static const uint8_t D6   = 12;
-'static const uint8_t D7   = 13;
-'static const uint8_t D8   = 15;
-'static const uint8_t D9   = 3;
-'static const uint8_t D10  = 1;
 Private Sub AppStart
 	Serial1.Initialize(115200)
 	Delay(3000)
@@ -66,6 +59,10 @@ Private Sub AppStart
 	MQTT.Initialize2(WiFiStr.stream, MQTTHostName, MQTTPort, ClientId, "MQTT_MessageArrived", "MQTT_Disconnected")
 	MQTTOpt.Initialize(MQTTUser, MQTTPassword)
 	MQTT_Connect(0)
+	
+	' WriteToEEPROM(5000, 15000)
+	' ClearEEPROM
+	' ReadFromEEPROM
 	
 	' Infinite relay toggle
 	RelayOpen(0)
@@ -87,7 +84,6 @@ Sub MQTT_Connect(Unused As Byte)
 End Sub
 
 Private Sub RelayClose (tag As Byte)
-	ReadFromEEPROM
 	If WiFi.IsConnected = False Then
 		ConnectToWifi
 	End If
@@ -97,7 +93,7 @@ Private Sub RelayClose (tag As Byte)
 	Log("*Relay has been closed")
 	MQTT.Publish("Andy","*Relay has been closed")
 	d6.DigitalWrite(True)
-	CallSubPlus("RelayOpen", 15000, 0)
+	CallSubPlus("RelayOpen", RelayClosedDelay, 0)
 End Sub
 
 Private Sub RelayOpen (tag As Byte)
@@ -110,7 +106,7 @@ Private Sub RelayOpen (tag As Byte)
 	Log("*Relay has been opened")
 	MQTT.Publish("Andy","*Relay has been opened")
 	d6.DigitalWrite(False)
-	CallSubPlus("RelayClose", 5000, 0)
+	CallSubPlus("RelayClose", RelayOpenDelay, 0)
 End Sub
 
 Sub mqtt_MessageArrived (Topic As String, Payload() As Byte)
@@ -149,22 +145,7 @@ Sub mqtt_Disconnected
 End Sub
 
 Sub ConnectToWifi
-	Dim numberOfNetworks As Byte = WiFi.Scan
-	Dim c As Int
-	Log("Found ", numberOfNetworks, " networks")
-	For c = 0 To numberOfNetworks - 1
-		Log("SSID: ", WiFi.ScannedSSID(c), "|RSSI: ", WiFi.ScannedRSSI(c))
-		If WiFi.ScannedSSID(c) = "CloydNote8" Then
-			Log("Connecting to CloydNote8 WiFi")
-			WiFi.Connect2("CloydNote8", "adjj6347")
-			Exit
-		else If WiFi.ScannedSSID(c) = "Rise Above This Home" Then
-			Log("Connecting to Rise Above This Home WiFi")
-			WiFi.Connect2("Rise Above This Home", "SteelReserve")
-			Exit
-		Else
-		End If
-	Next
+	WiFi.Connect2(WiFiSSID, WiFiPassword)
 
 	If WiFi.IsConnected Then
 		Log("Connected to WiFi, Local IP ", WiFi.LocalIp)
@@ -173,32 +154,26 @@ Sub ConnectToWifi
 	End If
 End Sub
 
-Sub WriteToEEPROM(WiFiSSID As String, WiFiPassword As String, MQTTUsername As String, MQTT_Password As String, MQTTServer As String, MQTT_Port As Int)
-	'**********************************************************
-	'Variable Definitions for moving objects to EEPROM
-	'**********************************************************
-	' Array("CloydNote8", "SteelReserve","dbgdbcqw", "Nc3F4APoO801", "m14.cloudmqtt.com", 15093)
-	Dim ListOfObjectsToStore() As Object = Array(WiFiSSID, WiFiPassword, MQTTUsername, MQTT_Password, MQTTServer, MQTT_Port)
+Sub WriteToEEPROM(OpenDelay As ULong, ClosedDelay As ULong)
+	Dim ListOfObjectsToStore() As Object = Array(OpenDelay, ClosedDelay)
 	Dim ByteDataToStore() As Byte
 	Dim bc As ByteConverter
 	Dim serializator As B4RSerializator
 	Dim eeprom As EEPROM
 
-	'START OF CODE
-	'Convert the array of objects into a sequence of bytes.
+	' Convert the array of objects into a sequence of bytes.
 	ByteDataToStore = serializator.ConvertArrayToBytes(ListOfObjectsToStore)
  
-	Log("Writing objects into the EEPROM...")
-	'Store the length of the data being written into the EEPROM as an Integer taking up two bytes at Storage Location 700 in the EEPROM
+	Log("Writing delay settings into the EEPROM")
+	
+	' Store the length of the data being written into the EEPROM as an Integer taking up two bytes at Storage Location 700 in the EEPROM
 	eeprom.WriteBytes(bc.IntsToBytes(Array As Int(ByteDataToStore.Length)), 700)
-	'Now write out all the bytes into the EEPROM
+	
+	' Now write out all the bytes into the EEPROM
 	eeprom.WriteBytes(ByteDataToStore, 702)
 End Sub
 
 Sub ReadFromEEPROM
-	'**********************************************************
-	'Variable Definitions for moving objects from EEPROM
-	'**********************************************************
 	Dim be(10) As Object 'used as a storage buffer for the serializator
 	Dim bc As ByteConverter
 	Dim serializator As B4RSerializator
@@ -208,9 +183,12 @@ Sub ReadFromEEPROM
 	Dim ActualLengthOfDataInEEPROM As Int
 	Dim ByteDataInEEPROM() As Byte
 	Dim ObjectsInEEPROM() As Object
-	Log("Reading data from the EEPROM...")
+	
+	Log("Reading delay settings from the EEPROM")
+	
 	'Get two bytes out of the EEPROM from location 700
 	ByteLengthOfDataInEEPROM = eeprom.ReadBytes(700, 2)
+	
 	'Convert these two bytes into an Integer - this is the number of bytes making up the objects that are stored in the EEPROM
 	ActualLengthOfDataInEEPROM =  bc.IntsFromBytes(ByteLengthOfDataInEEPROM)(0)
      
@@ -220,15 +198,37 @@ Sub ReadFromEEPROM
 	'Convert those bytes back into an array of objects
 	ObjectsInEEPROM = serializator.ConvertBytesToArray(ByteDataInEEPROM, be)
 
-	'Now list all the objects
-'	For Each o As Object In ObjectsInEEPROM
-'		Log(o)
-'	Next
-	' Array(WiFiSSID, WiFiPassword, MQTTUsername, MQTT_Password, MQTTServer, MQTT_Port)
-	Log("WiFiSSID: ",ObjectsInEEPROM(0))
-	Log("WiFiPassword: ",ObjectsInEEPROM(1))
-	Log("MQTTUsername: ",ObjectsInEEPROM(2))
-	Log("MQTT_Password: ",ObjectsInEEPROM(3))
-	Log("MQTTServer: ",ObjectsInEEPROM(4))
-	Log("MQTT_Port: ",ObjectsInEEPROM(5))
+	' Now list all the objects
+	'	For Each o As Object In ObjectsInEEPROM
+	'		Log(o)
+	'	Next
+
+	RelayOpenDelay = ObjectsInEEPROM(0)
+	RelayClosedDelay = ObjectsInEEPROM(1)
+	
+	If IsNumber(RelayOpenDelay) = False Then
+		Log("EEPROM's relay open delay is non-numeric. Setting to 20 minutes.")
+		RelayOpenDelay = 1200000
+		WriteToEEPROM(1200000, 7200000)
+	End If
+	
+	If IsNumber(RelayClosedDelay) = False Then
+		Log("EEPROM's relay closed delay is non-numeric. Setting to 2 hours.")
+		RelayClosedDelay = 7200000
+		WriteToEEPROM(1200000, 7200000)
+	End If
+
+	Log("RelayOpenDelay: ", RelayOpenDelay)
+	Log("RelayClosedDelay: ", RelayClosedDelay)
+End Sub
+
+Sub ClearEEPROM
+	Dim eeprom As EEPROM
+	Dim i As UInt
+	
+	Log("Size: ", eeprom.Size, " bytes")
+	For i = 0 To eeprom.Size
+		eeprom.WriteBytes(Array As Byte(0), i)
+		Log(i)
+	Next
 End Sub

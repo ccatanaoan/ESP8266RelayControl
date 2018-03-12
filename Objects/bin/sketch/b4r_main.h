@@ -7,6 +7,7 @@ public:
 
 static void initializeProcessGlobals();
 static void _appstart();
+static void _cleareeprom();
 static void _connecttowifi();
 static void _mqtt_connect(Byte _unused);
 static void _mqtt_disconnected();
@@ -26,10 +27,14 @@ static B4R::B4RString* _mqtthostname;
 static Int _mqttport;
 static bool _stoprelay;
 static B4R::B4RESP8266* _esp;
+static B4R::B4RString* _wifissid;
+static B4R::B4RString* _wifipassword;
+static ULong _relayopendelay;
+static ULong _relaycloseddelay;
 static void _readfromeeprom();
 static void _relayclose(Byte _tag);
 static void _relayopen(Byte _tag);
-static void _writetoeeprom(B4R::B4RString* _wifissid,B4R::B4RString* _wifipassword,B4R::B4RString* _mqttusername,B4R::B4RString* _mqtt_password,B4R::B4RString* _mqttserver,Int _mqtt_port);
+static void _writetoeeprom(ULong _opendelay,ULong _closeddelay);
 };
 
 #endif
