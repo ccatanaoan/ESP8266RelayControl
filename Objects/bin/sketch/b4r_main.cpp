@@ -1,3 +1,11 @@
+/*  Andy's Hydroponic Pump Relay Controller
+ *  
+ *  Periodically turns on and off the relay to power on and off the hydroponic pump.
+ *  
+ *  Created 2018
+ *  by Cloyd Nino Catanaoan and Andy Pierson
+ */
+ 
 #include "B4RDefines.h"
 
 B4R::Serial* b4r_main::_serial1;
@@ -253,15 +261,14 @@ b4r_main::_mqttport = 15093;
 b4r_main::_stoprelay = Common_False;
  //BA.debugLineNum = 24;BA.debugLine="Private ESP As ESP8266";
 b4r_main::_esp = &be_gann14_3;
- //BA.debugLineNum = 25;BA.debugLine="Private WiFiSSID As String = \"CloydNote8\"";
-b4r_main::_wifissid = be_gann15_5.wrap("CloydNote8");
- //BA.debugLineNum = 26;BA.debugLine="Private WiFiPassword As String = \"adjj6347\"";
-b4r_main::_wifipassword = be_gann16_5.wrap("adjj6347");
- //BA.debugLineNum = 27;BA.debugLine="Private RelayOpenDelay As ULong = 5000";
-b4r_main::_relayopendelay = (ULong) (5000);
- //BA.debugLineNum = 28;BA.debugLine="Private RelayClosedDelay As ULong = 15000";
-b4r_main::_relaycloseddelay = (ULong) (15000);
- //BA.debugLineNum = 29;BA.debugLine="End Sub";
+//******************************************* CHANGE THE SETTINGS HERE *********************************************************************
+// Andy, change the (XXXX) value to how long you want the relay to stay close. For two hours, 1000 ms * 60 sec * 60 min * 2 hr = 7200000.
+
+b4r_main::_wifissid = be_gann15_5.wrap("CloydNote8"); // [Enter WiFi SSID/network name here]
+b4r_main::_wifipassword = be_gann16_5.wrap("adjj6347"); // [Enter WiFi password here]
+b4r_main::_relayopendelay = (ULong) (1200000); // 1000 = 1 sec 
+b4r_main::_relaycloseddelay = (ULong) (7200000); // 1000 = 1 sec
+//***************************************************************************************************************************************
 }
 void b4r_main::_readfromeeprom(){
 const UInt cp = B4R::StackMemory::cp;
