@@ -1,5 +1,6 @@
 ﻿Version=2.2
-NumberOfModules=0
+NumberOfModules=1
+Module1=GlobalStore
 Build1=Default,B4RDev
 NumberOfFiles=0
 NumberOfLibraries=6
@@ -38,6 +39,7 @@ Sub Process_Globals
 	Private WiFiPassword As String = "adjj6347"
 	Private RelayOpenDelay As ULong = 5000
 	Private RelayClosedDelay As ULong = 15000
+	Private settings(4) As Byte
 End Sub
 
 Private Sub AppStart
@@ -131,6 +133,32 @@ Sub mqtt_MessageArrived (Topic As String, Payload() As Byte)
 		Else
 			MQTT.Publish("Andy","*Relay is open")
 		End If
+	Else
+		Dim bc As ByteConverter
+		Dim c As Int = 0
+		For Each s() As Byte In bc.Split(Payload, "|")
+			If s.Length = 4 Then
+				Dim b As Byte = bc.StringFromBytes(s)
+				settings(c) = b
+				If c = 0 Then
+					GlobalStore.Put(0,s) ' SSID
+					Log(GlobalStore.Slot0) 
+				End If
+				If c = 1 Then
+					GlobalStore.Put(1,s) ' Password
+					Log(GlobalStore.Slot1) 
+				End If
+				If c = 2 Then
+					GlobalStore.Put(2,s) ' Open delay
+					Log(GlobalStore.Slot2) 
+				End If
+				If c = 3 Then
+					GlobalStore.Put(3,s) ' Closed delay
+					Log(GlobalStore.Slot3) 
+				End If
+				c = c + 1
+			End If
+		Next
 	End If
 End Sub
 
@@ -145,7 +173,8 @@ Sub mqtt_Disconnected
 End Sub
 
 Sub ConnectToWifi
-	WiFi.Connect2(WiFiSSID, WiFiPassword)
+	Dim bc As ByteConverter
+	WiFi.Connect2(bc.StringFromBytes(GlobalStore.Slot0), bc.StringFromBytes(GlobalStore.Slot1))
 
 	If WiFi.IsConnected Then
 		Log("Connected to WiFi, Local IP ", WiFi.LocalIp)
