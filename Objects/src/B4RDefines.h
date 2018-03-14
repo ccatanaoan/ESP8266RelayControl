@@ -30,5 +30,6 @@
 
 
 #include "b4r_main.h"
+#include "b4r_globalstore.h"
 
 #endif

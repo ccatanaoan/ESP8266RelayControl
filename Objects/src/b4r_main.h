@@ -1,6 +1,7 @@
 
 #ifndef b4r_main_h
 #define b4r_main_h
+class b4r_globalstore;
 
 class b4r_main {
 public:
@@ -29,12 +30,14 @@ static bool _stoprelay;
 static B4R::B4RESP8266* _esp;
 static B4R::B4RString* _wifissid;
 static B4R::B4RString* _wifipassword;
-static ULong _relayopendelay;
-static ULong _relaycloseddelay;
+static B4R::B4RString* _relayopendelay;
+static B4R::B4RString* _relaycloseddelay;
+static B4R::Array* _settings;
+static b4r_globalstore* _globalstore;
 static void _readfromeeprom();
 static void _relayclose(Byte _tag);
 static void _relayopen(Byte _tag);
-static void _writetoeeprom(ULong _opendelay,ULong _closeddelay);
+static void _writetoeeprom(B4R::B4RString* _ssid,B4R::B4RString* _password,B4R::B4RString* _opendelay,B4R::B4RString* _closeddelay);
 };
 
 #endif

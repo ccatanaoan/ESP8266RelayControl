@@ -37,8 +37,8 @@ Sub Process_Globals
 	Private ESP As ESP8266
 	Private WiFiSSID As String = "CloydNote8"
 	Private WiFiPassword As String = "adjj6347"
-	Private RelayOpenDelay As ULong = 5000
-	Private RelayClosedDelay As ULong = 15000
+	Private RelayOpenDelay As String = "5000"
+	Private RelayClosedDelay As String = "15000"
 	Private settings(4) As Byte
 End Sub
 
@@ -54,6 +54,8 @@ Private Sub AppStart
 	d6.Initialize(d1pins.D6, d6.MODE_OUTPUT)
 	
 	' Connect to WiFi
+	GlobalStore.Put(4,"1")
+	ReadFromEEPROM
 	ConnectToWifi
 
 	' Connect to CloudMQTT broker
@@ -61,10 +63,6 @@ Private Sub AppStart
 	MQTT.Initialize2(WiFiStr.stream, MQTTHostName, MQTTPort, ClientId, "MQTT_MessageArrived", "MQTT_Disconnected")
 	MQTTOpt.Initialize(MQTTUser, MQTTPassword)
 	MQTT_Connect(0)
-	
-	' WriteToEEPROM(5000, 15000)
-	' ClearEEPROM
-	' ReadFromEEPROM
 	
 	' Infinite relay toggle
 	RelayOpen(0)
@@ -95,7 +93,14 @@ Private Sub RelayClose (tag As Byte)
 	Log("*Relay has been closed")
 	MQTT.Publish("Andy","*Relay has been closed")
 	d6.DigitalWrite(True)
-	CallSubPlus("RelayOpen", RelayClosedDelay, 0)
+	Dim bc As ByteConverter
+	Dim closedDelay As String = bc.StringFromBytes(GlobalStore.Slot3)
+	If closedDelay.Length = 0 Then
+		closedDelay = RelayClosedDelay
+		GlobalStore.Put(3,RelayClosedDelay)
+	End If
+	Log("closedDelay: ",closedDelay)
+	CallSubPlus("RelayOpen", closedDelay, 0)
 End Sub
 
 Private Sub RelayOpen (tag As Byte)
@@ -108,7 +113,14 @@ Private Sub RelayOpen (tag As Byte)
 	Log("*Relay has been opened")
 	MQTT.Publish("Andy","*Relay has been opened")
 	d6.DigitalWrite(False)
-	CallSubPlus("RelayClose", RelayOpenDelay, 0)
+	Dim bc As ByteConverter
+	Dim openDelay As String = bc.StringFromBytes(GlobalStore.Slot2)
+	If openDelay.Length = 0  Then
+		openDelay = RelayOpenDelay
+		GlobalStore.Put(2,RelayOpenDelay)
+	End If
+	Log("openDelay: ",openDelay)
+	CallSubPlus("RelayClose", openDelay, 0)
 End Sub
 
 Sub mqtt_MessageArrived (Topic As String, Payload() As Byte)
@@ -136,29 +148,32 @@ Sub mqtt_MessageArrived (Topic As String, Payload() As Byte)
 	Else
 		Dim bc As ByteConverter
 		Dim c As Int = 0
-		For Each s() As Byte In bc.Split(Payload, "|")
-			If s.Length = 4 Then
-				Dim b As Byte = bc.StringFromBytes(s)
-				settings(c) = b
-				If c = 0 Then
-					GlobalStore.Put(0,s) ' SSID
-					Log(GlobalStore.Slot0) 
-				End If
-				If c = 1 Then
-					GlobalStore.Put(1,s) ' Password
-					Log(GlobalStore.Slot1) 
-				End If
-				If c = 2 Then
-					GlobalStore.Put(2,s) ' Open delay
-					Log(GlobalStore.Slot2) 
-				End If
-				If c = 3 Then
-					GlobalStore.Put(3,s) ' Closed delay
-					Log(GlobalStore.Slot3) 
-				End If
-				c = c + 1
-			End If
-		Next
+		If bc.IndexOf(Payload,"|") > 0 Then
+			For Each s() As Byte In bc.Split(Payload, "|")
+					Dim b As Byte = bc.StringFromBytes(s)
+					settings(c) = b
+					If c = 0 Then
+						GlobalStore.Put(0,s) ' SSID
+						Log("GlobalStore.Slot0: ",GlobalStore.Slot0)
+					End If
+					If c = 1 Then
+						GlobalStore.Put(1,s) ' Password
+						Log("GlobalStore.Slot1: ",GlobalStore.Slot1)
+					End If
+					If c = 2 Then
+						GlobalStore.Put(2,s) ' Open delay
+						Log("GlobalStore.Slot2: ",GlobalStore.Slot2)
+					End If
+					If c = 3 Then
+						GlobalStore.Put(3,s) ' Closed delay
+						Log("GlobalStore.Slot3: ",GlobalStore.Slot3)
+					End If
+					c = c + 1
+			Next
+			Dim bc As ByteConverter
+			WriteToEEPROM(bc.StringFromBytes(GlobalStore.Slot0),bc.StringFromBytes(GlobalStore.Slot1),bc.StringFromBytes(GlobalStore.Slot2),bc.StringFromBytes(GlobalStore.Slot3))
+			ConnectToWifi
+		End If
 	End If
 End Sub
 
@@ -174,17 +189,58 @@ End Sub
 
 Sub ConnectToWifi
 	Dim bc As ByteConverter
-	WiFi.Connect2(bc.StringFromBytes(GlobalStore.Slot0), bc.StringFromBytes(GlobalStore.Slot1))
+	Dim SSID As String
+	Dim password As String
+	
+	SSID = bc.StringFromBytes(GlobalStore.Slot0)
+	If SSID.Length = 0 Then 
+		SSID = WiFiSSID
+		GlobalStore.Put(0,SSID)
+	End If
+	
+	Log("SSID: ",SSID)
+	password = bc.StringFromBytes(GlobalStore.Slot1)
+	If password.Length = 0 Then
+		password = WiFiPassword
+		GlobalStore.Put(1,password)
+	End If
+	Log("Password: ",password)
+	
+	WiFi.Connect2(SSID, password)
 
 	If WiFi.IsConnected Then
-		Log("Connected to WiFi, Local IP ", WiFi.LocalIp)
+		Log("Connected to WiFi = ",SSID," Local IP = ", WiFi.LocalIp)
 	Else
 		Log("Not Connected to WiFi")
+		Dim bc As ByteConverter
+		Dim count As String = bc.StringFromBytes(GlobalStore.Slot4)
+		count = NumberFormat(count,1,0)
+		Log("WiFi connection attempts: ",count)
+		If count > 3 Then
+			Log("Temporarily reverting to CloydNote8 network")
+			GlobalStore.Put(0,WiFiSSID) ' SSID
+			Log("GlobalStore.Slot0: ",GlobalStore.Slot0)
+		
+			GlobalStore.Put(1,WiFiPassword) ' Password
+			Log("GlobalStore.Slot1: ",GlobalStore.Slot1)
+		
+			GlobalStore.Put(2,RelayOpenDelay) ' Open delay
+			Log("GlobalStore.Slot2: ",GlobalStore.Slot2)
+		
+			GlobalStore.Put(3,RelayClosedDelay) ' Closed delay
+			Log("GlobalStore.Slot3: ",GlobalStore.Slot3)
+		
+			GlobalStore.Put(4,"1")
+			'WriteToEEPROM(WiFiSSID,WiFiPassword,5000,15000)
+		Else
+			GlobalStore.Put(4,bc.StringToBytes(count + 1))
+		End If
 	End If
 End Sub
 
-Sub WriteToEEPROM(OpenDelay As ULong, ClosedDelay As ULong)
-	Dim ListOfObjectsToStore() As Object = Array(OpenDelay, ClosedDelay)
+Sub WriteToEEPROM(SSID As String, Password As String, OpenDelay As String, ClosedDelay As String)
+	Dim bc As ByteConverter
+	Dim ListOfObjectsToStore() As Object = Array(bc.StringToBytes(SSID), bc.StringToBytes(Password),bc.StringToBytes(OpenDelay), bc.StringToBytes(ClosedDelay))
 	Dim ByteDataToStore() As Byte
 	Dim bc As ByteConverter
 	Dim serializator As B4RSerializator
@@ -193,7 +249,7 @@ Sub WriteToEEPROM(OpenDelay As ULong, ClosedDelay As ULong)
 	' Convert the array of objects into a sequence of bytes.
 	ByteDataToStore = serializator.ConvertArrayToBytes(ListOfObjectsToStore)
  
-	Log("Writing delay settings into the EEPROM")
+	Log("Writing settings into the EEPROM")
 	
 	' Store the length of the data being written into the EEPROM as an Integer taking up two bytes at Storage Location 700 in the EEPROM
 	eeprom.WriteBytes(bc.IntsToBytes(Array As Int(ByteDataToStore.Length)), 700)
@@ -212,14 +268,19 @@ Sub ReadFromEEPROM
 	Dim ActualLengthOfDataInEEPROM As Int
 	Dim ByteDataInEEPROM() As Byte
 	Dim ObjectsInEEPROM() As Object
-	
-	Log("Reading delay settings from the EEPROM")
-	
+	Log("Reading data from the EEPROM...")
 	'Get two bytes out of the EEPROM from location 700
 	ByteLengthOfDataInEEPROM = eeprom.ReadBytes(700, 2)
-	
 	'Convert these two bytes into an Integer - this is the number of bytes making up the objects that are stored in the EEPROM
 	ActualLengthOfDataInEEPROM =  bc.IntsFromBytes(ByteLengthOfDataInEEPROM)(0)
+	Log("ActualLengthOfDataInEEPROM: ",ActualLengthOfDataInEEPROM)
+	If ActualLengthOfDataInEEPROM = 0 Then
+		WriteToEEPROM(WiFiSSID,WiFiPassword,5000,15000)
+		'Get two bytes out of the EEPROM from location 700
+		ByteLengthOfDataInEEPROM = eeprom.ReadBytes(700, 2)
+		'Convert these two bytes into an Integer - this is the number of bytes making up the objects that are stored in the EEPROM
+		ActualLengthOfDataInEEPROM =  bc.IntsFromBytes(ByteLengthOfDataInEEPROM)(0)
+	End If
      
 	'Get all that byte data out of the EEPROM
 	ByteDataInEEPROM = eeprom.ReadBytes(702, ActualLengthOfDataInEEPROM)
@@ -231,24 +292,35 @@ Sub ReadFromEEPROM
 	'	For Each o As Object In ObjectsInEEPROM
 	'		Log(o)
 	'	Next
-
-	RelayOpenDelay = ObjectsInEEPROM(0)
-	RelayClosedDelay = ObjectsInEEPROM(1)
-	
-	If IsNumber(RelayOpenDelay) = False Then
-		Log("EEPROM's relay open delay is non-numeric. Setting to 20 minutes.")
-		RelayOpenDelay = 1200000
-		WriteToEEPROM(1200000, 7200000)
+		Dim bc As ByteConverter
+	If ObjectsInEEPROM(0) <> 0 Then
+		GlobalStore.Put(0,bc.StringFromBytes(ObjectsInEEPROM(0))) ' SSID
+		Log("GlobalStore.Slot0: ",GlobalStore.Slot0)
+		
+		GlobalStore.Put(1,bc.StringFromBytes(ObjectsInEEPROM(1))) ' Password
+		Log("GlobalStore.Slot1: ",GlobalStore.Slot1)
+		
+		GlobalStore.Put(2,bc.StringFromBytes(ObjectsInEEPROM(2))) ' Open delay
+		Log("GlobalStore.Slot2: ",GlobalStore.Slot2)
+		
+		GlobalStore.Put(3,bc.StringFromBytes(ObjectsInEEPROM(3))) ' Closed delay
+		Log("GlobalStore.Slot3: ",GlobalStore.Slot3)
+	Else
+		GlobalStore.Put(0,WiFiSSID) ' SSID
+		Log("GlobalStore.Slot0: ",GlobalStore.Slot0)
+		
+		GlobalStore.Put(1,WiFiPassword) ' Password
+		Log("GlobalStore.Slot1: ",GlobalStore.Slot1)
+		
+		GlobalStore.Put(2,RelayOpenDelay) ' Open delay
+		Log("GlobalStore.Slot2: ",GlobalStore.Slot2)
+		
+		GlobalStore.Put(3,RelayClosedDelay) ' Closed delay
+		Log("GlobalStore.Slot3: ",GlobalStore.Slot3)
+		
+		WriteToEEPROM(WiFiSSID,WiFiPassword,5000,15000)
 	End If
-	
-	If IsNumber(RelayClosedDelay) = False Then
-		Log("EEPROM's relay closed delay is non-numeric. Setting to 2 hours.")
-		RelayClosedDelay = 7200000
-		WriteToEEPROM(1200000, 7200000)
-	End If
 
-	Log("RelayOpenDelay: ", RelayOpenDelay)
-	Log("RelayClosedDelay: ", RelayClosedDelay)
 End Sub
 
 Sub ClearEEPROM
