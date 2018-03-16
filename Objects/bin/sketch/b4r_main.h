@@ -2,6 +2,7 @@
 #ifndef b4r_main_h
 #define b4r_main_h
 class b4r_globalstore;
+class b4r_wifiserver;
 
 class b4r_main {
 public:
@@ -9,6 +10,7 @@ public:
 static void initializeProcessGlobals();
 static void _appstart();
 static void _cleareeprom();
+static void _connecttonetwork();
 static void _connecttowifi();
 static void _mqtt_connect(Byte _unused);
 static void _mqtt_disconnected();
@@ -32,12 +34,16 @@ static B4R::B4RString* _wifissid;
 static B4R::B4RString* _wifipassword;
 static B4R::B4RString* _relayopendelay;
 static B4R::B4RString* _relaycloseddelay;
-static B4R::Array* _settings;
+static B4R::B4REEPROM* _eeprom;
+static B4R::ByteConverter* _bc;
+static Byte _magic_eeprom;
 static b4r_globalstore* _globalstore;
+static b4r_wifiserver* _wifiserver;
 static void _readfromeeprom();
 static void _relayclose(Byte _tag);
 static void _relayopen(Byte _tag);
-static void _writetoeeprom(B4R::B4RString* _ssid,B4R::B4RString* _password,B4R::B4RString* _opendelay,B4R::B4RString* _closeddelay);
+static void _savenetworkdetails(B4R::B4RString* _ssid,B4R::B4RString* _password);
+static void _writetoeeprom(B4R::B4RString* _ssid,B4R::B4RString* _password,B4R::B4RString* _opendelay,B4R::B4RString* _closeddelay,B4R::B4RString* _iswifi);
 };
 
 #endif

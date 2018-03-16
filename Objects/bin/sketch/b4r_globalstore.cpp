@@ -13,6 +13,7 @@ B4R::Array* b4r_globalstore::_slot4;
 B4R::Array* b4r_globalstore::_slots;
 B4R::Array* b4r_globalstore::_lengths;
 b4r_main* b4r_globalstore::_main;
+b4r_wifiserver* b4r_globalstore::_wifiserver;
 static Byte be_gann1_4e1[100];
 static B4R::Array be_gann1_4e2;
 static B4R::ByteConverter be_gann2_3;

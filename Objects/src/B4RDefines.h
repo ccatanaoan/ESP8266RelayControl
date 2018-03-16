@@ -31,5 +31,6 @@
 
 #include "b4r_main.h"
 #include "b4r_globalstore.h"
+#include "b4r_wifiserver.h"
 
 #endif
