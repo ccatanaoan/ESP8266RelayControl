@@ -16,7 +16,7 @@ Library6=rrandomaccessfile
 #Region Project Attributes
 	#AutoFlushLogs: True
 	#CheckArrayBounds: True
-	#StackBufferSize: 600
+	#StackBufferSize: 2000
 #End Region
 
 Sub Process_Globals
@@ -43,6 +43,11 @@ Sub Process_Globals
 	Private eeprom As EEPROM
 	Private bc As ByteConverter
 	Private const MAGIC_EEPROM As Byte = 123
+	Private ser As B4RSerializator
+	Private ObjectsBuffer(10) As Object
+	Private IsWiFIConnectingAppStart As Boolean
+	Private Timer1 As Timer
+	Private counter As ULong
 End Sub
 
 Private Sub AppStart
@@ -53,20 +58,44 @@ Private Sub AppStart
 	' Pin 16 is the red LED
 	' D6 = pin 12 is the logic/signal pin. Use 3.3v pin of Node MCU.
 	
-	pin16.Initialize(16, pin16.MODE_OUTPUT)
 	d6.Initialize(d1pins.D6, d6.MODE_OUTPUT)
+	pin16.Initialize(16, pin16.MODE_OUTPUT)
 	pin16.DigitalWrite(True)
 	
-	'WriteToEEPROM("SSID","Password","55555","6666","True")
-	WiFiServer.Start
+	'WriteToEEPROM("SSID","Password","5000","15000")
 	ReadFromEEPROM
-
+	
+	IsWiFIConnectingAppStart = True
+	
+	Log("Stopping access point")
+	RunNative("SetSTA", Null)
+	
 	' Infinite relay toggle
 	RelayOpen(0)
+	
+	Dim attempts As Int = 0
+	Do Until attempts = 3
+		ConnectToWifi
+		If WiFi.IsConnected Then 
+			Timer1.Enabled = False
+			IsWiFIConnectingAppStart = False
+			Exit
+		End If
+		attempts = attempts + 1
+	Loop
+	If WiFi.IsConnected Then
+		Timer1.Enabled = False
+		IsWiFIConnectingAppStart = False
+	Else
+		Log("Starting as an access point.")
+		Timer1.Initialize("Timer1_Tick", 1000) '1000ms = 1 second
+		Timer1.Enabled = True
+		WiFiServer.Start
+	End If
 End Sub
 
 Sub MQTT_Connect(Unused As Byte)
-	If WiFi.IsConnected = False Then
+	If WiFi.IsConnected = False And IsWiFIConnectingAppStart = False Then
 		ConnectToWifi
 	End If
 	If MQTT.Connect = False Then
@@ -82,33 +111,37 @@ Sub MQTT_Connect(Unused As Byte)
 End Sub
 
 Private Sub RelayClose (tag As Byte)
-	If WiFi.IsConnected = False Then
+	If WiFi.IsConnected = False And IsWiFIConnectingAppStart = False Then
 		ConnectToWifi
 	End If
 	If StopRelay Then
 		Return
 	End If
 	Log("*Relay has been closed")
-	MQTT.Publish("Andy","*Relay has been closed")
+	If WiFi.IsConnected  Then
+		MQTT.Publish("Andy","*Relay has been closed")
+	End If
 	d6.DigitalWrite(True)
 	Dim closedDelay As String = bc.StringFromBytes(GlobalStore.Slot3)
 	If closedDelay.Length = 0 Then
 		closedDelay = RelayClosedDelay
 		GlobalStore.Put(3,RelayClosedDelay)
 	End If
-	Log("closedDelay: ",closedDelay)
+	Log("ClosedDelay: ",closedDelay)
 	CallSubPlus("RelayOpen", closedDelay, 0)
 End Sub
 
 Private Sub RelayOpen (tag As Byte)
-	If WiFi.IsConnected = False Then
+	If WiFi.IsConnected = False And IsWiFIConnectingAppStart = False Then
 		ConnectToWifi
 	End If
 	If StopRelay Then
 		Return
 	End If
 	Log("*Relay has been opened")
-	MQTT.Publish("Andy","*Relay has been opened")
+	If WiFi.IsConnected  Then
+		MQTT.Publish("Andy","*Relay has been opened")
+	End If
 	d6.DigitalWrite(False)
 	Dim openDelay As String = bc.StringFromBytes(GlobalStore.Slot2)
 	If openDelay.Length = 0  Then
@@ -133,6 +166,9 @@ Sub mqtt_MessageArrived (Topic As String, Payload() As Byte)
 	Else If Payload = "Restart controller" Then
 		MQTT.Publish("Andy","*Restarting relay by remote")
 		ESP.Restart
+	Else If Payload = "Get settings" Then
+		Dim c As String = JoinStrings(Array As String("*Get settings: ", bc.StringFromBytes(GlobalStore.Slot0), ",", bc.StringFromBytes(GlobalStore.Slot1), ",",bc.StringFromBytes(GlobalStore.Slot2),",",bc.StringFromBytes(GlobalStore.Slot3)))
+		MQTT.Publish("Andy",c)
 	Else If Payload = "Check relay status" Then
 		If StopRelay Then
 			MQTT.Publish("Andy","*Relay is permanently closed")
@@ -141,104 +177,110 @@ Sub mqtt_MessageArrived (Topic As String, Payload() As Byte)
 		Else
 			MQTT.Publish("Andy","*Relay is open")
 		End If
+	Else
+		If bc.IndexOf(Payload,"|") > 0 Then
+			MQTTChangeSetting(Payload)
+		End If
 	End If
 End Sub
 
 Sub mqtt_Disconnected
 	Log("Disconnected from broker")
-	WiFiServer.Start
 	pin16.DigitalWrite(True)
 	MQTT.Close
 	MQTT_Connect(0)
 End Sub
 
 Sub ConnectToWifi
-		Dim SSID As String
-		Dim password As String
-		
-		SSID = bc.StringFromBytes(GlobalStore.Slot0)
-		If SSID.Length = 0 Then 
-			SSID = WiFiSSID
-			GlobalStore.Put(0,SSID)
-		End If
-		
-		password = bc.StringFromBytes(GlobalStore.Slot1)
-		If password.Length = 0 Then
-			password = WiFiPassword
-			GlobalStore.Put(1,password)
-		End If
+	Dim SSID As String
+	Dim password As String
 	
-		WiFi.Connect2(SSID, password)
+	SSID = bc.StringFromBytes(GlobalStore.Slot0)
+	If SSID.Length = 0 Then 
+		SSID = WiFiSSID
+		GlobalStore.Put(0,SSID)
+		WriteToEEPROM(bc.StringFromBytes(GlobalStore.Slot0),bc.StringFromBytes(GlobalStore.Slot1),bc.StringFromBytes(GlobalStore.Slot2),bc.StringFromBytes(GlobalStore.Slot3))
+	End If
+	
+	password = bc.StringFromBytes(GlobalStore.Slot1)
+	If password.Length = 0 Then
+		password = WiFiPassword
+		GlobalStore.Put(1,password)
+		WriteToEEPROM(bc.StringFromBytes(GlobalStore.Slot0),bc.StringFromBytes(GlobalStore.Slot1),bc.StringFromBytes(GlobalStore.Slot2),bc.StringFromBytes(GlobalStore.Slot3))
+	End If
 
-		If WiFi.IsConnected Then
-			' Stop access point
-			Log("Stopping access point")
-			RunNative("SetSTA", Null)
-			Log("Connected to WiFi = ",SSID," Local IP = ", WiFi.LocalIp, " Password = ",password)
-			' Connect to CloudMQTT broker
-			Dim ClientId As String = Rnd(0, 999999999) 'create a unique id
-			MQTT.Initialize2(WiFiStr.stream, MQTTHostName, MQTTPort, ClientId, "MQTT_MessageArrived", "MQTT_Disconnected")
-			MQTTOpt.Initialize(MQTTUser, MQTTPassword)
-			MQTT_Connect(0)
-		Else
-			Log("Failed to connect to WiFi")
-		End If
+	WiFi.Connect2(SSID, password)
+
+	If WiFi.IsConnected Then
+		' Stop access point
+		Log("Stopping access point")
+		Timer1.Enabled = False
+		RunNative("SetSTA", Null)
+		counter = 0
+		Log("Connected to WiFi = ",SSID,", Local IP = ", WiFi.LocalIp, ", Password = ",password)
+		' Connect to CloudMQTT broker
+		Dim ClientId As String = Rnd(0, 999999999) 'create a unique id
+		MQTT.Initialize2(WiFiStr.stream, MQTTHostName, MQTTPort, ClientId, "MQTT_MessageArrived", "MQTT_Disconnected")
+		MQTTOpt.Initialize(MQTTUser, MQTTPassword)
+		MQTT_Connect(0)
+	Else
+		Log("Failed to connect to ",SSID, " WiFi")
+	End If
 	
 End Sub
 
-Sub WriteToEEPROM(SSID As String, Password As String, OpenDelay As String, ClosedDelay As String, IsWiFi As String)
-	eeprom.WriteBytes(Array As Byte(MAGIC_EEPROM, SSID.Length + 1 + Password.Length + 1 + OpenDelay.Length + 1 + ClosedDelay.Length + 1 + IsWiFi.Length), 0)
-	Dim pos As Int = 2
-	eeprom.WriteBytes(SSID, pos)
-	pos = pos + SSID.Length
-	eeprom.WriteBytes(Array As Byte(0), pos)
-	pos = pos + 1
-	eeprom.WriteBytes(Password, pos)
-	pos = pos + Password.Length
-	eeprom.WriteBytes(Array As Byte(0), pos)
-	pos = pos + 1
-	eeprom.WriteBytes(OpenDelay, pos)
-	pos = pos + OpenDelay.Length
-	eeprom.WriteBytes(Array As Byte(0), pos)
-	pos = pos + 1
-	eeprom.WriteBytes(ClosedDelay, pos)
-	pos = pos + ClosedDelay.Length
-	eeprom.WriteBytes(Array As Byte(0), pos)
-	pos = pos + 1
-	eeprom.WriteBytes(IsWiFi, pos)
+Sub WriteToEEPROM(SSID As String, Password As String, OpenDelay As String, ClosedDelay As String)
+	Log("Writing setiings into the EEPROM")
+	Dim ListOfObjectsToStore() As Object = Array(SSID, Password, OpenDelay,ClosedDelay)
+	Dim ByteDataToStore() As Byte
+
+	' Convert the array of objects into a sequence of bytes.
+	ByteDataToStore = ser.ConvertArrayToBytes(ListOfObjectsToStore)
+	
+	' Store the length of the data being written into the EEPROM as an Integer taking up two bytes at Storage Location 700 in the EEPROM
+	eeprom.WriteBytes(Array As Byte(MAGIC_EEPROM, ByteDataToStore.Length), 0)
+	' Now write out all the bytes into the EEPROM
+	eeprom.WriteBytes(ByteDataToStore, 2)
 End Sub
 
 Sub ReadFromEEPROM
+	Log("Reading settings from the EEPROM")
+	
 	Dim header() As Byte = eeprom.ReadBytes(0, 2)
 	If header(0) = MAGIC_EEPROM Then
 		Dim data() As Byte = eeprom.ReadBytes(2, header(1))
 		Dim i As Int = bc.IndexOf(data, Array As Byte(0))
 		If i = -1 Then
 			Log("Error parsing settings. Starting as an access point.")
+			WiFi.Disconnect
+			IsWiFIConnectingAppStart = True
+			Timer1.Initialize("Timer1_Tick", 1000) '1000ms = 1 second
+			Timer1.Enabled = True
 			WiFiServer.Start
 			Return
 		End If
-		
-		Dim SSID As String = bc.StringFromBytes(bc.SubString2(data, 0, i))
-		Dim Password As String = bc.StringFromBytes(bc.SubString(data, i + 1))
-		Dim OpenDelay As String = bc.StringFromBytes(bc.SubString(data, i + 2 + Password.Length))
-		Dim ClosedDelay As String = bc.StringFromBytes(bc.SubString(data, i + 3 + OpenDelay.Length + Password.Length))
-		Dim IsWifi As String = bc.StringFromBytes(bc.SubString(data, i + 4 + ClosedDelay.Length + OpenDelay.Length + Password.Length))
-
+		Dim Objects() As Object = ser.ConvertBytesToArray(data, ObjectsBuffer)
+		Dim SSID As String = Objects(0) 'ignore
+		Dim Password As String = Objects(1) 'ignore
+		Dim OpenDelay As String = Objects(2) 'ignore
+		Dim ClosedDelay As String = Objects(3) 'ignore
 		GlobalStore.Put(0,SSID) ' SSID
 		GlobalStore.Put(1,Password) ' Password
 		GlobalStore.Put(2,OpenDelay) ' Open delay
 		GlobalStore.Put(3,ClosedDelay) ' Closed delay
-		GlobalStore.Put(4,IsWifi) ' Is used as WiFI 
-		Log("ReadFromEEPROM "," Slot0: ",GlobalStore.Slot0," Slot1: ",GlobalStore.Slot1," Slot2: ",GlobalStore.Slot2," Slot3: ",GlobalStore.Slot3," Slot4: ", GlobalStore.Slot4)
+		Log("ReadFromEEPROM "," Slot0: ",GlobalStore.Slot0," Slot1: ",GlobalStore.Slot1," Slot2: ",GlobalStore.Slot2," Slot3: ",GlobalStore.Slot3)
 	Else
 		Log("Settings data not found. Starting as an access point.")
+		WiFi.Disconnect
+		IsWiFIConnectingAppStart = True
+		Timer1.Initialize("Timer1_Tick", 1000) '1000ms = 1 second
+		Timer1.Enabled = True
 		WiFiServer.Start
 	End If
 
 End Sub
 
-Sub ClearEEPROM
+Sub ClearEEPROM 'ignore
 	Dim i As UInt
 	
 	Log("Size: ", eeprom.Size, " bytes")
@@ -248,19 +290,76 @@ Sub ClearEEPROM
 	Next
 End Sub
 
-Public Sub SaveNetworkDetails(SSID As String, Password As String)
-	Log("Saving settings: ", SSID, ", ", Password, ", " ,"56000",", ","60000" )
+Public Sub SaveNetworkDetails(SSID As String, Password As String, OpenDelay As String, ClosedDelay As String)
+	Log("Saving settings: ", SSID, ", ", Password, ", " ,OpenDelay,", ",ClosedDelay )
 	SSID = bc.StringFromBytes(WiFiServer.ReplaceString(SSID, "%20", " "))
-	WriteToEEPROM(SSID,Password,"56000","60000","True")
+	WriteToEEPROM(SSID,Password,OpenDelay,ClosedDelay)
 End Sub
 
 Public Sub ConnectToNetwork
-	WiFi.Disconnect
-	' Read settings from EEPROM
-	ReadFromEEPROM
-	' Stop access point
-	ConnectToWifi
+'	WiFi.Disconnect
+'	' Read settings from EEPROM
+'	ReadFromEEPROM
+'	' Stop access point
+	'	ConnectToWifi
+	Log("Restarting controller")
+	ESP.Restart
 End Sub
+
+Private Sub Timer1_Tick
+	' Blink red LED if in access point mode. And reconnect every 5 minutes.
+	counter = counter + 1
+	If counter >= 300 Then
+		Log("Stopping access point")
+		RunNative("SetSTA", Null)
+		IsWiFIConnectingAppStart = True
+		ConnectToWifi
+		If WiFi.IsConnected Then
+			Timer1.Enabled = False
+			IsWiFIConnectingAppStart = False
+		Else
+			Log("Starting as an access point.")
+			Timer1.Initialize("Timer1_Tick", 1000) '1000ms = 1 second
+			Timer1.Enabled = True
+			WiFiServer.Start
+		End If
+		counter = 0
+	End If
+	Dim currentState As Boolean = pin16.DigitalRead
+	Dim NewState As Boolean = Not(currentState)
+	pin16.DigitalWrite(NewState)
+End Sub
+
+Private Sub MQTTChangeSetting(message() As Byte)
+	Dim c As Int
+	For Each s() As Byte In bc.Split(message, "|")
+		If c = 0 Then
+			GlobalStore.Put(0,s) ' SSID
+		End If
+		If c = 1 Then
+			GlobalStore.Put(1,s) ' Password
+		End If
+		If c = 2 Then
+			GlobalStore.Put(2,s) ' Open delay
+		End If
+		If c = 3 Then
+			GlobalStore.Put(3,s) ' Closed delay
+		End If
+		c = c + 1
+	Next
+	If IsNumber(bc.StringFromBytes(GlobalStore.Slot2)) = False Or bc.StringFromBytes(GlobalStore.Slot2).Length = 0 Then
+		MQTT.Publish("Andy","*Open delay value is invalid!")
+		Return
+	End If
+	If IsNumber(bc.StringFromBytes(GlobalStore.Slot3)) = False Or bc.StringFromBytes(GlobalStore.Slot3).Length = 0 Then
+		MQTT.Publish("Andy","*Closed delay value is invalid!")
+		Return
+	End If
+	Log("MQTTChangeSetting.Slot0: ",GlobalStore.Slot0," GlobalStore.Slot1: ",GlobalStore.Slot1," GlobalStore.Slot2: ",GlobalStore.Slot2," GlobalStore.Slot3: ",GlobalStore.Slot3)
+	WriteToEEPROM(bc.StringFromBytes(GlobalStore.Slot0),bc.StringFromBytes(GlobalStore.Slot1),bc.StringFromBytes(GlobalStore.Slot2),bc.StringFromBytes(GlobalStore.Slot3))
+	ConnectToNetwork
+End Sub
+
 
 #if C
 void SetSTA(B4R::Object* o) {

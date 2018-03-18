@@ -44,6 +44,7 @@ public int _mlastvisibleindex = 0;
 public boolean _monitorvisiblerange = false;
 public boolean _firescrollchanged = false;
 public andy.home.system.main _main = null;
+public andy.home.system.settings _settings = null;
 public andy.home.system.starter _starter = null;
 public static class _clvitem{
 public boolean IsInitialized;

@@ -3,14 +3,17 @@ File1=0.png
 File2=1.bal
 File3=off.png
 File4=on.png
+File5=Settings.bal
 FileGroup1=Default Group
 FileGroup2=Default Group
 FileGroup3=Default Group
 FileGroup4=Default Group
+FileGroup5=Default Group
 Group=Default Group
 IconFile=
 Library1=core
 Library10=phone
+Library11=mlwifi
 Library2=appcompat
 Library3=javaobject
 Library4=xmllayoutbuilder
@@ -21,10 +24,11 @@ Library8=xui
 Library9=stringutils
 ManifestCode='This code will be applied to the manifest file during compilation.~\n~'You do not need to modify it in most cases.~\n~'See this link for for more information: http://www.basic4ppc.com/forum/showthread.php?p=78136~\n~AddManifestText(~\n~<uses-sdk android:minSdkVersion="7" android:targetSdkVersion="21"/>~\n~<supports-screens android:largeScreens="true" ~\n~    android:normalScreens="true" ~\n~    android:smallScreens="true" ~\n~    android:anyDensity="true"/>)~\n~SetApplicationAttribute(android:icon, "@drawable/icon")~\n~SetApplicationAttribute(android:label, "$LABEL$")~\n~'End of default text.~\n~~\n~SetApplicationAttribute(android:theme, "@style/MyAppTheme")~\n~~\n~CreateResource(values, theme.xml,~\n~<resources>~\n~    <style name="MyAppTheme" parent="Theme.AppCompat.Light.NoActionBar">~\n~        <item name="colorPrimary">#0098FF</item>~\n~        <item name="colorPrimaryDark">#007CF5</item>~\n~        <item name="colorAccent">#66CD00</item>~\n~        <item name="windowNoTitle">true</item>~\n~        <item name="windowActionBar">false</item>~\n~    </style>~\n~</resources>~\n~)
 Module1=CustomListView
-Module2=Starter
-NumberOfFiles=4
-NumberOfLibraries=10
-NumberOfModules=2
+Module2=Settings
+Module3=Starter
+NumberOfFiles=5
+NumberOfLibraries=11
+NumberOfModules=3
 Version=7.8
 @EndOfDesignText@
 #Region  Project Attributes 
@@ -133,7 +137,8 @@ End Sub
 Private Sub MQTT_Disconnected
 	Try
 		gblACMenu.Clear
-		gblACMenu.Add(0, 0, "About",Null)
+		gblACMenu.Add(0, 0, "Settings",Null)
+		gblACMenu.Add(1, 1, "About",Null)
 		AddEvent("Disconnected from MQTT broker")
 	Catch
 		Log(LastException)
@@ -217,6 +222,8 @@ Sub ACToolBarLight1_MenuItemClick (Item As ACMenuItem)
 	Try
 		If Item.Title = "About" Then
 			ShowAboutMenu
+		else if Item.Title = "Settings" Then
+			StartActivity("Settings")
 		End If
 	Catch
 		Log(LastException)
@@ -251,7 +258,8 @@ Sub Activity_Createmenu(Menu As ACMenu)
 	Try
 		Menu.Clear
 		gblACMenu = Menu
-		Menu.Add(0, 0, "About",Null)
+		Menu.Add(0, 0, "Settings",Null)
+		Menu.Add(1, 1, "About",Null)
 	Catch
 		Log(LastException)
 	End Try

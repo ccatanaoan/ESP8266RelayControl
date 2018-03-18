@@ -12,8 +12,7 @@ Sub Process_Globals
 End Sub
 
 Public Sub Start
-	Log("StartAP: ", Main.WiFi.StartAccessPoint("AndyRelayAP"))
-	Log("My AP ip: ", Main.WiFi.AccessPointIp)
+	Log("Start AP: ", Main.WiFi.StartAccessPoint("AndyRelayAccessPoint")," IP: ", Main.WiFi.AccessPointIp)
 	server.Initialize(80, "server_NewConnection")
 	server.Listen
 End Sub
@@ -23,11 +22,9 @@ Private Sub Server_NewConnection (NewSocket As WiFiSocket)
 End Sub
 
 Private Sub Astream_NewData (Buffer() As Byte)
-    Log("Buffer: ",Buffer)
 	If bc.IndexOf(Buffer, "GET") <> -1 Then
 		If bc.IndexOf(Buffer, "/set") <> -1 Then
-			
-			Dim ssid = "", password  = "" As String
+			Dim ssid = "", password  = "", OpenDelay = "", ClosedDelay = "" As String
 			Dim i1 As Int = 0
 			Dim i2 As Int = 0
 			For Each b1() As Byte In bc.Split(Buffer, " ")
@@ -38,6 +35,10 @@ Private Sub Astream_NewData (Buffer() As Byte)
 								ssid = bc.StringFromBytes(b2)
 							Case 3
 								password = bc.StringFromBytes(b2)
+							Case 4
+								OpenDelay = bc.StringFromBytes(b2)
+							Case 5
+								ClosedDelay = bc.StringFromBytes(b2)
 						End Select
 						i2 = i2 + 1
 					Next
@@ -45,23 +46,34 @@ Private Sub Astream_NewData (Buffer() As Byte)
 				End If
 				i1 = i1 + 1
 			Next
-			Log(StackBufferUsage)
+			'Log(StackBufferUsage)
+			'Log("WiFiServer SSID: ",ssid, " Password: ", password, " OpenDelay: ", OpenDelay, " ClosedDelay: ", ClosedDelay)
+			If IsNumber(OpenDelay) = False Or OpenDelay.Length = 0 Then
+				Astream.Write("Open delay value is invalid!").Write(CRLF)
+				CallSubPlus("CloseConnection", 200, 0)
+				Return
+			End If
+			If IsNumber(ClosedDelay) = False Or ClosedDelay.Length = 0 Then
+				Astream.Write("Closed delay value is invalid!").Write(CRLF)
+				CallSubPlus("CloseConnection", 200, 0)
+				Return
+			End If
 			Astream.Write("HTTP/1.1 200").Write(CRLF)
 			Astream.Write("Content-Type: text/html").Write(CRLF).Write(CRLF)
 			Astream.Write("<script>setTimeout(function(){location.href=""http://192.168.4.1""} , 20000);</script>")
-			Astream.Write("WiFi set to: ").Write(ssid).Write(", password: ").Write(password).Write("<br><br/>Please wait...")
-			Main.SaveNetworkDetails(ssid, password)
+			Astream.Write("WiFi set to: ").Write(ssid).Write("<br>Password: ").Write(password).Write("<br>Open Delay: ").Write(OpenDelay).Write("<br>Closed Delay: ").Write(ClosedDelay).Write("<br><br/>Applying the new settings. Please wait...")
+			Main.SaveNetworkDetails(ssid, password, OpenDelay,ClosedDelay)
 			CallSubPlus("ConnectWifi", 500, 0)
 		Else If bc.IndexOf(Buffer, " / ") <> -1 Then
 			Astream.Write("HTTP/1.1 200").Write(CRLF).Write(CRLF)
 			If Main.WiFi.IsConnected Then
-				Astream.Write("Connected to network.").Write(CRLF)
-				Astream.Write("ESP8266 IP address: ").Write(Main.WiFi.LocalIp)
+				Astream.Write("Connected to AndyRelayAccessPoint WiFi network.").Write(CRLF)
+				Astream.Write("<br><br/>ESP8266 IP address: ").Write(Main.WiFi.LocalIp)
 			Else
-				Astream.Write("Not connected!")
+				Astream.Write("Not connected to WiFi network!")
 			End If
     	Else
-			Astream.Write("HTTP/1.1 404").Write(CRLF)
+			Astream.Write("Remote command unrecognized!").Write(CRLF)
 		End If
 		CallSubPlus("CloseConnection", 200, 0)
 	End If
@@ -72,7 +84,6 @@ Private Sub ConnectWifi(u As Byte)
 End Sub
 
 Private Sub CloseConnection(u As Byte)
-	Log("close connection")
 	If server.Socket.Connected Then
 		server.Socket.Stream.Flush
 		server.Socket.Close
@@ -80,7 +91,6 @@ Private Sub CloseConnection(u As Byte)
 End Sub
 
 Private Sub AStream_Error
-	Log("Disconnected")
 	server.Listen
 End Sub
 

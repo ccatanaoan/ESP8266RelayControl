@@ -12,6 +12,10 @@
 	    android:smallScreens="true" 
 	    android:anyDensity="true"/>
 	<uses-permission android:name="android.permission.INTERNET"/>
+	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+	<uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 	<application
 		android:icon="@drawable/icon"
 		android:label="Andy Home Automation"
@@ -27,6 +31,13 @@
 			   <category android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
 			
+		</activity>
+		<activity
+			android:windowSoftInputMode="stateHidden"
+			android:launchMode="singleTop"
+			android:name=".settings"
+			android:label="Andy Home Automation"
+			android:screenOrientation="unspecified">
 		</activity>
 		<service android:name=".starter">
 		</service>
