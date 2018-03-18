@@ -125,6 +125,7 @@ public class starter extends  android.app.Service{
 	public android.os.IBinder onBind(android.content.Intent intent) {
 		return null;
 	}public anywheresoftware.b4a.keywords.Common __c = null;
+public anywheresoftware.b4a.samples.httputils2.httputils2service _httputils2service = null;
 public andy.home.system.main _main = null;
 public andy.home.system.settings _settings = null;
 public static boolean  _application_error(anywheresoftware.b4a.objects.B4AException _error,String _stacktrace) throws Exception{

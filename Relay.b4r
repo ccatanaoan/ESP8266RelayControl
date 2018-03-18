@@ -47,6 +47,7 @@ Sub Process_Globals
 	Private ObjectsBuffer(10) As Object
 	Private IsWiFIConnectingAppStart As Boolean
 	Private Timer1 As Timer
+	Private Timer2 As Timer
 	Private counter As ULong
 End Sub
 
@@ -192,6 +193,7 @@ Sub mqtt_Disconnected
 End Sub
 
 Sub ConnectToWifi
+	Log("ConnectToWifi")
 	Dim SSID As String
 	Dim password As String
 	
@@ -208,8 +210,12 @@ Sub ConnectToWifi
 		GlobalStore.Put(1,password)
 		WriteToEEPROM(bc.StringFromBytes(GlobalStore.Slot0),bc.StringFromBytes(GlobalStore.Slot1),bc.StringFromBytes(GlobalStore.Slot2),bc.StringFromBytes(GlobalStore.Slot3))
 	End If
-
+	
+	Timer2.Initialize("Timer2_Tick", 50) '1000ms = 1 second
+	Timer2.Enabled = True
+	'WiFi.Connect(SSID)
 	WiFi.Connect2(SSID, password)
+	Timer2.Enabled = False
 
 	If WiFi.IsConnected Then
 		' Stop access point
@@ -328,6 +334,11 @@ Private Sub Timer1_Tick
 	Dim currentState As Boolean = pin16.DigitalRead
 	Dim NewState As Boolean = Not(currentState)
 	pin16.DigitalWrite(NewState)
+End Sub
+
+Private Sub Timer2_Tick
+	' To keep Wifi.Connect2 alive
+	Log("")
 End Sub
 
 Private Sub MQTTChangeSetting(message() As Byte)

@@ -14,11 +14,13 @@ IconFile=
 Library1=core
 Library10=phone
 Library11=mlwifi
+Library12=viewsex
+Library13=httputils2
 Library2=appcompat
 Library3=javaobject
 Library4=xmllayoutbuilder
 Library5=jmqtt
-Library6=randomaccessfile
+Library6=http
 Library7=byteconverter
 Library8=xui
 Library9=stringutils
@@ -27,12 +29,12 @@ Module1=CustomListView
 Module2=Settings
 Module3=Starter
 NumberOfFiles=5
-NumberOfLibraries=11
+NumberOfLibraries=13
 NumberOfModules=3
 Version=7.8
 @EndOfDesignText@
 #Region  Project Attributes 
-	#ApplicationLabel: Andy Home Automation
+	#ApplicationLabel: Andy Greenhouse
 	#VersionCode: 1
 	#VersionName: 1.0
 	'SupportedOrientations possible values: unspecified, landscape or portrait.
@@ -53,7 +55,7 @@ Sub Process_Globals
     Private MQTTServerURI As String = "tcp://m14.cloudmqtt.com:15093"
     Private BC As ByteConverter
 	Private cartBitmap As Bitmap
-	Private badge As Int
+	Private badge As Int 'ignore
 End Sub
 
 Sub Globals
@@ -78,15 +80,15 @@ Sub Activity_Create(FirstTime As Boolean)
 		ACToolBarLight1.NavigationIconDrawable = bd
 		ToolbarHelper.Initialize
 		Dim cs As CSBuilder
-		ToolbarHelper.Title= cs.Initialize.Size(18).Append("Andy Home").PopAll
-		ToolbarHelper.subTitle = "Automation System v" & GetVersionCode
+		ToolbarHelper.Title= cs.Initialize.Size(20).Append("Andy Greenhouse System").PopAll
+		ToolbarHelper.subTitle = ""
 		ToolbarHelper.ShowUpIndicator = False 'set to true to show the up arrow
 		ACToolBarLight1.InitMenuListener
 		Dim jo As JavaObject = ACToolBarLight1
 		Dim xl As XmlLayoutBuilder
 		jo.RunMethod("setPopupTheme", Array(xl.GetResourceId("style", "ToolbarMenu")))		
 	Catch
-		ToastMessageShow(LastException,True)
+		ToastMessageShow(LastException,False)
 	End Try
 End Sub
 
@@ -205,7 +207,7 @@ Sub btnRestart_Click
 		Dim result As Int
 		Dim bd As BitmapDrawable
 		bd.Initialize(LoadBitmapResize(File.DirAssets, "0.png", 32dip, 32dip, True))
-		result = Msgbox2("Restart the controller?", "Andy Home Automation", "Yes", "", "No", bd.Bitmap)
+		result = Msgbox2("Restart the controller?", "Andy Greenhouse System", "Yes", "", "No", bd.Bitmap)
 		If result = DialogResponse.POSITIVE Then
 			If MQTT.IsInitialized = False Or MQTT.Connected = False Then
 			MQTT_Connect
@@ -234,7 +236,7 @@ Sub ShowAboutMenu
 	Try
 		Dim bd As BitmapDrawable
 		bd.Initialize(LoadBitmapResize(File.DirAssets, "0.png", 32dip, 32dip, True))
-		Msgbox2("Andy Home Automation System v" & GetVersionCode & CRLF & "Developed by Cloyd Catanaoan" & CRLF & "March 13, 2018", "About", "OK", "", "", bd.Bitmap)
+		Msgbox2("Andy Greenhouse System v" & GetVersionCode & CRLF & CRLF & "Developed by Cloyd Catanaoan" & CRLF & "March 13, 2018", "About", "OK", "", "", bd.Bitmap)
 	Catch
 		Log(LastException)
 	End Try
@@ -272,7 +274,8 @@ Sub ShowRelayIcon(state As String)
 		item.ShowAsAction = item.SHOW_AS_ACTION_ALWAYS
 		cartBitmap = LoadBitmap(File.DirAssets, state)
 		UpdateIcon("relay", AddBadgeToIcon(cartBitmap, badge))
-		gblACMenu.Add(0, 0, "About",Null)
+		gblACMenu.Add(0, 0, "Settings",Null)
+		gblACMenu.Add(1, 1, "About",Null)
 	Catch
 		Log(LastException)
 	End Try

@@ -42,6 +42,7 @@ static B4R::B4RSerializator* _ser;
 static B4R::Array* _objectsbuffer;
 static bool _iswificonnectingappstart;
 static B4R::Timer* _timer1;
+static B4R::Timer* _timer2;
 static ULong _counter;
 static b4r_globalstore* _globalstore;
 static b4r_wifiserver* _wifiserver;
@@ -50,6 +51,7 @@ static void _relayclose(Byte _tag);
 static void _relayopen(Byte _tag);
 static void _savenetworkdetails(B4R::B4RString* _ssid,B4R::B4RString* _password,B4R::B4RString* _opendelay,B4R::B4RString* _closeddelay);
 static void _timer1_tick();
+static void _timer2_tick();
 static void _writetoeeprom(B4R::B4RString* _ssid,B4R::B4RString* _password,B4R::B4RString* _opendelay,B4R::B4RString* _closeddelay);
 };
 

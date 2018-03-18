@@ -22,6 +22,7 @@ Private Sub Server_NewConnection (NewSocket As WiFiSocket)
 End Sub
 
 Private Sub Astream_NewData (Buffer() As Byte)
+	Log(Buffer)
 	If bc.IndexOf(Buffer, "GET") <> -1 Then
 		If bc.IndexOf(Buffer, "/set") <> -1 Then
 			Dim ssid = "", password  = "", OpenDelay = "", ClosedDelay = "" As String
@@ -64,6 +65,10 @@ Private Sub Astream_NewData (Buffer() As Byte)
 			Astream.Write("WiFi set to: ").Write(ssid).Write("<br>Password: ").Write(password).Write("<br>Open Delay: ").Write(OpenDelay).Write("<br>Closed Delay: ").Write(ClosedDelay).Write("<br><br/>Applying the new settings. Please wait...")
 			Main.SaveNetworkDetails(ssid, password, OpenDelay,ClosedDelay)
 			CallSubPlus("ConnectWifi", 500, 0)
+		else If bc.IndexOf(Buffer, "/getsettings") <> -1 Then
+			Astream.Write("HTTP/1.1 200").Write(CRLF).Write(CRLF)
+			Dim c As String = JoinStrings(Array As String(bc.StringFromBytes(GlobalStore.Slot0), ",", bc.StringFromBytes(GlobalStore.Slot1), ",",bc.StringFromBytes(GlobalStore.Slot2),",",bc.StringFromBytes(GlobalStore.Slot3)))
+			Astream.Write(c)
 		Else If bc.IndexOf(Buffer, " / ") <> -1 Then
 			Astream.Write("HTTP/1.1 200").Write(CRLF).Write(CRLF)
 			If Main.WiFi.IsConnected Then
@@ -73,6 +78,7 @@ Private Sub Astream_NewData (Buffer() As Byte)
 				Astream.Write("Not connected to WiFi network!")
 			End If
     	Else
+			Astream.Write("HTTP/1.1 200").Write(CRLF).Write(CRLF)
 			Astream.Write("Remote command unrecognized!").Write(CRLF)
 		End If
 		CallSubPlus("CloseConnection", 200, 0)

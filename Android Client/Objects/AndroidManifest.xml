@@ -18,13 +18,13 @@
 	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 	<application
 		android:icon="@drawable/icon"
-		android:label="Andy Home Automation"
+		android:label="Andy Greenhouse"
 		android:theme="@style/MyAppTheme">
 		<activity
 			android:windowSoftInputMode="stateHidden"
 			android:launchMode="singleTop"
 			android:name=".main"
-			android:label="Andy Home Automation"
+			android:label="Andy Greenhouse"
 			android:screenOrientation="unspecified">
 			<intent-filter>
 			   <action android:name="android.intent.action.MAIN" />
@@ -36,12 +36,16 @@
 			android:windowSoftInputMode="stateHidden"
 			android:launchMode="singleTop"
 			android:name=".settings"
-			android:label="Andy Home Automation"
+			android:label="Andy Greenhouse"
 			android:screenOrientation="unspecified">
 		</activity>
 		<service android:name=".starter">
 		</service>
 		<receiver android:name=".starter$starter_BR">
+		</receiver>
+		<service android:name="anywheresoftware.b4a.samples.httputils2.httputils2service">
+		</service>
+		<receiver android:name="anywheresoftware.b4a.samples.httputils2.httputils2service$httputils2service_BR">
 		</receiver>
 	</application>
 </manifest>

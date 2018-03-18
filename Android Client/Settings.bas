@@ -23,15 +23,15 @@ End Sub
 Sub Globals
 	'These global variables will be redeclared each time the activity is created.
 	'These variables can only be accessed from this module.
-	Private txtClosedDelay As EditText
-	Private txtOpenDelay As EditText
-	Private txtPassword As EditText
-	Private txtSSID As EditText
 	Private ACToolBarLight1 As ACToolBarLight
 	Private ToolbarHelper As ACActionBar
 	Private WiFi As MLwifi
 	Private btnGet As Button
 	Private btnSet As Button
+	Private txtPassword As FloatLabeledEditText
+	Private txtSSID As FloatLabeledEditText
+	Private txtClosedDelay As FloatLabeledEditText
+	Private txtOpenDelay As FloatLabeledEditText
 End Sub
 
 Sub Activity_Create(FirstTime As Boolean)
@@ -42,11 +42,13 @@ Sub Activity_Create(FirstTime As Boolean)
 	Activity.LoadLayout("Settings")
 	ToolbarHelper.Initialize
 	Dim cs As CSBuilder
-	ToolbarHelper.Title= "Settings" 'cs.Initialize.Size(20).Append("Settings").PopAll
+	ToolbarHelper.Title= cs.Initialize.Size(20).Append("Settings").PopAll
 	ToolbarHelper.Subtitle=""
 	ToolbarHelper.ShowUpIndicator = False 'set to true to show the up arrow
 	ACToolBarLight1.InitMenuListener
 
+	txtOpenDelay.EditText.InputType = txtOpenDelay.EditText.INPUT_TYPE_NUMBERS
+	txtClosedDelay.EditText.InputType = txtClosedDelay.EditText.INPUT_TYPE_NUMBERS
 End Sub
 
 Sub Activity_Resume
@@ -65,24 +67,122 @@ End Sub
 
 
 Sub btnSet_Click
-	If WiFi.isWifiConnected = True And WiFi.SSID = "AndyRelayAccessPoint" Then
+	If txtSSID.Text.Trim = "" Then
+		ToastMessageShow("Please enter a valid WiFi SSID (network name)", False)
+		Return
+	End If
 	
-	Else
+	If txtPassword.Text.Trim = "" Then
+		ToastMessageShow("Please enter a valid WiFi password", False)
+		Return
+	End If
+	
+	If txtPassword.Text.IndexOf(" ") <> -1 Then
+		ToastMessageShow("Space is not allowed in the WiFi password", False)
+		Return
+	End If
+	
+	If IsNumber(txtOpenDelay.Text) = False Or txtOpenDelay.Text = "0" Then
+		ToastMessageShow("Please enter a valid Open Delay value", False)
+		Return
+	End If
+	
+	If IsNumber(txtClosedDelay.Text) = False Or txtClosedDelay.Text = "0" Then
+		ToastMessageShow("Please enter a valid Closed Delay value", False)
+		Return
+	End If
+	
+	ToastMessageShow("Attempting to send settings", False)
+	
+	' 1. Attempt via MQTT
+	Try
 		If WiFi.isOnLine Then
 			Log(txtSSID.Text & "|" & txtPassword.Text & "|" & txtOpenDelay.Text & "|" & txtClosedDelay.Text)
 			MQTT.Publish("Andy", BC.StringToBytes(txtSSID.Text & "|" & txtPassword.Text & "|" & txtOpenDelay.Text & "|" & txtClosedDelay.Text, "utf8"))
+		Else
+			ToastMessageShow("No internet connection", False)
 		End If
-	End If
+	Catch
+		Log(LastException)
+	End Try
+
+	
+	' 2. Attempt access point first
+	Try
+			Dim j As HttpJob
+			j.Initialize("", Me)
+			Dim a As String = txtSSID.Text.trim
+			Dim b As String = txtPassword.Text.trim
+			Dim c As String = txtOpenDelay.Text.trim
+			Dim d As String = txtClosedDelay.Text.trim
+			Dim encodedURL As String = "http://192.168.4.1/set/" & a & "/" & b & "/" & c & "/" & d
+			encodedURL = encodedURL.Replace(" ", "%20")
+			j.Download(encodedURL)
+			j.GetRequest.SetHeader("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:27.0) Gecko/20100101 Firefox/27.0")
+			Wait For (j) JobDone(j As HttpJob)
+			If j.Success Then
+			
+			Else
+				ToastMessageShow(LastException, False)
+			End If
+			j.Release
+	Catch
+		Log(LastException)
+	End Try
 End Sub
 
 Sub btnGet_Click
-	If WiFi.isWifiConnected = True And WiFi.SSID = "AndyRelayAccessPoint" Then
+	ToastMessageShow("Attempting to retrieve settings", False)
 	
-	Else
+	Dim x As String = ""
+	txtSSID.Text = x
+	txtPassword.Text = x
+	txtOpenDelay.Text = x
+	txtClosedDelay.Text = x
+	
+	' 1. Attempt via MQTT
+	Try
 		If WiFi.isOnLine Then
 			MQTT.Publish("Andy", BC.StringToBytes("Get settings", "utf8"))
+		Else
+			ToastMessageShow("No internet connection", False)
 		End If
-	End If
+	Catch
+		Log(LastException)
+	End Try
+	
+	' 2. Attempt access point first
+	Try
+		If WiFi.SSID="AndyRelayAccessPoint" Then
+			Dim j As HttpJob
+			j.Initialize("", Me)
+			j.Download("http://192.168.4.1/getsettings")
+			Wait For (j) JobDone(j As HttpJob)
+			If j.Success Then
+				Log(j.GetString)
+				Dim htmlstring As String = j.GetString
+				Dim s() As String = Regex.Split(",", htmlstring)
+				If s.Length = 4 Then
+					Sleep(100)
+					txtSSID.Text = s(0).Trim
+					Sleep(100)
+					txtPassword.Text = s(1).Trim
+					Sleep(100)
+					txtOpenDelay.Text = s(2).Trim
+					Sleep(100)
+					txtClosedDelay.Text = s(3).Trim
+					Sleep(100)
+					ToastMessageShow("Settings retrieved via access point", False)
+				End If
+			Else
+				ToastMessageShow(LastException, False)
+			End If
+			j.Release
+		End If
+	Catch
+		Log(LastException)
+	End Try
+
 End Sub
 
 'Connect to CloudMQTT broker
@@ -128,12 +228,19 @@ Private Sub MQTT_MessageArrived (Topic As String, Payload() As Byte)
 		Log("MQTT_MessageArrived: " & status )
 		If status.IndexOf("*Get settings:") <> -1 Then
 			Dim s() As String = Regex.Split(",", status.Replace("*Get settings: ",""))
+			Sleep(100)
 			txtSSID.Text = s(0).Trim
+			Sleep(100)
 			txtPassword.Text = s(1).Trim
+			Sleep(100)
 			txtOpenDelay.Text = s(2).Trim
+			Sleep(100)
 			txtClosedDelay.Text = s(3).Trim
+			Sleep(100)
+			ToastMessageShow("Settings retrieved via internet", false)
 		End If
 	Catch
 		Log(LastException)
 	End Try
 End Sub
+

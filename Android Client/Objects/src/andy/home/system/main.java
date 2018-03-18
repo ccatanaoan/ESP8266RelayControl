@@ -336,6 +336,7 @@ public de.amberhome.objects.appcompat.ACSwitchCompatWrapper _tglrelayswitch = nu
 public de.amberhome.objects.appcompat.ACButtonWrapper _btnrestart = null;
 public andy.home.system.customlistview _clv1 = null;
 public de.amberhome.objects.appcompat.ACMenuWrapper _gblacmenu = null;
+public anywheresoftware.b4a.samples.httputils2.httputils2service _httputils2service = null;
 public andy.home.system.settings _settings = null;
 public andy.home.system.starter _starter = null;
 
@@ -368,10 +369,10 @@ mostCurrent._actoolbarlight1.setNavigationIconDrawable((android.graphics.drawabl
 mostCurrent._toolbarhelper.Initialize(mostCurrent.activityBA);
  //BA.debugLineNum = 47;BA.debugLine="Dim cs As CSBuilder";
 _cs = new anywheresoftware.b4a.objects.CSBuilder();
- //BA.debugLineNum = 48;BA.debugLine="ToolbarHelper.Title= cs.Initialize.Size(18).Appe";
-mostCurrent._toolbarhelper.setTitle(BA.ObjectToCharSequence(_cs.Initialize().Size((int) (18)).Append(BA.ObjectToCharSequence("Andy Home")).PopAll().getObject()));
- //BA.debugLineNum = 49;BA.debugLine="ToolbarHelper.subTitle = \"Automation System v\" &";
-mostCurrent._toolbarhelper.setSubtitle(BA.ObjectToCharSequence("Automation System v"+_getversioncode()));
+ //BA.debugLineNum = 48;BA.debugLine="ToolbarHelper.Title= cs.Initialize.Size(20).Appe";
+mostCurrent._toolbarhelper.setTitle(BA.ObjectToCharSequence(_cs.Initialize().Size((int) (20)).Append(BA.ObjectToCharSequence("Andy Greenhouse System")).PopAll().getObject()));
+ //BA.debugLineNum = 49;BA.debugLine="ToolbarHelper.subTitle = \"\"";
+mostCurrent._toolbarhelper.setSubtitle(BA.ObjectToCharSequence(""));
  //BA.debugLineNum = 50;BA.debugLine="ToolbarHelper.ShowUpIndicator = False 'set to tr";
 mostCurrent._toolbarhelper.setShowUpIndicator(anywheresoftware.b4a.keywords.Common.False);
  //BA.debugLineNum = 51;BA.debugLine="ACToolBarLight1.InitMenuListener";
@@ -385,8 +386,8 @@ _xl = new anywheresoftware.b4a.object.XmlLayoutBuilder();
 _jo.RunMethod("setPopupTheme",new Object[]{(Object)(_xl.GetResourceId("style","ToolbarMenu"))});
  } 
        catch (Exception e19) {
-			processBA.setLastException(e19); //BA.debugLineNum = 56;BA.debugLine="ToastMessageShow(LastException,True)";
-anywheresoftware.b4a.keywords.Common.ToastMessageShow(BA.ObjectToCharSequence(anywheresoftware.b4a.keywords.Common.LastException(mostCurrent.activityBA).getObject()),anywheresoftware.b4a.keywords.Common.True);
+			processBA.setLastException(e19); //BA.debugLineNum = 56;BA.debugLine="ToastMessageShow(LastException,False)";
+anywheresoftware.b4a.keywords.Common.ToastMessageShow(BA.ObjectToCharSequence(anywheresoftware.b4a.keywords.Common.LastException(mostCurrent.activityBA).getObject()),anywheresoftware.b4a.keywords.Common.False);
  };
  //BA.debugLineNum = 58;BA.debugLine="End Sub";
 return "";
@@ -454,39 +455,39 @@ public static anywheresoftware.b4a.objects.drawable.CanvasWrapper.BitmapWrapper 
 anywheresoftware.b4a.objects.drawable.CanvasWrapper.BitmapWrapper _mbmp = null;
 anywheresoftware.b4a.objects.drawable.CanvasWrapper _cvs = null;
 anywheresoftware.b4a.objects.drawable.CanvasWrapper.RectWrapper _target = null;
- //BA.debugLineNum = 284;BA.debugLine="Sub AddBadgeToIcon(bmp As Bitmap, Number As Int) A";
- //BA.debugLineNum = 285;BA.debugLine="Dim mbmp As Bitmap";
+ //BA.debugLineNum = 285;BA.debugLine="Sub AddBadgeToIcon(bmp As Bitmap, Number As Int) A";
+ //BA.debugLineNum = 286;BA.debugLine="Dim mbmp As Bitmap";
 _mbmp = new anywheresoftware.b4a.objects.drawable.CanvasWrapper.BitmapWrapper();
- //BA.debugLineNum = 286;BA.debugLine="Try";
-try { //BA.debugLineNum = 287;BA.debugLine="Dim cvs As Canvas";
+ //BA.debugLineNum = 287;BA.debugLine="Try";
+try { //BA.debugLineNum = 288;BA.debugLine="Dim cvs As Canvas";
 _cvs = new anywheresoftware.b4a.objects.drawable.CanvasWrapper();
- //BA.debugLineNum = 288;BA.debugLine="mbmp.InitializeMutable(32dip, 32dip)";
+ //BA.debugLineNum = 289;BA.debugLine="mbmp.InitializeMutable(32dip, 32dip)";
 _mbmp.InitializeMutable(anywheresoftware.b4a.keywords.Common.DipToCurrent((int) (32)),anywheresoftware.b4a.keywords.Common.DipToCurrent((int) (32)));
- //BA.debugLineNum = 289;BA.debugLine="cvs.Initialize2(mbmp)";
+ //BA.debugLineNum = 290;BA.debugLine="cvs.Initialize2(mbmp)";
 _cvs.Initialize2((android.graphics.Bitmap)(_mbmp.getObject()));
- //BA.debugLineNum = 290;BA.debugLine="Dim target As Rect";
+ //BA.debugLineNum = 291;BA.debugLine="Dim target As Rect";
 _target = new anywheresoftware.b4a.objects.drawable.CanvasWrapper.RectWrapper();
- //BA.debugLineNum = 291;BA.debugLine="target.Initialize(0, 0, mbmp.Width, mbmp.Height)";
+ //BA.debugLineNum = 292;BA.debugLine="target.Initialize(0, 0, mbmp.Width, mbmp.Height)";
 _target.Initialize((int) (0),(int) (0),_mbmp.getWidth(),_mbmp.getHeight());
- //BA.debugLineNum = 292;BA.debugLine="cvs.DrawBitmap(bmp, Null, target)";
+ //BA.debugLineNum = 293;BA.debugLine="cvs.DrawBitmap(bmp, Null, target)";
 _cvs.DrawBitmap((android.graphics.Bitmap)(_bmp.getObject()),(android.graphics.Rect)(anywheresoftware.b4a.keywords.Common.Null),(android.graphics.Rect)(_target.getObject()));
- //BA.debugLineNum = 293;BA.debugLine="If Number > 0 Then";
+ //BA.debugLineNum = 294;BA.debugLine="If Number > 0 Then";
 if (_number>0) { 
- //BA.debugLineNum = 294;BA.debugLine="cvs.DrawCircle(mbmp.Width - 8dip, 8dip, 8dip, C";
+ //BA.debugLineNum = 295;BA.debugLine="cvs.DrawCircle(mbmp.Width - 8dip, 8dip, 8dip, C";
 _cvs.DrawCircle((float) (_mbmp.getWidth()-anywheresoftware.b4a.keywords.Common.DipToCurrent((int) (8))),(float) (anywheresoftware.b4a.keywords.Common.DipToCurrent((int) (8))),(float) (anywheresoftware.b4a.keywords.Common.DipToCurrent((int) (8))),anywheresoftware.b4a.keywords.Common.Colors.Red,anywheresoftware.b4a.keywords.Common.True,(float) (0));
- //BA.debugLineNum = 295;BA.debugLine="cvs.DrawText(Min(Number, 9), mbmp.Width - 8dip,";
+ //BA.debugLineNum = 296;BA.debugLine="cvs.DrawText(Min(Number, 9), mbmp.Width - 8dip,";
 _cvs.DrawText(mostCurrent.activityBA,BA.NumberToString(anywheresoftware.b4a.keywords.Common.Min(_number,9)),(float) (_mbmp.getWidth()-anywheresoftware.b4a.keywords.Common.DipToCurrent((int) (8))),(float) (anywheresoftware.b4a.keywords.Common.DipToCurrent((int) (12))),anywheresoftware.b4a.keywords.Common.Typeface.DEFAULT_BOLD,(float) (12),anywheresoftware.b4a.keywords.Common.Colors.White,BA.getEnumFromString(android.graphics.Paint.Align.class,"CENTER"));
  };
- //BA.debugLineNum = 297;BA.debugLine="Return mbmp";
+ //BA.debugLineNum = 298;BA.debugLine="Return mbmp";
 if (true) return _mbmp;
  } 
        catch (Exception e15) {
-			processBA.setLastException(e15); //BA.debugLineNum = 299;BA.debugLine="Log(LastException)";
+			processBA.setLastException(e15); //BA.debugLineNum = 300;BA.debugLine="Log(LastException)";
 anywheresoftware.b4a.keywords.Common.Log(BA.ObjectToString(anywheresoftware.b4a.keywords.Common.LastException(mostCurrent.activityBA)));
- //BA.debugLineNum = 300;BA.debugLine="Return Null";
+ //BA.debugLineNum = 301;BA.debugLine="Return Null";
 if (true) return (anywheresoftware.b4a.objects.drawable.CanvasWrapper.BitmapWrapper) anywheresoftware.b4a.AbsObjectWrapper.ConvertToWrapper(new anywheresoftware.b4a.objects.drawable.CanvasWrapper.BitmapWrapper(), (android.graphics.Bitmap)(anywheresoftware.b4a.keywords.Common.Null));
  };
- //BA.debugLineNum = 302;BA.debugLine="End Sub";
+ //BA.debugLineNum = 303;BA.debugLine="End Sub";
 return null;
 }
 public static void  _addevent(String _text) throws Exception{
@@ -574,22 +575,22 @@ processBA.setLastException(e0);}
 }
 public static anywheresoftware.b4a.objects.drawable.BitmapDrawable  _bitmaptobitmapdrawable(anywheresoftware.b4a.objects.drawable.CanvasWrapper.BitmapWrapper _bitmap) throws Exception{
 anywheresoftware.b4a.objects.drawable.BitmapDrawable _bd = null;
- //BA.debugLineNum = 257;BA.debugLine="Sub BitmapToBitmapDrawable (bitmap As Bitmap) As B";
- //BA.debugLineNum = 258;BA.debugLine="Try";
-try { //BA.debugLineNum = 259;BA.debugLine="Dim bd As BitmapDrawable";
+ //BA.debugLineNum = 258;BA.debugLine="Sub BitmapToBitmapDrawable (bitmap As Bitmap) As B";
+ //BA.debugLineNum = 259;BA.debugLine="Try";
+try { //BA.debugLineNum = 260;BA.debugLine="Dim bd As BitmapDrawable";
 _bd = new anywheresoftware.b4a.objects.drawable.BitmapDrawable();
- //BA.debugLineNum = 260;BA.debugLine="bd.Initialize(bitmap)";
+ //BA.debugLineNum = 261;BA.debugLine="bd.Initialize(bitmap)";
 _bd.Initialize((android.graphics.Bitmap)(_bitmap.getObject()));
- //BA.debugLineNum = 261;BA.debugLine="Return bd";
+ //BA.debugLineNum = 262;BA.debugLine="Return bd";
 if (true) return _bd;
  } 
        catch (Exception e6) {
-			processBA.setLastException(e6); //BA.debugLineNum = 263;BA.debugLine="Log(LastException)";
+			processBA.setLastException(e6); //BA.debugLineNum = 264;BA.debugLine="Log(LastException)";
 anywheresoftware.b4a.keywords.Common.Log(BA.ObjectToString(anywheresoftware.b4a.keywords.Common.LastException(mostCurrent.activityBA)));
- //BA.debugLineNum = 264;BA.debugLine="Return Null";
+ //BA.debugLineNum = 265;BA.debugLine="Return Null";
 if (true) return (anywheresoftware.b4a.objects.drawable.BitmapDrawable) anywheresoftware.b4a.AbsObjectWrapper.ConvertToWrapper(new anywheresoftware.b4a.objects.drawable.BitmapDrawable(), (android.graphics.drawable.BitmapDrawable)(anywheresoftware.b4a.keywords.Common.Null));
  };
- //BA.debugLineNum = 266;BA.debugLine="End Sub";
+ //BA.debugLineNum = 267;BA.debugLine="End Sub";
 return null;
 }
 public static String  _btnrefresh_click() throws Exception{
@@ -622,7 +623,7 @@ _bd = new anywheresoftware.b4a.objects.drawable.BitmapDrawable();
  //BA.debugLineNum = 174;BA.debugLine="bd.Initialize(LoadBitmapResize(File.DirAssets, \"";
 _bd.Initialize((android.graphics.Bitmap)(anywheresoftware.b4a.keywords.Common.LoadBitmapResize(anywheresoftware.b4a.keywords.Common.File.getDirAssets(),"0.png",anywheresoftware.b4a.keywords.Common.DipToCurrent((int) (32)),anywheresoftware.b4a.keywords.Common.DipToCurrent((int) (32)),anywheresoftware.b4a.keywords.Common.True).getObject()));
  //BA.debugLineNum = 175;BA.debugLine="result = Msgbox2(\"Restart the controller?\", \"And";
-_result = anywheresoftware.b4a.keywords.Common.Msgbox2(BA.ObjectToCharSequence("Restart the controller?"),BA.ObjectToCharSequence("Andy Home Automation"),"Yes","","No",_bd.getBitmap(),mostCurrent.activityBA);
+_result = anywheresoftware.b4a.keywords.Common.Msgbox2(BA.ObjectToCharSequence("Restart the controller?"),BA.ObjectToCharSequence("Andy Greenhouse System"),"Yes","","No",_bd.getBitmap(),mostCurrent.activityBA);
  //BA.debugLineNum = 176;BA.debugLine="If result = DialogResponse.POSITIVE Then";
 if (_result==anywheresoftware.b4a.keywords.Common.DialogResponse.POSITIVE) { 
  //BA.debugLineNum = 177;BA.debugLine="If MQTT.IsInitialized = False Or MQTT.Connected";
@@ -644,34 +645,34 @@ return "";
 public static de.amberhome.objects.appcompat.ACMenuItemWrapper  _getmenuitem(String _title) throws Exception{
 int _i = 0;
 de.amberhome.objects.appcompat.ACMenuItemWrapper _m = null;
- //BA.debugLineNum = 268;BA.debugLine="Sub GetMenuItem(Title As String) As ACMenuItem";
- //BA.debugLineNum = 269;BA.debugLine="Try";
-try { //BA.debugLineNum = 270;BA.debugLine="For i = 0 To ACToolBarLight1.Menu.Size - 1";
+ //BA.debugLineNum = 269;BA.debugLine="Sub GetMenuItem(Title As String) As ACMenuItem";
+ //BA.debugLineNum = 270;BA.debugLine="Try";
+try { //BA.debugLineNum = 271;BA.debugLine="For i = 0 To ACToolBarLight1.Menu.Size - 1";
 {
 final int step2 = 1;
 final int limit2 = (int) (mostCurrent._actoolbarlight1.getMenu().Size()-1);
 _i = (int) (0) ;
 for (;(step2 > 0 && _i <= limit2) || (step2 < 0 && _i >= limit2) ;_i = ((int)(0 + _i + step2))  ) {
- //BA.debugLineNum = 271;BA.debugLine="Dim m As ACMenuItem = ACToolBarLight1.Menu.GetI";
+ //BA.debugLineNum = 272;BA.debugLine="Dim m As ACMenuItem = ACToolBarLight1.Menu.GetI";
 _m = new de.amberhome.objects.appcompat.ACMenuItemWrapper();
 _m = mostCurrent._actoolbarlight1.getMenu().GetItem(_i);
- //BA.debugLineNum = 272;BA.debugLine="If m.Title = Title Then";
+ //BA.debugLineNum = 273;BA.debugLine="If m.Title = Title Then";
 if ((_m.getTitle()).equals(_title)) { 
- //BA.debugLineNum = 273;BA.debugLine="Return m";
+ //BA.debugLineNum = 274;BA.debugLine="Return m";
 if (true) return _m;
  };
  }
 };
- //BA.debugLineNum = 276;BA.debugLine="Return Null";
+ //BA.debugLineNum = 277;BA.debugLine="Return Null";
 if (true) return (de.amberhome.objects.appcompat.ACMenuItemWrapper) anywheresoftware.b4a.AbsObjectWrapper.ConvertToWrapper(new de.amberhome.objects.appcompat.ACMenuItemWrapper(), (android.view.MenuItem)(anywheresoftware.b4a.keywords.Common.Null));
  } 
        catch (Exception e10) {
-			processBA.setLastException(e10); //BA.debugLineNum = 278;BA.debugLine="Log(LastException)";
+			processBA.setLastException(e10); //BA.debugLineNum = 279;BA.debugLine="Log(LastException)";
 anywheresoftware.b4a.keywords.Common.Log(BA.ObjectToString(anywheresoftware.b4a.keywords.Common.LastException(mostCurrent.activityBA)));
- //BA.debugLineNum = 279;BA.debugLine="Return Null";
+ //BA.debugLineNum = 280;BA.debugLine="Return Null";
 if (true) return (de.amberhome.objects.appcompat.ACMenuItemWrapper) anywheresoftware.b4a.AbsObjectWrapper.ConvertToWrapper(new de.amberhome.objects.appcompat.ACMenuItemWrapper(), (android.view.MenuItem)(anywheresoftware.b4a.keywords.Common.Null));
  };
- //BA.debugLineNum = 282;BA.debugLine="End Sub";
+ //BA.debugLineNum = 283;BA.debugLine="End Sub";
 return null;
 }
 public static String  _getversioncode() throws Exception{
@@ -818,7 +819,8 @@ public static void initializeProcessGlobals() {
     if (main.processGlobalsRun == false) {
 	    main.processGlobalsRun = true;
 		try {
-		        main._process_globals();
+		        anywheresoftware.b4a.samples.httputils2.httputils2service._process_globals();
+main._process_globals();
 settings._process_globals();
 starter._process_globals();
 		
@@ -840,7 +842,7 @@ _mqttserveruri = "tcp://m14.cloudmqtt.com:15093";
 _bc = new anywheresoftware.b4a.agraham.byteconverter.ByteConverter();
  //BA.debugLineNum = 22;BA.debugLine="Private cartBitmap As Bitmap";
 _cartbitmap = new anywheresoftware.b4a.objects.drawable.CanvasWrapper.BitmapWrapper();
- //BA.debugLineNum = 23;BA.debugLine="Private badge As Int";
+ //BA.debugLineNum = 23;BA.debugLine="Private badge As Int 'ignore";
 _badge = 0;
  //BA.debugLineNum = 24;BA.debugLine="End Sub";
 return "";
@@ -853,8 +855,8 @@ try { //BA.debugLineNum = 202;BA.debugLine="Dim bd As BitmapDrawable";
 _bd = new anywheresoftware.b4a.objects.drawable.BitmapDrawable();
  //BA.debugLineNum = 203;BA.debugLine="bd.Initialize(LoadBitmapResize(File.DirAssets, \"";
 _bd.Initialize((android.graphics.Bitmap)(anywheresoftware.b4a.keywords.Common.LoadBitmapResize(anywheresoftware.b4a.keywords.Common.File.getDirAssets(),"0.png",anywheresoftware.b4a.keywords.Common.DipToCurrent((int) (32)),anywheresoftware.b4a.keywords.Common.DipToCurrent((int) (32)),anywheresoftware.b4a.keywords.Common.True).getObject()));
- //BA.debugLineNum = 204;BA.debugLine="Msgbox2(\"Andy Home Automation System v\" & GetVer";
-anywheresoftware.b4a.keywords.Common.Msgbox2(BA.ObjectToCharSequence("Andy Home Automation System v"+_getversioncode()+anywheresoftware.b4a.keywords.Common.CRLF+"Developed by Cloyd Catanaoan"+anywheresoftware.b4a.keywords.Common.CRLF+"March 13, 2018"),BA.ObjectToCharSequence("About"),"OK","","",_bd.getBitmap(),mostCurrent.activityBA);
+ //BA.debugLineNum = 204;BA.debugLine="Msgbox2(\"Andy Greenhouse System v\" & GetVersionC";
+anywheresoftware.b4a.keywords.Common.Msgbox2(BA.ObjectToCharSequence("Andy Greenhouse System v"+_getversioncode()+anywheresoftware.b4a.keywords.Common.CRLF+anywheresoftware.b4a.keywords.Common.CRLF+"Developed by Cloyd Catanaoan"+anywheresoftware.b4a.keywords.Common.CRLF+"March 13, 2018"),BA.ObjectToCharSequence("About"),"OK","","",_bd.getBitmap(),mostCurrent.activityBA);
  } 
        catch (Exception e6) {
 			processBA.setLastException(e6); //BA.debugLineNum = 206;BA.debugLine="Log(LastException)";
@@ -878,14 +880,16 @@ _item.setShowAsAction(_item.SHOW_AS_ACTION_ALWAYS);
 _cartbitmap = anywheresoftware.b4a.keywords.Common.LoadBitmap(anywheresoftware.b4a.keywords.Common.File.getDirAssets(),_state);
  //BA.debugLineNum = 241;BA.debugLine="UpdateIcon(\"relay\", AddBadgeToIcon(cartBitmap, b";
 _updateicon("relay",_addbadgetoicon(_cartbitmap,_badge));
- //BA.debugLineNum = 242;BA.debugLine="gblACMenu.Add(0, 0, \"About\",Null)";
-mostCurrent._gblacmenu.Add((int) (0),(int) (0),BA.ObjectToCharSequence("About"),(android.graphics.Bitmap)(anywheresoftware.b4a.keywords.Common.Null));
+ //BA.debugLineNum = 242;BA.debugLine="gblACMenu.Add(0, 0, \"Settings\",Null)";
+mostCurrent._gblacmenu.Add((int) (0),(int) (0),BA.ObjectToCharSequence("Settings"),(android.graphics.Bitmap)(anywheresoftware.b4a.keywords.Common.Null));
+ //BA.debugLineNum = 243;BA.debugLine="gblACMenu.Add(1, 1, \"About\",Null)";
+mostCurrent._gblacmenu.Add((int) (1),(int) (1),BA.ObjectToCharSequence("About"),(android.graphics.Bitmap)(anywheresoftware.b4a.keywords.Common.Null));
  } 
-       catch (Exception e9) {
-			processBA.setLastException(e9); //BA.debugLineNum = 244;BA.debugLine="Log(LastException)";
+       catch (Exception e10) {
+			processBA.setLastException(e10); //BA.debugLineNum = 245;BA.debugLine="Log(LastException)";
 anywheresoftware.b4a.keywords.Common.Log(BA.ObjectToString(anywheresoftware.b4a.keywords.Common.LastException(mostCurrent.activityBA)));
  };
- //BA.debugLineNum = 246;BA.debugLine="End Sub";
+ //BA.debugLineNum = 247;BA.debugLine="End Sub";
 return "";
 }
 public static String  _tglrelayswitch_checkedchange(boolean _checked) throws Exception{
@@ -916,19 +920,19 @@ return "";
 }
 public static String  _updateicon(String _menutitle,anywheresoftware.b4a.objects.drawable.CanvasWrapper.BitmapWrapper _icon) throws Exception{
 de.amberhome.objects.appcompat.ACMenuItemWrapper _m = null;
- //BA.debugLineNum = 248;BA.debugLine="Sub UpdateIcon(MenuTitle As String, Icon As Bitmap";
- //BA.debugLineNum = 249;BA.debugLine="Try";
-try { //BA.debugLineNum = 250;BA.debugLine="Dim m As ACMenuItem = GetMenuItem(MenuTitle)";
+ //BA.debugLineNum = 249;BA.debugLine="Sub UpdateIcon(MenuTitle As String, Icon As Bitmap";
+ //BA.debugLineNum = 250;BA.debugLine="Try";
+try { //BA.debugLineNum = 251;BA.debugLine="Dim m As ACMenuItem = GetMenuItem(MenuTitle)";
 _m = new de.amberhome.objects.appcompat.ACMenuItemWrapper();
 _m = _getmenuitem(_menutitle);
- //BA.debugLineNum = 251;BA.debugLine="m.Icon = BitmapToBitmapDrawable(Icon)";
+ //BA.debugLineNum = 252;BA.debugLine="m.Icon = BitmapToBitmapDrawable(Icon)";
 _m.setIcon((android.graphics.drawable.Drawable)(_bitmaptobitmapdrawable(_icon).getObject()));
  } 
        catch (Exception e5) {
-			processBA.setLastException(e5); //BA.debugLineNum = 253;BA.debugLine="Log(LastException)";
+			processBA.setLastException(e5); //BA.debugLineNum = 254;BA.debugLine="Log(LastException)";
 anywheresoftware.b4a.keywords.Common.Log(BA.ObjectToString(anywheresoftware.b4a.keywords.Common.LastException(mostCurrent.activityBA)));
  };
- //BA.debugLineNum = 255;BA.debugLine="End Sub";
+ //BA.debugLineNum = 256;BA.debugLine="End Sub";
 return "";
 }
 

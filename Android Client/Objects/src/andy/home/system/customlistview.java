@@ -43,6 +43,7 @@ public int _mfirstvisibleindex = 0;
 public int _mlastvisibleindex = 0;
 public boolean _monitorvisiblerange = false;
 public boolean _firescrollchanged = false;
+public anywheresoftware.b4a.samples.httputils2.httputils2service _httputils2service = null;
 public andy.home.system.main _main = null;
 public andy.home.system.settings _settings = null;
 public andy.home.system.starter _starter = null;
