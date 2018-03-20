@@ -331,6 +331,9 @@ public static String _mqttuser = "";
 public static String _mqttpassword = "";
 public static String _mqttserveruri = "";
 public static anywheresoftware.b4a.agraham.byteconverter.ByteConverter _bc = null;
+public static anywheresoftware.b4a.randomaccessfile.AsyncStreams _astream = null;
+public static andy.home.system.settings._record _rec = null;
+public static andy.home.system.b4rserializator _ser = null;
 public de.amberhome.objects.appcompat.ACToolbarLightWrapper _actoolbarlight1 = null;
 public de.amberhome.objects.appcompat.ACActionBar _toolbarhelper = null;
 public wifi.MLwifi _wifi = null;
@@ -341,6 +344,8 @@ public anywheresoftware.b4a.objects.FloatLabeledEditTextWrapper _txtssid = null;
 public anywheresoftware.b4a.objects.FloatLabeledEditTextWrapper _txtcloseddelay = null;
 public anywheresoftware.b4a.objects.FloatLabeledEditTextWrapper _txtopendelay = null;
 public anywheresoftware.b4a.objects.CompoundButtonWrapper.ToggleButtonWrapper _tglconnection = null;
+public anywheresoftware.b4a.samples.httputils2.httpjob _checkinternetjob = null;
+public static boolean _isinternetconnected = false;
 public anywheresoftware.b4a.samples.httputils2.httputils2service _httputils2service = null;
 public andy.home.system.main _main = null;
 public andy.home.system.starter _starter = null;
@@ -352,56 +357,96 @@ public static void initializeProcessGlobals() {
                 throw new RuntimeException(e);
             }
 }
+public static class _record{
+public boolean IsInitialized;
+public String SSID;
+public String Password;
+public String OpenDelay;
+public String ClosedDelay;
+public void Initialize() {
+IsInitialized = true;
+SSID = "";
+Password = "";
+OpenDelay = "";
+ClosedDelay = "";
+}
+@Override
+		public String toString() {
+			return BA.TypeToString(this, false);
+		}}
 public static String  _activity_create(boolean _firsttime) throws Exception{
 anywheresoftware.b4a.objects.CSBuilder _cs = null;
- //BA.debugLineNum = 32;BA.debugLine="Sub Activity_Create(FirstTime As Boolean)";
- //BA.debugLineNum = 33;BA.debugLine="If FirstTime Then";
+ //BA.debugLineNum = 38;BA.debugLine="Sub Activity_Create(FirstTime As Boolean)";
+ //BA.debugLineNum = 39;BA.debugLine="If FirstTime Then";
 if (_firsttime) { 
- //BA.debugLineNum = 35;BA.debugLine="MQTT_Connect";
+ //BA.debugLineNum = 41;BA.debugLine="MQTT_Connect";
 _mqtt_connect();
  };
- //BA.debugLineNum = 37;BA.debugLine="Activity.LoadLayout(\"Settings\")";
+ //BA.debugLineNum = 43;BA.debugLine="Activity.LoadLayout(\"Settings\")";
 mostCurrent._activity.LoadLayout("Settings",mostCurrent.activityBA);
- //BA.debugLineNum = 38;BA.debugLine="ToolbarHelper.Initialize";
+ //BA.debugLineNum = 44;BA.debugLine="ToolbarHelper.Initialize";
 mostCurrent._toolbarhelper.Initialize(mostCurrent.activityBA);
- //BA.debugLineNum = 39;BA.debugLine="Dim cs As CSBuilder";
+ //BA.debugLineNum = 45;BA.debugLine="Dim cs As CSBuilder";
 _cs = new anywheresoftware.b4a.objects.CSBuilder();
- //BA.debugLineNum = 40;BA.debugLine="ToolbarHelper.Title= cs.Initialize.Size(20).Appen";
+ //BA.debugLineNum = 46;BA.debugLine="ToolbarHelper.Title= cs.Initialize.Size(20).Appen";
 mostCurrent._toolbarhelper.setTitle(BA.ObjectToCharSequence(_cs.Initialize().Size((int) (20)).Append(BA.ObjectToCharSequence("Settings")).PopAll().getObject()));
- //BA.debugLineNum = 41;BA.debugLine="ToolbarHelper.Subtitle=\"\"";
+ //BA.debugLineNum = 47;BA.debugLine="ToolbarHelper.Subtitle=\"\"";
 mostCurrent._toolbarhelper.setSubtitle(BA.ObjectToCharSequence(""));
- //BA.debugLineNum = 42;BA.debugLine="ToolbarHelper.ShowUpIndicator = False 'set to tru";
+ //BA.debugLineNum = 48;BA.debugLine="ToolbarHelper.ShowUpIndicator = False 'set to tru";
 mostCurrent._toolbarhelper.setShowUpIndicator(anywheresoftware.b4a.keywords.Common.False);
- //BA.debugLineNum = 43;BA.debugLine="ACToolBarLight1.InitMenuListener";
+ //BA.debugLineNum = 49;BA.debugLine="ACToolBarLight1.InitMenuListener";
 mostCurrent._actoolbarlight1.InitMenuListener();
- //BA.debugLineNum = 45;BA.debugLine="txtOpenDelay.EditText.InputType = txtOpenDelay.Ed";
+ //BA.debugLineNum = 51;BA.debugLine="txtOpenDelay.EditText.InputType = txtOpenDelay.Ed";
 mostCurrent._txtopendelay.getEditText().setInputType(mostCurrent._txtopendelay.getEditText().INPUT_TYPE_NUMBERS);
- //BA.debugLineNum = 46;BA.debugLine="txtClosedDelay.EditText.InputType = txtClosedDela";
+ //BA.debugLineNum = 52;BA.debugLine="txtClosedDelay.EditText.InputType = txtClosedDela";
 mostCurrent._txtcloseddelay.getEditText().setInputType(mostCurrent._txtcloseddelay.getEditText().INPUT_TYPE_NUMBERS);
- //BA.debugLineNum = 48;BA.debugLine="tglConnection.Checked = True";
+ //BA.debugLineNum = 54;BA.debugLine="tglConnection.Checked = True";
 mostCurrent._tglconnection.setChecked(anywheresoftware.b4a.keywords.Common.True);
- //BA.debugLineNum = 49;BA.debugLine="End Sub";
+ //BA.debugLineNum = 56;BA.debugLine="ser.Initialize";
+_ser._initialize(processBA);
+ //BA.debugLineNum = 57;BA.debugLine="End Sub";
 return "";
 }
 public static String  _activity_pause(boolean _userclosed) throws Exception{
- //BA.debugLineNum = 61;BA.debugLine="Sub Activity_Pause (UserClosed As Boolean)";
- //BA.debugLineNum = 63;BA.debugLine="End Sub";
+ //BA.debugLineNum = 69;BA.debugLine="Sub Activity_Pause (UserClosed As Boolean)";
+ //BA.debugLineNum = 71;BA.debugLine="End Sub";
 return "";
 }
 public static String  _activity_resume() throws Exception{
- //BA.debugLineNum = 51;BA.debugLine="Sub Activity_Resume";
- //BA.debugLineNum = 52;BA.debugLine="Try";
-try { //BA.debugLineNum = 53;BA.debugLine="If MQTT.IsInitialized = False Or MQTT.Connected";
+ //BA.debugLineNum = 59;BA.debugLine="Sub Activity_Resume";
+ //BA.debugLineNum = 60;BA.debugLine="Try";
+try { //BA.debugLineNum = 61;BA.debugLine="If MQTT.IsInitialized = False Or MQTT.Connected";
 if (_mqtt.IsInitialized()==anywheresoftware.b4a.keywords.Common.False || _mqtt.getConnected()==anywheresoftware.b4a.keywords.Common.False) { 
- //BA.debugLineNum = 54;BA.debugLine="MQTT_Connect";
+ //BA.debugLineNum = 62;BA.debugLine="MQTT_Connect";
 _mqtt_connect();
  };
  } 
        catch (Exception e6) {
-			processBA.setLastException(e6); //BA.debugLineNum = 57;BA.debugLine="Log(LastException)";
+			processBA.setLastException(e6); //BA.debugLineNum = 65;BA.debugLine="Log(LastException)";
 anywheresoftware.b4a.keywords.Common.Log(BA.ObjectToString(anywheresoftware.b4a.keywords.Common.LastException(mostCurrent.activityBA)));
  };
- //BA.debugLineNum = 59;BA.debugLine="End Sub";
+ //BA.debugLineNum = 67;BA.debugLine="End Sub";
+return "";
+}
+public static boolean  _application_error(anywheresoftware.b4a.objects.B4AException _error,String _stacktrace) throws Exception{
+ //BA.debugLineNum = 333;BA.debugLine="Sub Application_Error (Error As Exception, StackTr";
+ //BA.debugLineNum = 334;BA.debugLine="Return True";
+if (true) return anywheresoftware.b4a.keywords.Common.True;
+ //BA.debugLineNum = 335;BA.debugLine="End Sub";
+return false;
+}
+public static String  _astream_error() throws Exception{
+ //BA.debugLineNum = 318;BA.debugLine="Sub AStream_Error";
+ //BA.debugLineNum = 319;BA.debugLine="Log(\"Error\")";
+anywheresoftware.b4a.keywords.Common.Log("Error");
+ //BA.debugLineNum = 320;BA.debugLine="End Sub";
+return "";
+}
+public static String  _astream_terminated() throws Exception{
+ //BA.debugLineNum = 322;BA.debugLine="Sub AStream_Terminated";
+ //BA.debugLineNum = 323;BA.debugLine="Log(\"Terminated\")";
+anywheresoftware.b4a.keywords.Common.Log("Terminated");
+ //BA.debugLineNum = 324;BA.debugLine="End Sub";
 return "";
 }
 public static void  _btnget_click() throws Exception{
@@ -416,11 +461,11 @@ andy.home.system.settings parent;
 String _x = "";
 anywheresoftware.b4a.jalle007.wificonnect.WiFiConnect _forcewificonnect = null;
 int _i = 0;
-anywheresoftware.b4a.samples.httputils2.httpjob _j = null;
-String _htmlstring = "";
-String[] _s = null;
-int step24;
-int limit24;
+anywheresoftware.b4a.objects.SocketWrapper _sock = null;
+boolean _successful = false;
+byte[] _buffer = null;
+int step32;
+int limit32;
 
 @Override
 public void resume(BA ba, Object[] result) throws Exception{
@@ -435,337 +480,415 @@ return;
 case 0:
 //C
 this.state = 1;
- //BA.debugLineNum = 153;BA.debugLine="ProgressDialogShow(\"Attempting to retrieve settin";
-anywheresoftware.b4a.keywords.Common.ProgressDialogShow(mostCurrent.activityBA,BA.ObjectToCharSequence("Attempting to retrieve settings..."));
- //BA.debugLineNum = 154;BA.debugLine="Sleep(100)";
-anywheresoftware.b4a.keywords.Common.Sleep(mostCurrent.activityBA,this,(int) (100));
-this.state = 52;
-return;
-case 52:
-//C
-this.state = 1;
-;
- //BA.debugLineNum = 155;BA.debugLine="Dim x As String = \"\"";
+ //BA.debugLineNum = 152;BA.debugLine="Dim x As String = \"\"";
 _x = "";
- //BA.debugLineNum = 156;BA.debugLine="txtSSID.Text = x";
+ //BA.debugLineNum = 153;BA.debugLine="txtSSID.Text = x";
 parent.mostCurrent._txtssid.setText((Object)(_x));
- //BA.debugLineNum = 157;BA.debugLine="txtPassword.Text = x";
+ //BA.debugLineNum = 154;BA.debugLine="txtPassword.Text = x";
 parent.mostCurrent._txtpassword.setText((Object)(_x));
- //BA.debugLineNum = 158;BA.debugLine="txtOpenDelay.Text = x";
+ //BA.debugLineNum = 155;BA.debugLine="txtOpenDelay.Text = x";
 parent.mostCurrent._txtopendelay.setText((Object)(_x));
- //BA.debugLineNum = 159;BA.debugLine="txtClosedDelay.Text = x";
+ //BA.debugLineNum = 156;BA.debugLine="txtClosedDelay.Text = x";
 parent.mostCurrent._txtcloseddelay.setText((Object)(_x));
- //BA.debugLineNum = 161;BA.debugLine="If MQTT.IsInitialized = False Or MQTT.Connected =";
+ //BA.debugLineNum = 158;BA.debugLine="If tglConnection.Checked Then";
 if (true) break;
 
 case 1:
 //if
-this.state = 4;
-if (parent._mqtt.IsInitialized()==anywheresoftware.b4a.keywords.Common.False || parent._mqtt.getConnected()==anywheresoftware.b4a.keywords.Common.False) { 
+this.state = 54;
+if (parent.mostCurrent._tglconnection.getChecked()) { 
 this.state = 3;
+}else {
+this.state = 21;
 }if (true) break;
 
 case 3:
 //C
 this.state = 4;
- //BA.debugLineNum = 162;BA.debugLine="MQTT_Connect";
-_mqtt_connect();
- if (true) break;
-;
- //BA.debugLineNum = 165;BA.debugLine="If tglConnection.Checked Then";
-
-case 4:
-//if
-this.state = 51;
-if (parent.mostCurrent._tglconnection.getChecked()) { 
-this.state = 6;
-}else {
-this.state = 20;
-}if (true) break;
-
-case 6:
-//C
-this.state = 7;
- //BA.debugLineNum = 167;BA.debugLine="Try";
-if (true) break;
-
-case 7:
-//try
-this.state = 18;
-this.catchState = 17;
-this.state = 9;
-if (true) break;
-
-case 9:
-//C
-this.state = 10;
-this.catchState = 17;
- //BA.debugLineNum = 168;BA.debugLine="If WiFi.isOnLine Then";
-if (true) break;
-
-case 10:
-//if
-this.state = 15;
-if (parent.mostCurrent._wifi.isOnLine()) { 
-this.state = 12;
-}else {
-this.state = 14;
-}if (true) break;
-
-case 12:
-//C
-this.state = 15;
- //BA.debugLineNum = 169;BA.debugLine="MQTT.Publish(\"Andy\", BC.StringToBytes(\"Get set";
-parent._mqtt.Publish("Andy",parent._bc.StringToBytes("Get settings","utf8"));
- if (true) break;
-
-case 14:
-//C
-this.state = 15;
- //BA.debugLineNum = 171;BA.debugLine="ToastMessageShow(\"No internet connection\", Fal";
-anywheresoftware.b4a.keywords.Common.ToastMessageShow(BA.ObjectToCharSequence("No internet connection"),anywheresoftware.b4a.keywords.Common.False);
- if (true) break;
-
-case 15:
-//C
-this.state = 18;
-;
- if (true) break;
-
-case 17:
-//C
-this.state = 18;
-this.catchState = 0;
- //BA.debugLineNum = 174;BA.debugLine="Log(LastException)";
-anywheresoftware.b4a.keywords.Common.Log(BA.ObjectToString(anywheresoftware.b4a.keywords.Common.LastException(mostCurrent.activityBA)));
- if (true) break;
-if (true) break;
-
-case 18:
-//C
-this.state = 51;
-this.catchState = 0;
-;
- if (true) break;
-
-case 20:
-//C
-this.state = 21;
- //BA.debugLineNum = 178;BA.debugLine="Try";
-if (true) break;
-
-case 21:
-//try
-this.state = 50;
-this.catchState = 49;
-this.state = 23;
-if (true) break;
-
-case 23:
-//C
-this.state = 24;
-this.catchState = 49;
- //BA.debugLineNum = 179;BA.debugLine="Dim forceWiFiConnect As WiFiConnect";
-_forcewificonnect = new anywheresoftware.b4a.jalle007.wificonnect.WiFiConnect();
- //BA.debugLineNum = 180;BA.debugLine="For i = 1 To 40";
-if (true) break;
-
-case 24:
-//for
-this.state = 37;
-step24 = 1;
-limit24 = (int) (40);
-_i = (int) (1) ;
-this.state = 53;
-if (true) break;
-
-case 53:
-//C
-this.state = 37;
-if ((step24 > 0 && _i <= limit24) || (step24 < 0 && _i >= limit24)) this.state = 26;
-if (true) break;
-
-case 54:
-//C
-this.state = 53;
-_i = ((int)(0 + _i + step24)) ;
-if (true) break;
-
-case 26:
-//C
-this.state = 27;
- //BA.debugLineNum = 181;BA.debugLine="If forceWiFiConnect.IsWiFiEnabled Then";
-if (true) break;
-
-case 27:
-//if
-this.state = 36;
-if (_forcewificonnect.IsWiFiEnabled(processBA)) { 
-this.state = 29;
-}if (true) break;
-
-case 29:
-//C
-this.state = 30;
- //BA.debugLineNum = 182;BA.debugLine="If WiFi.SSID <> \"AndyRelayAccessPoint\" Then";
-if (true) break;
-
-case 30:
-//if
-this.state = 35;
-if ((parent.mostCurrent._wifi.SSID()).equals("AndyRelayAccessPoint") == false) { 
-this.state = 32;
-}else {
-this.state = 34;
-}if (true) break;
-
-case 32:
-//C
-this.state = 35;
- //BA.debugLineNum = 183;BA.debugLine="forceWiFiConnect.connectToSSID(forceWiFiConn";
-_forcewificonnect.connectToSSID(processBA,_forcewificonnect.WIFI_OPEN,"AndyRelayAccessPoint","");
- if (true) break;
-
-case 34:
-//C
-this.state = 35;
- //BA.debugLineNum = 185;BA.debugLine="Exit";
-this.state = 37;
-if (true) break;
- if (true) break;
-
-case 35:
-//C
-this.state = 36;
-;
- if (true) break;
-
-case 36:
-//C
-this.state = 54;
-;
- if (true) break;
-if (true) break;
-
-case 37:
-//C
-this.state = 38;
-;
- //BA.debugLineNum = 190;BA.debugLine="Dim j As HttpJob";
-_j = new anywheresoftware.b4a.samples.httputils2.httpjob();
- //BA.debugLineNum = 191;BA.debugLine="j.Initialize(\"\", Me)";
-_j._initialize(processBA,"",settings.getObject());
- //BA.debugLineNum = 192;BA.debugLine="j.Download(\"http://192.168.4.1/getsettings\")";
-_j._download("http://192.168.4.1/getsettings");
- //BA.debugLineNum = 193;BA.debugLine="j.GetRequest.SetHeader(\"User-Agent\", \"Mozilla/5";
-_j._getrequest().SetHeader("User-Agent","Mozilla/5.0 (Windows NT 6.1; WOW64; rv:27.0) Gecko/20100101 Firefox/27.0");
- //BA.debugLineNum = 194;BA.debugLine="j.GetRequest.Timeout = 2000";
-_j._getrequest().setTimeout((int) (2000));
- //BA.debugLineNum = 195;BA.debugLine="Wait For (j) JobDone(j As HttpJob)";
-anywheresoftware.b4a.keywords.Common.WaitFor("jobdone", processBA, this, (Object)(_j));
+ //BA.debugLineNum = 160;BA.debugLine="ProgressDialogShow(\"Attempting to retrieve setti";
+anywheresoftware.b4a.keywords.Common.ProgressDialogShow(mostCurrent.activityBA,BA.ObjectToCharSequence("Attempting to retrieve settings..."));
+ //BA.debugLineNum = 161;BA.debugLine="Sleep(100)";
+anywheresoftware.b4a.keywords.Common.Sleep(mostCurrent.activityBA,this,(int) (100));
 this.state = 55;
 return;
 case 55:
 //C
-this.state = 38;
-_j = (anywheresoftware.b4a.samples.httputils2.httpjob) result[0];
+this.state = 4;
 ;
- //BA.debugLineNum = 196;BA.debugLine="If j.Success Then";
+ //BA.debugLineNum = 162;BA.debugLine="Try";
 if (true) break;
 
-case 38:
+case 4:
+//try
+this.state = 19;
+this.catchState = 18;
+this.state = 6;
+if (true) break;
+
+case 6:
+//C
+this.state = 7;
+this.catchState = 18;
+ //BA.debugLineNum = 163;BA.debugLine="CheckIfOnline";
+_checkifonline();
+ //BA.debugLineNum = 164;BA.debugLine="If IsInternetConnected Then";
+if (true) break;
+
+case 7:
 //if
-this.state = 47;
-if (_j._success) { 
-this.state = 40;
+this.state = 16;
+if (parent._isinternetconnected) { 
+this.state = 9;
 }else {
-this.state = 46;
+this.state = 15;
 }if (true) break;
 
-case 40:
+case 9:
 //C
-this.state = 41;
- //BA.debugLineNum = 197;BA.debugLine="Log(j.GetString)";
-anywheresoftware.b4a.keywords.Common.Log(_j._getstring());
- //BA.debugLineNum = 198;BA.debugLine="Dim htmlstring As String = j.GetString";
-_htmlstring = _j._getstring();
- //BA.debugLineNum = 199;BA.debugLine="Dim s() As String = Regex.Split(\",\", htmlstrin";
-_s = anywheresoftware.b4a.keywords.Common.Regex.Split(",",_htmlstring);
- //BA.debugLineNum = 200;BA.debugLine="If s.Length = 4 Then";
+this.state = 10;
+ //BA.debugLineNum = 165;BA.debugLine="If MQTT.IsInitialized = False Or MQTT.Connecte";
 if (true) break;
 
-case 41:
+case 10:
 //if
-this.state = 44;
-if (_s.length==4) { 
-this.state = 43;
+this.state = 13;
+if (parent._mqtt.IsInitialized()==anywheresoftware.b4a.keywords.Common.False || parent._mqtt.getConnected()==anywheresoftware.b4a.keywords.Common.False) { 
+this.state = 12;
 }if (true) break;
 
-case 43:
+case 12:
 //C
-this.state = 44;
- //BA.debugLineNum = 201;BA.debugLine="Sleep(100)";
+this.state = 13;
+ //BA.debugLineNum = 166;BA.debugLine="MQTT_Connect";
+_mqtt_connect();
+ if (true) break;
+
+case 13:
+//C
+this.state = 16;
+;
+ //BA.debugLineNum = 168;BA.debugLine="MQTT.Publish(\"Andy\", BC.StringToBytes(\"Get set";
+parent._mqtt.Publish("Andy",parent._bc.StringToBytes("Get settings","utf8"));
+ if (true) break;
+
+case 15:
+//C
+this.state = 16;
+ //BA.debugLineNum = 170;BA.debugLine="ProgressDialogHide";
+anywheresoftware.b4a.keywords.Common.ProgressDialogHide();
+ //BA.debugLineNum = 171;BA.debugLine="ToastMessageShow(\"No internet connection\", Fal";
+anywheresoftware.b4a.keywords.Common.ToastMessageShow(BA.ObjectToCharSequence("No internet connection"),anywheresoftware.b4a.keywords.Common.False);
+ if (true) break;
+
+case 16:
+//C
+this.state = 19;
+;
+ if (true) break;
+
+case 18:
+//C
+this.state = 19;
+this.catchState = 0;
+ //BA.debugLineNum = 174;BA.debugLine="Log(LastException)";
+anywheresoftware.b4a.keywords.Common.Log(BA.ObjectToString(anywheresoftware.b4a.keywords.Common.LastException(mostCurrent.activityBA)));
+ //BA.debugLineNum = 175;BA.debugLine="ProgressDialogHide";
+anywheresoftware.b4a.keywords.Common.ProgressDialogHide();
+ if (true) break;
+if (true) break;
+
+case 19:
+//C
+this.state = 54;
+this.catchState = 0;
+;
+ if (true) break;
+
+case 21:
+//C
+this.state = 22;
+ //BA.debugLineNum = 178;BA.debugLine="Try";
+if (true) break;
+
+case 22:
+//try
+this.state = 53;
+this.catchState = 52;
+this.state = 24;
+if (true) break;
+
+case 24:
+//C
+this.state = 25;
+this.catchState = 52;
+ //BA.debugLineNum = 179;BA.debugLine="Sleep(100)";
 anywheresoftware.b4a.keywords.Common.Sleep(mostCurrent.activityBA,this,(int) (100));
 this.state = 56;
 return;
 case 56:
 //C
-this.state = 44;
+this.state = 25;
 ;
- //BA.debugLineNum = 202;BA.debugLine="txtSSID.Text = s(0).Trim";
-parent.mostCurrent._txtssid.setText((Object)(_s[(int) (0)].trim()));
- //BA.debugLineNum = 203;BA.debugLine="txtPassword.Text = s(1).Trim";
-parent.mostCurrent._txtpassword.setText((Object)(_s[(int) (1)].trim()));
- //BA.debugLineNum = 204;BA.debugLine="txtOpenDelay.Text = s(2).Trim";
-parent.mostCurrent._txtopendelay.setText((Object)(_s[(int) (2)].trim()));
- //BA.debugLineNum = 205;BA.debugLine="txtClosedDelay.Text = s(3).Trim";
-parent.mostCurrent._txtcloseddelay.setText((Object)(_s[(int) (3)].trim()));
+ //BA.debugLineNum = 180;BA.debugLine="ProgressDialogHide";
+anywheresoftware.b4a.keywords.Common.ProgressDialogHide();
+ //BA.debugLineNum = 181;BA.debugLine="Sleep(100)";
+anywheresoftware.b4a.keywords.Common.Sleep(mostCurrent.activityBA,this,(int) (100));
+this.state = 57;
+return;
+case 57:
+//C
+this.state = 25;
+;
+ //BA.debugLineNum = 182;BA.debugLine="ProgressDialogShow(\"Connecting to AndyRelayAcce";
+anywheresoftware.b4a.keywords.Common.ProgressDialogShow(mostCurrent.activityBA,BA.ObjectToCharSequence("Connecting to AndyRelayAccessPoint..."));
+ //BA.debugLineNum = 183;BA.debugLine="Sleep(100)";
+anywheresoftware.b4a.keywords.Common.Sleep(mostCurrent.activityBA,this,(int) (100));
+this.state = 58;
+return;
+case 58:
+//C
+this.state = 25;
+;
+ //BA.debugLineNum = 184;BA.debugLine="Dim forceWiFiConnect As WiFiConnect";
+_forcewificonnect = new anywheresoftware.b4a.jalle007.wificonnect.WiFiConnect();
+ //BA.debugLineNum = 185;BA.debugLine="For i = 1 To 40";
+if (true) break;
+
+case 25:
+//for
+this.state = 38;
+step32 = 1;
+limit32 = (int) (40);
+_i = (int) (1) ;
+this.state = 59;
+if (true) break;
+
+case 59:
+//C
+this.state = 38;
+if ((step32 > 0 && _i <= limit32) || (step32 < 0 && _i >= limit32)) this.state = 27;
+if (true) break;
+
+case 60:
+//C
+this.state = 59;
+_i = ((int)(0 + _i + step32)) ;
+if (true) break;
+
+case 27:
+//C
+this.state = 28;
+ //BA.debugLineNum = 186;BA.debugLine="If forceWiFiConnect.IsWiFiEnabled Then";
+if (true) break;
+
+case 28:
+//if
+this.state = 37;
+if (_forcewificonnect.IsWiFiEnabled(processBA)) { 
+this.state = 30;
+}if (true) break;
+
+case 30:
+//C
+this.state = 31;
+ //BA.debugLineNum = 187;BA.debugLine="If WiFi.SSID <> \"AndyRelayAccessPoint\" Then";
+if (true) break;
+
+case 31:
+//if
+this.state = 36;
+if ((parent.mostCurrent._wifi.SSID()).equals("AndyRelayAccessPoint") == false) { 
+this.state = 33;
+}else {
+this.state = 35;
+}if (true) break;
+
+case 33:
+//C
+this.state = 36;
+ //BA.debugLineNum = 188;BA.debugLine="forceWiFiConnect.connectToSSID(forceWiFiConn";
+_forcewificonnect.connectToSSID(processBA,_forcewificonnect.WIFI_OPEN,"AndyRelayAccessPoint","");
  if (true) break;
+
+case 35:
+//C
+this.state = 36;
+ //BA.debugLineNum = 190;BA.debugLine="Exit";
+this.state = 38;
+if (true) break;
+ if (true) break;
+
+case 36:
+//C
+this.state = 37;
+;
+ if (true) break;
+
+case 37:
+//C
+this.state = 60;
+;
+ if (true) break;
+if (true) break;
+
+case 38:
+//C
+this.state = 39;
+;
+ //BA.debugLineNum = 194;BA.debugLine="ProgressDialogShow(\"Attempting to retrieve sett";
+anywheresoftware.b4a.keywords.Common.ProgressDialogShow(mostCurrent.activityBA,BA.ObjectToCharSequence("Attempting to retrieve settings..."));
+ //BA.debugLineNum = 195;BA.debugLine="Sleep(100)";
+anywheresoftware.b4a.keywords.Common.Sleep(mostCurrent.activityBA,this,(int) (100));
+this.state = 61;
+return;
+case 61:
+//C
+this.state = 39;
+;
+ //BA.debugLineNum = 196;BA.debugLine="Disconnect";
+_disconnect();
+ //BA.debugLineNum = 197;BA.debugLine="Dim sock As Socket";
+_sock = new anywheresoftware.b4a.objects.SocketWrapper();
+ //BA.debugLineNum = 198;BA.debugLine="sock.Initialize(\"sock\")";
+_sock.Initialize("sock");
+ //BA.debugLineNum = 199;BA.debugLine="sock.Connect(\"192.168.4.1\", 51042, 10000)";
+_sock.Connect(processBA,"192.168.4.1",(int) (51042),(int) (10000));
+ //BA.debugLineNum = 200;BA.debugLine="Wait For sock_Connected (Successful As Boolean)";
+anywheresoftware.b4a.keywords.Common.WaitFor("sock_connected", processBA, this, null);
+this.state = 62;
+return;
+case 62:
+//C
+this.state = 39;
+_successful = (Boolean) result[0];
+;
+ //BA.debugLineNum = 201;BA.debugLine="If Successful Then";
+if (true) break;
+
+case 39:
+//if
+this.state = 50;
+if (_successful) { 
+this.state = 41;
+}else {
+this.state = 49;
+}if (true) break;
+
+case 41:
+//C
+this.state = 42;
+ //BA.debugLineNum = 202;BA.debugLine="astream.InitializePrefix(sock.InputStream, Fal";
+parent._astream.InitializePrefix(processBA,_sock.getInputStream(),anywheresoftware.b4a.keywords.Common.False,_sock.getOutputStream(),"astream");
+ //BA.debugLineNum = 203;BA.debugLine="Wait For astream_NewData (Buffer() As Byte)";
+anywheresoftware.b4a.keywords.Common.WaitFor("astream_newdata", processBA, this, null);
+this.state = 63;
+return;
+case 63:
+//C
+this.state = 42;
+_buffer = (byte[]) result[0];
+;
+ //BA.debugLineNum = 204;BA.debugLine="If Buffer(0) = 0 Then";
+if (true) break;
+
+case 42:
+//if
+this.state = 47;
+if (_buffer[(int) (0)]==0) { 
+this.state = 44;
+}else {
+this.state = 46;
+}if (true) break;
 
 case 44:
 //C
 this.state = 47;
-;
+ //BA.debugLineNum = 205;BA.debugLine="txtSSID.Text = x";
+parent.mostCurrent._txtssid.setText((Object)(_x));
+ //BA.debugLineNum = 206;BA.debugLine="txtPassword.Text = x";
+parent.mostCurrent._txtpassword.setText((Object)(_x));
+ //BA.debugLineNum = 207;BA.debugLine="txtOpenDelay.Text = x";
+parent.mostCurrent._txtopendelay.setText((Object)(_x));
+ //BA.debugLineNum = 208;BA.debugLine="txtClosedDelay.Text = x";
+parent.mostCurrent._txtcloseddelay.setText((Object)(_x));
+ //BA.debugLineNum = 209;BA.debugLine="ProgressDialogHide";
+anywheresoftware.b4a.keywords.Common.ProgressDialogHide();
+ //BA.debugLineNum = 210;BA.debugLine="ToastMessageShow(\"No settings found\", False)";
+anywheresoftware.b4a.keywords.Common.ToastMessageShow(BA.ObjectToCharSequence("No settings found"),anywheresoftware.b4a.keywords.Common.False);
  if (true) break;
 
 case 46:
 //C
 this.state = 47;
- //BA.debugLineNum = 209;BA.debugLine="ToastMessageShow(LastException, False)";
-anywheresoftware.b4a.keywords.Common.ToastMessageShow(BA.ObjectToCharSequence(anywheresoftware.b4a.keywords.Common.LastException(mostCurrent.activityBA).getObject()),anywheresoftware.b4a.keywords.Common.False);
+ //BA.debugLineNum = 212;BA.debugLine="Wait For astream_NewData (Buffer() As Byte)";
+anywheresoftware.b4a.keywords.Common.WaitFor("astream_newdata", processBA, this, null);
+this.state = 64;
+return;
+case 64:
+//C
+this.state = 47;
+_buffer = (byte[]) result[0];
+;
+ //BA.debugLineNum = 213;BA.debugLine="rec = ObjectsToRecord(ser.ConvertBytesToArray";
+parent._rec = _objectstorecord(parent._ser._convertbytestoarray(_buffer));
+ //BA.debugLineNum = 214;BA.debugLine="txtSSID.Text = rec.SSID";
+parent.mostCurrent._txtssid.setText((Object)(parent._rec.SSID));
+ //BA.debugLineNum = 215;BA.debugLine="txtPassword.Text = rec.Password";
+parent.mostCurrent._txtpassword.setText((Object)(parent._rec.Password));
+ //BA.debugLineNum = 216;BA.debugLine="txtOpenDelay.Text = rec.OpenDelay";
+parent.mostCurrent._txtopendelay.setText((Object)(parent._rec.OpenDelay));
+ //BA.debugLineNum = 217;BA.debugLine="txtClosedDelay.Text = rec.ClosedDelay";
+parent.mostCurrent._txtcloseddelay.setText((Object)(parent._rec.ClosedDelay));
+ //BA.debugLineNum = 218;BA.debugLine="ProgressDialogHide";
+anywheresoftware.b4a.keywords.Common.ProgressDialogHide();
+ //BA.debugLineNum = 219;BA.debugLine="ToastMessageShow(\"Successfully retrieved the";
+anywheresoftware.b4a.keywords.Common.ToastMessageShow(BA.ObjectToCharSequence("Successfully retrieved the settings"),anywheresoftware.b4a.keywords.Common.False);
  if (true) break;
 
 case 47:
 //C
 this.state = 50;
 ;
- //BA.debugLineNum = 211;BA.debugLine="j.Release";
-_j._release();
  if (true) break;
 
 case 49:
 //C
 this.state = 50;
-this.catchState = 0;
- //BA.debugLineNum = 213;BA.debugLine="Log(LastException)";
-anywheresoftware.b4a.keywords.Common.Log(BA.ObjectToString(anywheresoftware.b4a.keywords.Common.LastException(mostCurrent.activityBA)));
  if (true) break;
-if (true) break;
 
 case 50:
 //C
-this.state = 51;
+this.state = 53;
+;
+ //BA.debugLineNum = 223;BA.debugLine="Disconnect";
+_disconnect();
+ if (true) break;
+
+case 52:
+//C
+this.state = 53;
+this.catchState = 0;
+ //BA.debugLineNum = 225;BA.debugLine="Log(LastException)";
+anywheresoftware.b4a.keywords.Common.Log(BA.ObjectToString(anywheresoftware.b4a.keywords.Common.LastException(mostCurrent.activityBA)));
+ //BA.debugLineNum = 226;BA.debugLine="ProgressDialogHide";
+anywheresoftware.b4a.keywords.Common.ProgressDialogHide();
+ if (true) break;
+if (true) break;
+
+case 53:
+//C
+this.state = 54;
 this.catchState = 0;
 ;
  if (true) break;
 
-case 51:
+case 54:
 //C
 this.state = -1;
 ;
- //BA.debugLineNum = 216;BA.debugLine="ProgressDialogHide";
+ //BA.debugLineNum = 229;BA.debugLine="ProgressDialogHide";
 anywheresoftware.b4a.keywords.Common.ProgressDialogHide();
- //BA.debugLineNum = 217;BA.debugLine="End Sub";
+ //BA.debugLineNum = 230;BA.debugLine="End Sub";
 if (true) break;
 }} 
        catch (Exception e0) {
@@ -779,7 +902,9 @@ processBA.setLastException(e0);}
         }
     }
 }
-public static void  _jobdone(anywheresoftware.b4a.samples.httputils2.httpjob _j) throws Exception{
+public static void  _sock_connected(boolean _successful) throws Exception{
+}
+public static void  _astream_newdata(byte[] _buffer) throws Exception{
 }
 public static void  _btnset_click() throws Exception{
 ResumableSub_btnSet_Click rsub = new ResumableSub_btnSet_Click(null);
@@ -790,16 +915,8 @@ public ResumableSub_btnSet_Click(andy.home.system.settings parent) {
 this.parent = parent;
 }
 andy.home.system.settings parent;
-anywheresoftware.b4a.jalle007.wificonnect.WiFiConnect _forcewificonnect = null;
-int _i = 0;
-anywheresoftware.b4a.samples.httputils2.httpjob _j = null;
-String _a = "";
-String _b = "";
-String _c = "";
-String _d = "";
-String _encodedurl = "";
-int step40;
-int limit40;
+anywheresoftware.b4a.objects.SocketWrapper _sock = null;
+boolean _successful = false;
 
 @Override
 public void resume(BA ba, Object[] result) throws Exception{
@@ -814,7 +931,7 @@ return;
 case 0:
 //C
 this.state = 1;
- //BA.debugLineNum = 68;BA.debugLine="If txtSSID.Text.Trim = \"\" Then";
+ //BA.debugLineNum = 76;BA.debugLine="If txtSSID.Text.Trim = \"\" Then";
 if (true) break;
 
 case 1:
@@ -827,13 +944,13 @@ this.state = 3;
 case 3:
 //C
 this.state = 4;
- //BA.debugLineNum = 69;BA.debugLine="ToastMessageShow(\"Please enter a valid WiFi SSID";
+ //BA.debugLineNum = 77;BA.debugLine="ToastMessageShow(\"Please enter a valid WiFi SSID";
 anywheresoftware.b4a.keywords.Common.ToastMessageShow(BA.ObjectToCharSequence("Please enter a valid WiFi SSID (network name)"),anywheresoftware.b4a.keywords.Common.False);
- //BA.debugLineNum = 70;BA.debugLine="Return";
+ //BA.debugLineNum = 78;BA.debugLine="Return";
 if (true) return ;
  if (true) break;
 ;
- //BA.debugLineNum = 73;BA.debugLine="If txtPassword.Text.Trim = \"\" Then";
+ //BA.debugLineNum = 81;BA.debugLine="If txtPassword.Text.Trim = \"\" Then";
 
 case 4:
 //if
@@ -845,13 +962,13 @@ this.state = 6;
 case 6:
 //C
 this.state = 7;
- //BA.debugLineNum = 74;BA.debugLine="ToastMessageShow(\"Please enter a valid WiFi pass";
+ //BA.debugLineNum = 82;BA.debugLine="ToastMessageShow(\"Please enter a valid WiFi pass";
 anywheresoftware.b4a.keywords.Common.ToastMessageShow(BA.ObjectToCharSequence("Please enter a valid WiFi password"),anywheresoftware.b4a.keywords.Common.False);
- //BA.debugLineNum = 75;BA.debugLine="Return";
+ //BA.debugLineNum = 83;BA.debugLine="Return";
 if (true) return ;
  if (true) break;
 ;
- //BA.debugLineNum = 78;BA.debugLine="If txtPassword.Text.IndexOf(\" \") <> -1 Then";
+ //BA.debugLineNum = 86;BA.debugLine="If txtPassword.Text.IndexOf(\" \") <> -1 Then";
 
 case 7:
 //if
@@ -863,13 +980,13 @@ this.state = 9;
 case 9:
 //C
 this.state = 10;
- //BA.debugLineNum = 79;BA.debugLine="ToastMessageShow(\"Space is not allowed in the Wi";
+ //BA.debugLineNum = 87;BA.debugLine="ToastMessageShow(\"Space is not allowed in the Wi";
 anywheresoftware.b4a.keywords.Common.ToastMessageShow(BA.ObjectToCharSequence("Space is not allowed in the WiFi password"),anywheresoftware.b4a.keywords.Common.False);
- //BA.debugLineNum = 80;BA.debugLine="Return";
+ //BA.debugLineNum = 88;BA.debugLine="Return";
 if (true) return ;
  if (true) break;
 ;
- //BA.debugLineNum = 83;BA.debugLine="If IsNumber(txtOpenDelay.Text) = False Or txtOpen";
+ //BA.debugLineNum = 91;BA.debugLine="If IsNumber(txtOpenDelay.Text) = False Or txtOpen";
 
 case 10:
 //if
@@ -881,13 +998,13 @@ this.state = 12;
 case 12:
 //C
 this.state = 13;
- //BA.debugLineNum = 84;BA.debugLine="ToastMessageShow(\"Please enter a valid Open Dela";
+ //BA.debugLineNum = 92;BA.debugLine="ToastMessageShow(\"Please enter a valid Open Dela";
 anywheresoftware.b4a.keywords.Common.ToastMessageShow(BA.ObjectToCharSequence("Please enter a valid Open Delay value"),anywheresoftware.b4a.keywords.Common.False);
- //BA.debugLineNum = 85;BA.debugLine="Return";
+ //BA.debugLineNum = 93;BA.debugLine="Return";
 if (true) return ;
  if (true) break;
 ;
- //BA.debugLineNum = 88;BA.debugLine="If IsNumber(txtClosedDelay.Text) = False Or txtCl";
+ //BA.debugLineNum = 96;BA.debugLine="If IsNumber(txtClosedDelay.Text) = False Or txtCl";
 
 case 13:
 //if
@@ -899,96 +1016,100 @@ this.state = 15;
 case 15:
 //C
 this.state = 16;
- //BA.debugLineNum = 89;BA.debugLine="ToastMessageShow(\"Please enter a valid Closed De";
+ //BA.debugLineNum = 97;BA.debugLine="ToastMessageShow(\"Please enter a valid Closed De";
 anywheresoftware.b4a.keywords.Common.ToastMessageShow(BA.ObjectToCharSequence("Please enter a valid Closed Delay value"),anywheresoftware.b4a.keywords.Common.False);
- //BA.debugLineNum = 90;BA.debugLine="Return";
+ //BA.debugLineNum = 98;BA.debugLine="Return";
 if (true) return ;
  if (true) break;
+;
+ //BA.debugLineNum = 101;BA.debugLine="If tglConnection.Checked Then";
 
 case 16:
-//C
-this.state = 17;
-;
- //BA.debugLineNum = 93;BA.debugLine="ProgressDialogShow(\"Attempting to set settings...";
-anywheresoftware.b4a.keywords.Common.ProgressDialogShow(mostCurrent.activityBA,BA.ObjectToCharSequence("Attempting to set settings..."));
- //BA.debugLineNum = 94;BA.debugLine="Sleep(100)";
-anywheresoftware.b4a.keywords.Common.Sleep(mostCurrent.activityBA,this,(int) (100));
-this.state = 64;
-return;
-case 64:
-//C
-this.state = 17;
-;
- //BA.debugLineNum = 96;BA.debugLine="If MQTT.IsInitialized = False Or MQTT.Connected =";
-if (true) break;
-
-case 17:
 //if
-this.state = 20;
-if (parent._mqtt.IsInitialized()==anywheresoftware.b4a.keywords.Common.False || parent._mqtt.getConnected()==anywheresoftware.b4a.keywords.Common.False) { 
-this.state = 19;
-}if (true) break;
-
-case 19:
-//C
-this.state = 20;
- //BA.debugLineNum = 97;BA.debugLine="MQTT_Connect";
-_mqtt_connect();
- if (true) break;
-;
- //BA.debugLineNum = 100;BA.debugLine="If tglConnection.Checked Then";
-
-case 20:
-//if
-this.state = 63;
+this.state = 47;
 if (parent.mostCurrent._tglconnection.getChecked()) { 
-this.state = 22;
+this.state = 18;
 }else {
 this.state = 36;
 }if (true) break;
 
-case 22:
+case 18:
 //C
-this.state = 23;
- //BA.debugLineNum = 102;BA.debugLine="Try";
+this.state = 19;
+ //BA.debugLineNum = 103;BA.debugLine="ProgressDialogShow(\"Attempting to set settings..";
+anywheresoftware.b4a.keywords.Common.ProgressDialogShow(mostCurrent.activityBA,BA.ObjectToCharSequence("Attempting to set settings..."));
+ //BA.debugLineNum = 104;BA.debugLine="Sleep(100)";
+anywheresoftware.b4a.keywords.Common.Sleep(mostCurrent.activityBA,this,(int) (100));
+this.state = 48;
+return;
+case 48:
+//C
+this.state = 19;
+;
+ //BA.debugLineNum = 105;BA.debugLine="Try";
 if (true) break;
 
-case 23:
+case 19:
 //try
 this.state = 34;
 this.catchState = 33;
-this.state = 25;
+this.state = 21;
 if (true) break;
 
-case 25:
+case 21:
 //C
-this.state = 26;
+this.state = 22;
 this.catchState = 33;
- //BA.debugLineNum = 103;BA.debugLine="If WiFi.isOnLine Then";
+ //BA.debugLineNum = 106;BA.debugLine="CheckIfOnline";
+_checkifonline();
+ //BA.debugLineNum = 107;BA.debugLine="If IsInternetConnected Then";
 if (true) break;
 
-case 26:
+case 22:
 //if
 this.state = 31;
-if (parent.mostCurrent._wifi.isOnLine()) { 
-this.state = 28;
+if (parent._isinternetconnected) { 
+this.state = 24;
 }else {
 this.state = 30;
 }if (true) break;
 
+case 24:
+//C
+this.state = 25;
+ //BA.debugLineNum = 108;BA.debugLine="If MQTT.IsInitialized = False Or MQTT.Connecte";
+if (true) break;
+
+case 25:
+//if
+this.state = 28;
+if (parent._mqtt.IsInitialized()==anywheresoftware.b4a.keywords.Common.False || parent._mqtt.getConnected()==anywheresoftware.b4a.keywords.Common.False) { 
+this.state = 27;
+}if (true) break;
+
+case 27:
+//C
+this.state = 28;
+ //BA.debugLineNum = 109;BA.debugLine="MQTT_Connect";
+_mqtt_connect();
+ if (true) break;
+
 case 28:
 //C
 this.state = 31;
- //BA.debugLineNum = 104;BA.debugLine="Log(txtSSID.Text & \"|\" & txtPassword.Text & \"|";
+;
+ //BA.debugLineNum = 111;BA.debugLine="Log(txtSSID.Text & \"|\" & txtPassword.Text & \"|";
 anywheresoftware.b4a.keywords.Common.Log(parent.mostCurrent._txtssid.getText()+"|"+parent.mostCurrent._txtpassword.getText()+"|"+parent.mostCurrent._txtopendelay.getText()+"|"+parent.mostCurrent._txtcloseddelay.getText());
- //BA.debugLineNum = 105;BA.debugLine="MQTT.Publish(\"Andy\", BC.StringToBytes(txtSSID.";
+ //BA.debugLineNum = 112;BA.debugLine="MQTT.Publish(\"Andy\", BC.StringToBytes(txtSSID.";
 parent._mqtt.Publish("Andy",parent._bc.StringToBytes(parent.mostCurrent._txtssid.getText()+"|"+parent.mostCurrent._txtpassword.getText()+"|"+parent.mostCurrent._txtopendelay.getText()+"|"+parent.mostCurrent._txtcloseddelay.getText(),"utf8"));
  if (true) break;
 
 case 30:
 //C
 this.state = 31;
- //BA.debugLineNum = 107;BA.debugLine="ToastMessageShow(\"No internet connection\", Fal";
+ //BA.debugLineNum = 114;BA.debugLine="ProgressDialogHide";
+anywheresoftware.b4a.keywords.Common.ProgressDialogHide();
+ //BA.debugLineNum = 115;BA.debugLine="ToastMessageShow(\"No internet connection\", Fal";
 anywheresoftware.b4a.keywords.Common.ToastMessageShow(BA.ObjectToCharSequence("No internet connection"),anywheresoftware.b4a.keywords.Common.False);
  if (true) break;
 
@@ -1002,14 +1123,16 @@ case 33:
 //C
 this.state = 34;
 this.catchState = 0;
- //BA.debugLineNum = 110;BA.debugLine="Log(LastException)";
+ //BA.debugLineNum = 118;BA.debugLine="Log(LastException)";
 anywheresoftware.b4a.keywords.Common.Log(BA.ObjectToString(anywheresoftware.b4a.keywords.Common.LastException(mostCurrent.activityBA)));
+ //BA.debugLineNum = 119;BA.debugLine="ProgressDialogHide";
+anywheresoftware.b4a.keywords.Common.ProgressDialogHide();
  if (true) break;
 if (true) break;
 
 case 34:
 //C
-this.state = 63;
+this.state = 47;
 this.catchState = 0;
 ;
  if (true) break;
@@ -1017,192 +1140,127 @@ this.catchState = 0;
 case 36:
 //C
 this.state = 37;
- //BA.debugLineNum = 114;BA.debugLine="Try";
+ //BA.debugLineNum = 123;BA.debugLine="Try";
 if (true) break;
 
 case 37:
 //try
-this.state = 62;
-this.catchState = 61;
+this.state = 46;
+this.catchState = 45;
 this.state = 39;
 if (true) break;
 
 case 39:
 //C
 this.state = 40;
-this.catchState = 61;
- //BA.debugLineNum = 115;BA.debugLine="Dim forceWiFiConnect As WiFiConnect";
-_forcewificonnect = new anywheresoftware.b4a.jalle007.wificonnect.WiFiConnect();
- //BA.debugLineNum = 116;BA.debugLine="For i = 1 To 40";
+this.catchState = 45;
+ //BA.debugLineNum = 124;BA.debugLine="Sleep(100)";
+anywheresoftware.b4a.keywords.Common.Sleep(mostCurrent.activityBA,this,(int) (100));
+this.state = 49;
+return;
+case 49:
+//C
+this.state = 40;
+;
+ //BA.debugLineNum = 125;BA.debugLine="ProgressDialogHide";
+anywheresoftware.b4a.keywords.Common.ProgressDialogHide();
+ //BA.debugLineNum = 126;BA.debugLine="Sleep(100)";
+anywheresoftware.b4a.keywords.Common.Sleep(mostCurrent.activityBA,this,(int) (100));
+this.state = 50;
+return;
+case 50:
+//C
+this.state = 40;
+;
+ //BA.debugLineNum = 127;BA.debugLine="ProgressDialogShow(\"Connecting to AndyRelayAcce";
+anywheresoftware.b4a.keywords.Common.ProgressDialogShow(mostCurrent.activityBA,BA.ObjectToCharSequence("Connecting to AndyRelayAccessPoint..."));
+ //BA.debugLineNum = 128;BA.debugLine="Sleep(100)";
+anywheresoftware.b4a.keywords.Common.Sleep(mostCurrent.activityBA,this,(int) (100));
+this.state = 51;
+return;
+case 51:
+//C
+this.state = 40;
+;
+ //BA.debugLineNum = 129;BA.debugLine="Disconnect";
+_disconnect();
+ //BA.debugLineNum = 130;BA.debugLine="Dim sock As Socket";
+_sock = new anywheresoftware.b4a.objects.SocketWrapper();
+ //BA.debugLineNum = 131;BA.debugLine="sock.Initialize(\"sock\")";
+_sock.Initialize("sock");
+ //BA.debugLineNum = 132;BA.debugLine="sock.Connect(\"192.168.4.1\", 51042, 10000)";
+_sock.Connect(processBA,"192.168.4.1",(int) (51042),(int) (10000));
+ //BA.debugLineNum = 133;BA.debugLine="Wait For sock_Connected (Successful As Boolean)";
+anywheresoftware.b4a.keywords.Common.WaitFor("sock_connected", processBA, this, null);
+this.state = 52;
+return;
+case 52:
+//C
+this.state = 40;
+_successful = (Boolean) result[0];
+;
+ //BA.debugLineNum = 134;BA.debugLine="If Successful Then";
 if (true) break;
 
 case 40:
-//for
-this.state = 53;
-step40 = 1;
-limit40 = (int) (40);
-_i = (int) (1) ;
-this.state = 65;
-if (true) break;
-
-case 65:
-//C
-this.state = 53;
-if ((step40 > 0 && _i <= limit40) || (step40 < 0 && _i >= limit40)) this.state = 42;
-if (true) break;
-
-case 66:
-//C
-this.state = 65;
-_i = ((int)(0 + _i + step40)) ;
-if (true) break;
+//if
+this.state = 43;
+if (_successful) { 
+this.state = 42;
+}if (true) break;
 
 case 42:
 //C
 this.state = 43;
- //BA.debugLineNum = 117;BA.debugLine="If forceWiFiConnect.IsWiFiEnabled Then";
-if (true) break;
+ //BA.debugLineNum = 135;BA.debugLine="astream.InitializePrefix(sock.InputStream, Fal";
+parent._astream.InitializePrefix(processBA,_sock.getInputStream(),anywheresoftware.b4a.keywords.Common.False,_sock.getOutputStream(),"astream");
+ //BA.debugLineNum = 136;BA.debugLine="astream.Write(ser.ConvertArrayToBytes(RecordTo";
+parent._astream.Write(parent._ser._convertarraytobytes(_recordtoobjects(parent._rec)));
+ //BA.debugLineNum = 137;BA.debugLine="Sleep(2000)";
+anywheresoftware.b4a.keywords.Common.Sleep(mostCurrent.activityBA,this,(int) (2000));
+this.state = 53;
+return;
+case 53:
+//C
+this.state = 43;
+;
+ //BA.debugLineNum = 138;BA.debugLine="ToastMessageShow(\"Successfully saved the setti";
+anywheresoftware.b4a.keywords.Common.ToastMessageShow(BA.ObjectToCharSequence("Successfully saved the settings"),anywheresoftware.b4a.keywords.Common.False);
+ if (true) break;
 
 case 43:
-//if
-this.state = 52;
-if (_forcewificonnect.IsWiFiEnabled(processBA)) { 
-this.state = 45;
-}if (true) break;
+//C
+this.state = 46;
+;
+ //BA.debugLineNum = 140;BA.debugLine="Disconnect";
+_disconnect();
+ if (true) break;
 
 case 45:
 //C
 this.state = 46;
- //BA.debugLineNum = 118;BA.debugLine="If WiFi.SSID <> \"AndyRelayAccessPoint\" Then";
+this.catchState = 0;
+ //BA.debugLineNum = 142;BA.debugLine="Log(LastException)";
+anywheresoftware.b4a.keywords.Common.Log(BA.ObjectToString(anywheresoftware.b4a.keywords.Common.LastException(mostCurrent.activityBA)));
+ //BA.debugLineNum = 143;BA.debugLine="ProgressDialogHide";
+anywheresoftware.b4a.keywords.Common.ProgressDialogHide();
+ if (true) break;
 if (true) break;
 
 case 46:
-//if
-this.state = 51;
-if ((parent.mostCurrent._wifi.SSID()).equals("AndyRelayAccessPoint") == false) { 
-this.state = 48;
-}else {
-this.state = 50;
-}if (true) break;
-
-case 48:
 //C
-this.state = 51;
- //BA.debugLineNum = 119;BA.debugLine="forceWiFiConnect.connectToSSID(forceWiFiConn";
-_forcewificonnect.connectToSSID(processBA,_forcewificonnect.WIFI_OPEN,"AndyRelayAccessPoint","");
- if (true) break;
-
-case 50:
-//C
-this.state = 51;
- //BA.debugLineNum = 121;BA.debugLine="Exit";
-this.state = 53;
-if (true) break;
- if (true) break;
-
-case 51:
-//C
-this.state = 52;
-;
- if (true) break;
-
-case 52:
-//C
-this.state = 66;
-;
- if (true) break;
-if (true) break;
-
-case 53:
-//C
-this.state = 54;
-;
- //BA.debugLineNum = 126;BA.debugLine="Dim j As HttpJob";
-_j = new anywheresoftware.b4a.samples.httputils2.httpjob();
- //BA.debugLineNum = 127;BA.debugLine="j.Initialize(\"\", Me)";
-_j._initialize(processBA,"",settings.getObject());
- //BA.debugLineNum = 128;BA.debugLine="Dim a As String = txtSSID.Text.trim";
-_a = parent.mostCurrent._txtssid.getText().trim();
- //BA.debugLineNum = 129;BA.debugLine="Dim b As String = txtPassword.Text.trim";
-_b = parent.mostCurrent._txtpassword.getText().trim();
- //BA.debugLineNum = 130;BA.debugLine="Dim c As String = txtOpenDelay.Text.trim";
-_c = parent.mostCurrent._txtopendelay.getText().trim();
- //BA.debugLineNum = 131;BA.debugLine="Dim d As String = txtClosedDelay.Text.trim";
-_d = parent.mostCurrent._txtcloseddelay.getText().trim();
- //BA.debugLineNum = 132;BA.debugLine="Dim encodedURL As String = \"http://192.168.4.1/";
-_encodedurl = "http://192.168.4.1/set/"+_a+"/"+_b+"/"+_c+"/"+_d;
- //BA.debugLineNum = 133;BA.debugLine="encodedURL = encodedURL.Replace(\" \", \"%20\")";
-_encodedurl = _encodedurl.replace(" ","%20");
- //BA.debugLineNum = 134;BA.debugLine="j.Download(encodedURL)";
-_j._download(_encodedurl);
- //BA.debugLineNum = 135;BA.debugLine="j.GetRequest.SetHeader(\"User-Agent\", \"Mozilla/5";
-_j._getrequest().SetHeader("User-Agent","Mozilla/5.0 (Windows NT 6.1; WOW64; rv:27.0) Gecko/20100101 Firefox/27.0");
- //BA.debugLineNum = 136;BA.debugLine="j.GetRequest.Timeout = 2000";
-_j._getrequest().setTimeout((int) (2000));
- //BA.debugLineNum = 137;BA.debugLine="Wait For (j) JobDone(j As HttpJob)";
-anywheresoftware.b4a.keywords.Common.WaitFor("jobdone", processBA, this, (Object)(_j));
-this.state = 67;
-return;
-case 67:
-//C
-this.state = 54;
-_j = (anywheresoftware.b4a.samples.httputils2.httpjob) result[0];
-;
- //BA.debugLineNum = 138;BA.debugLine="If j.Success Then";
-if (true) break;
-
-case 54:
-//if
-this.state = 59;
-if (_j._success) { 
-this.state = 56;
-}else {
-this.state = 58;
-}if (true) break;
-
-case 56:
-//C
-this.state = 59;
- if (true) break;
-
-case 58:
-//C
-this.state = 59;
- //BA.debugLineNum = 141;BA.debugLine="ToastMessageShow(LastException,False)";
-anywheresoftware.b4a.keywords.Common.ToastMessageShow(BA.ObjectToCharSequence(anywheresoftware.b4a.keywords.Common.LastException(mostCurrent.activityBA).getObject()),anywheresoftware.b4a.keywords.Common.False);
- if (true) break;
-
-case 59:
-//C
-this.state = 62;
-;
- //BA.debugLineNum = 143;BA.debugLine="j.Release";
-_j._release();
- if (true) break;
-
-case 61:
-//C
-this.state = 62;
-this.catchState = 0;
- //BA.debugLineNum = 145;BA.debugLine="Log(LastException)";
-anywheresoftware.b4a.keywords.Common.Log(BA.ObjectToString(anywheresoftware.b4a.keywords.Common.LastException(mostCurrent.activityBA)));
- if (true) break;
-if (true) break;
-
-case 62:
-//C
-this.state = 63;
+this.state = 47;
 this.catchState = 0;
 ;
  if (true) break;
 
-case 63:
+case 47:
 //C
 this.state = -1;
 ;
- //BA.debugLineNum = 148;BA.debugLine="ProgressDialogHide";
+ //BA.debugLineNum = 146;BA.debugLine="ProgressDialogHide";
 anywheresoftware.b4a.keywords.Common.ProgressDialogHide();
- //BA.debugLineNum = 149;BA.debugLine="End Sub";
+ //BA.debugLineNum = 147;BA.debugLine="End Sub";
 if (true) break;
 }} 
        catch (Exception e0) {
@@ -1216,88 +1274,153 @@ processBA.setLastException(e0);}
         }
     }
 }
+public static String  _checkifonline() throws Exception{
+ //BA.debugLineNum = 241;BA.debugLine="Sub CheckIfOnline";
+ //BA.debugLineNum = 242;BA.debugLine="CheckInternetJob.Initialize(\"CheckInternetJob\", M";
+mostCurrent._checkinternetjob._initialize(processBA,"CheckInternetJob",settings.getObject());
+ //BA.debugLineNum = 243;BA.debugLine="CheckInternetJob.Download(\"http://www.google.com\"";
+mostCurrent._checkinternetjob._download("http://www.google.com");
+ //BA.debugLineNum = 244;BA.debugLine="End Sub";
+return "";
+}
+public static String  _disconnect() throws Exception{
+ //BA.debugLineNum = 326;BA.debugLine="Sub Disconnect";
+ //BA.debugLineNum = 327;BA.debugLine="Log(\"Disconnect\")";
+anywheresoftware.b4a.keywords.Common.Log("Disconnect");
+ //BA.debugLineNum = 328;BA.debugLine="If astream.IsInitialized Then astream.Close";
+if (_astream.IsInitialized()) { 
+_astream.Close();};
+ //BA.debugLineNum = 329;BA.debugLine="ProgressDialogHide";
+anywheresoftware.b4a.keywords.Common.ProgressDialogHide();
+ //BA.debugLineNum = 330;BA.debugLine="End Sub";
+return "";
+}
 public static String  _globals() throws Exception{
- //BA.debugLineNum = 17;BA.debugLine="Sub Globals";
- //BA.debugLineNum = 20;BA.debugLine="Private ACToolBarLight1 As ACToolBarLight";
+ //BA.debugLineNum = 21;BA.debugLine="Sub Globals";
+ //BA.debugLineNum = 24;BA.debugLine="Private ACToolBarLight1 As ACToolBarLight";
 mostCurrent._actoolbarlight1 = new de.amberhome.objects.appcompat.ACToolbarLightWrapper();
- //BA.debugLineNum = 21;BA.debugLine="Private ToolbarHelper As ACActionBar";
+ //BA.debugLineNum = 25;BA.debugLine="Private ToolbarHelper As ACActionBar";
 mostCurrent._toolbarhelper = new de.amberhome.objects.appcompat.ACActionBar();
- //BA.debugLineNum = 22;BA.debugLine="Private WiFi As MLwifi";
+ //BA.debugLineNum = 26;BA.debugLine="Private WiFi As MLwifi";
 mostCurrent._wifi = new wifi.MLwifi();
- //BA.debugLineNum = 23;BA.debugLine="Private btnGet As Button";
+ //BA.debugLineNum = 27;BA.debugLine="Private btnGet As Button";
 mostCurrent._btnget = new anywheresoftware.b4a.objects.ButtonWrapper();
- //BA.debugLineNum = 24;BA.debugLine="Private btnSet As Button";
+ //BA.debugLineNum = 28;BA.debugLine="Private btnSet As Button";
 mostCurrent._btnset = new anywheresoftware.b4a.objects.ButtonWrapper();
- //BA.debugLineNum = 25;BA.debugLine="Private txtPassword As FloatLabeledEditText";
+ //BA.debugLineNum = 29;BA.debugLine="Private txtPassword As FloatLabeledEditText";
 mostCurrent._txtpassword = new anywheresoftware.b4a.objects.FloatLabeledEditTextWrapper();
- //BA.debugLineNum = 26;BA.debugLine="Private txtSSID As FloatLabeledEditText";
+ //BA.debugLineNum = 30;BA.debugLine="Private txtSSID As FloatLabeledEditText";
 mostCurrent._txtssid = new anywheresoftware.b4a.objects.FloatLabeledEditTextWrapper();
- //BA.debugLineNum = 27;BA.debugLine="Private txtClosedDelay As FloatLabeledEditText";
+ //BA.debugLineNum = 31;BA.debugLine="Private txtClosedDelay As FloatLabeledEditText";
 mostCurrent._txtcloseddelay = new anywheresoftware.b4a.objects.FloatLabeledEditTextWrapper();
- //BA.debugLineNum = 28;BA.debugLine="Private txtOpenDelay As FloatLabeledEditText";
+ //BA.debugLineNum = 32;BA.debugLine="Private txtOpenDelay As FloatLabeledEditText";
 mostCurrent._txtopendelay = new anywheresoftware.b4a.objects.FloatLabeledEditTextWrapper();
- //BA.debugLineNum = 29;BA.debugLine="Private tglConnection As ToggleButton";
+ //BA.debugLineNum = 33;BA.debugLine="Private tglConnection As ToggleButton";
 mostCurrent._tglconnection = new anywheresoftware.b4a.objects.CompoundButtonWrapper.ToggleButtonWrapper();
- //BA.debugLineNum = 30;BA.debugLine="End Sub";
+ //BA.debugLineNum = 34;BA.debugLine="Dim CheckInternetJob As HttpJob";
+mostCurrent._checkinternetjob = new anywheresoftware.b4a.samples.httputils2.httpjob();
+ //BA.debugLineNum = 35;BA.debugLine="Dim IsInternetConnected As Boolean";
+_isinternetconnected = false;
+ //BA.debugLineNum = 36;BA.debugLine="End Sub";
+return "";
+}
+public static boolean  _isconnectedtointernet() throws Exception{
+anywheresoftware.b4a.phone.Phone _p = null;
+anywheresoftware.b4a.objects.SocketWrapper.ServerSocketWrapper _wf = null;
+boolean _b = false;
+ //BA.debugLineNum = 337;BA.debugLine="Sub IsConnectedToInternet As Boolean 'ignore";
+ //BA.debugLineNum = 338;BA.debugLine="Dim P As Phone";
+_p = new anywheresoftware.b4a.phone.Phone();
+ //BA.debugLineNum = 339;BA.debugLine="Dim WF As ServerSocket 'ignore";
+_wf = new anywheresoftware.b4a.objects.SocketWrapper.ServerSocketWrapper();
+ //BA.debugLineNum = 340;BA.debugLine="Dim B As Boolean=False";
+_b = anywheresoftware.b4a.keywords.Common.False;
+ //BA.debugLineNum = 342;BA.debugLine="If P.GetDataState=\"CONNECTED\" Then B=True";
+if ((_p.GetDataState()).equals("CONNECTED")) { 
+_b = anywheresoftware.b4a.keywords.Common.True;};
+ //BA.debugLineNum = 343;BA.debugLine="If WF.GetMyWiFiIP<>\"127.0.0.1\" Then B=True  'igno";
+if ((_wf.GetMyWifiIP()).equals("127.0.0.1") == false) { 
+_b = anywheresoftware.b4a.keywords.Common.True;};
+ //BA.debugLineNum = 344;BA.debugLine="If WF.GetMyIP<>\"127.0.0.1\" Then B=True";
+if ((_wf.GetMyIP()).equals("127.0.0.1") == false) { 
+_b = anywheresoftware.b4a.keywords.Common.True;};
+ //BA.debugLineNum = 346;BA.debugLine="Return B";
+if (true) return _b;
+ //BA.debugLineNum = 347;BA.debugLine="End Sub";
+return false;
+}
+public static String  _jobdone(anywheresoftware.b4a.samples.httputils2.httpjob _job) throws Exception{
+ //BA.debugLineNum = 232;BA.debugLine="Sub JobDone(job As HttpJob)";
+ //BA.debugLineNum = 233;BA.debugLine="If job.JobName=\"CheckInternetJob\" And job.Success";
+if ((_job._jobname).equals("CheckInternetJob") && _job._success==anywheresoftware.b4a.keywords.Common.False) { 
+ //BA.debugLineNum = 234;BA.debugLine="IsInternetConnected = False";
+_isinternetconnected = anywheresoftware.b4a.keywords.Common.False;
+ }else {
+ //BA.debugLineNum = 236;BA.debugLine="IsInternetConnected = True";
+_isinternetconnected = anywheresoftware.b4a.keywords.Common.True;
+ };
+ //BA.debugLineNum = 238;BA.debugLine="job.Release";
+_job._release();
+ //BA.debugLineNum = 239;BA.debugLine="End Sub";
 return "";
 }
 public static String  _mqtt_connect() throws Exception{
 String _clientid = "";
 anywheresoftware.b4j.objects.MqttAsyncClientWrapper.MqttConnectOptionsWrapper _connopt = null;
- //BA.debugLineNum = 220;BA.debugLine="Sub MQTT_Connect";
- //BA.debugLineNum = 221;BA.debugLine="Try";
-try { //BA.debugLineNum = 222;BA.debugLine="Dim ClientId As String = Rnd(0, 999999999) 'crea";
+ //BA.debugLineNum = 247;BA.debugLine="Sub MQTT_Connect";
+ //BA.debugLineNum = 248;BA.debugLine="Try";
+try { //BA.debugLineNum = 249;BA.debugLine="Dim ClientId As String = Rnd(0, 999999999) 'crea";
 _clientid = BA.NumberToString(anywheresoftware.b4a.keywords.Common.Rnd((int) (0),(int) (999999999)));
- //BA.debugLineNum = 223;BA.debugLine="MQTT.Initialize(\"MQTT\", MQTTServerURI, ClientId)";
+ //BA.debugLineNum = 250;BA.debugLine="MQTT.Initialize(\"MQTT\", MQTTServerURI, ClientId)";
 _mqtt.Initialize(processBA,"MQTT",_mqttserveruri,_clientid);
- //BA.debugLineNum = 224;BA.debugLine="Dim ConnOpt As MqttConnectOptions";
+ //BA.debugLineNum = 251;BA.debugLine="Dim ConnOpt As MqttConnectOptions";
 _connopt = new anywheresoftware.b4j.objects.MqttAsyncClientWrapper.MqttConnectOptionsWrapper();
- //BA.debugLineNum = 225;BA.debugLine="ConnOpt.Initialize(MQTTUser, MQTTPassword)";
+ //BA.debugLineNum = 252;BA.debugLine="ConnOpt.Initialize(MQTTUser, MQTTPassword)";
 _connopt.Initialize(_mqttuser,_mqttpassword);
- //BA.debugLineNum = 226;BA.debugLine="MQTT.Connect2(ConnOpt)";
+ //BA.debugLineNum = 253;BA.debugLine="MQTT.Connect2(ConnOpt)";
 _mqtt.Connect2((org.eclipse.paho.client.mqttv3.MqttConnectOptions)(_connopt.getObject()));
  } 
        catch (Exception e8) {
-			processBA.setLastException(e8); //BA.debugLineNum = 228;BA.debugLine="Log(LastException)";
+			processBA.setLastException(e8); //BA.debugLineNum = 255;BA.debugLine="Log(LastException)";
 anywheresoftware.b4a.keywords.Common.Log(BA.ObjectToString(anywheresoftware.b4a.keywords.Common.LastException(mostCurrent.activityBA)));
  };
- //BA.debugLineNum = 230;BA.debugLine="End Sub";
+ //BA.debugLineNum = 257;BA.debugLine="End Sub";
 return "";
 }
 public static String  _mqtt_connected(boolean _success) throws Exception{
- //BA.debugLineNum = 232;BA.debugLine="Sub MQTT_Connected (Success As Boolean)";
- //BA.debugLineNum = 233;BA.debugLine="Try";
-try { //BA.debugLineNum = 234;BA.debugLine="If Success = False Then";
+ //BA.debugLineNum = 259;BA.debugLine="Sub MQTT_Connected (Success As Boolean)";
+ //BA.debugLineNum = 260;BA.debugLine="Try";
+try { //BA.debugLineNum = 261;BA.debugLine="If Success = False Then";
 if (_success==anywheresoftware.b4a.keywords.Common.False) { 
- //BA.debugLineNum = 235;BA.debugLine="Log(LastException)";
+ //BA.debugLineNum = 262;BA.debugLine="Log(LastException)";
 anywheresoftware.b4a.keywords.Common.Log(BA.ObjectToString(anywheresoftware.b4a.keywords.Common.LastException(mostCurrent.activityBA)));
  }else {
- //BA.debugLineNum = 237;BA.debugLine="Log(\"Connected to MQTT broker\")";
+ //BA.debugLineNum = 264;BA.debugLine="Log(\"Connected to MQTT broker\")";
 anywheresoftware.b4a.keywords.Common.Log("Connected to MQTT broker");
- //BA.debugLineNum = 238;BA.debugLine="MQTT.Subscribe(\"Andy\", 0)";
+ //BA.debugLineNum = 265;BA.debugLine="MQTT.Subscribe(\"Andy\", 0)";
 _mqtt.Subscribe("Andy",(int) (0));
  };
  } 
        catch (Exception e9) {
-			processBA.setLastException(e9); //BA.debugLineNum = 241;BA.debugLine="Log(LastException)";
+			processBA.setLastException(e9); //BA.debugLineNum = 268;BA.debugLine="Log(LastException)";
 anywheresoftware.b4a.keywords.Common.Log(BA.ObjectToString(anywheresoftware.b4a.keywords.Common.LastException(mostCurrent.activityBA)));
  };
- //BA.debugLineNum = 244;BA.debugLine="End Sub";
+ //BA.debugLineNum = 271;BA.debugLine="End Sub";
 return "";
 }
 public static String  _mqtt_disconnected() throws Exception{
- //BA.debugLineNum = 246;BA.debugLine="Private Sub MQTT_Disconnected";
- //BA.debugLineNum = 247;BA.debugLine="Try";
-try { //BA.debugLineNum = 248;BA.debugLine="Log(\"Disconnected from MQTT broker\")";
+ //BA.debugLineNum = 273;BA.debugLine="Private Sub MQTT_Disconnected";
+ //BA.debugLineNum = 274;BA.debugLine="Try";
+try { //BA.debugLineNum = 275;BA.debugLine="Log(\"Disconnected from MQTT broker\")";
 anywheresoftware.b4a.keywords.Common.Log("Disconnected from MQTT broker");
- //BA.debugLineNum = 249;BA.debugLine="MQTT.Close";
+ //BA.debugLineNum = 276;BA.debugLine="MQTT.Close";
 _mqtt.Close();
  } 
        catch (Exception e5) {
-			processBA.setLastException(e5); //BA.debugLineNum = 251;BA.debugLine="Log(LastException)";
+			processBA.setLastException(e5); //BA.debugLineNum = 278;BA.debugLine="Log(LastException)";
 anywheresoftware.b4a.keywords.Common.Log(BA.ObjectToString(anywheresoftware.b4a.keywords.Common.LastException(mostCurrent.activityBA)));
  };
- //BA.debugLineNum = 253;BA.debugLine="End Sub";
+ //BA.debugLineNum = 280;BA.debugLine="End Sub";
 return "";
 }
 public static void  _mqtt_messagearrived(String _topic,byte[] _payload) throws Exception{
@@ -1329,7 +1452,7 @@ return;
 case 0:
 //C
 this.state = 1;
- //BA.debugLineNum = 256;BA.debugLine="Try";
+ //BA.debugLineNum = 283;BA.debugLine="Try";
 if (true) break;
 
 case 1:
@@ -1343,13 +1466,13 @@ case 3:
 //C
 this.state = 4;
 this.catchState = 9;
- //BA.debugLineNum = 257;BA.debugLine="Dim status As String";
+ //BA.debugLineNum = 284;BA.debugLine="Dim status As String";
 _status = "";
- //BA.debugLineNum = 258;BA.debugLine="status = BytesToString(Payload, 0, Payload.Lengt";
+ //BA.debugLineNum = 285;BA.debugLine="status = BytesToString(Payload, 0, Payload.Lengt";
 _status = anywheresoftware.b4a.keywords.Common.BytesToString(_payload,(int) (0),_payload.length,"UTF8");
- //BA.debugLineNum = 259;BA.debugLine="Log(\"MQTT_MessageArrived: \" & status )";
+ //BA.debugLineNum = 286;BA.debugLine="Log(\"MQTT_MessageArrived: \" & status )";
 anywheresoftware.b4a.keywords.Common.Log("MQTT_MessageArrived: "+_status);
- //BA.debugLineNum = 260;BA.debugLine="If status.IndexOf(\"*Get settings:\") <> -1 Then";
+ //BA.debugLineNum = 287;BA.debugLine="If status.IndexOf(\"*Get settings:\") <> -1 Then";
 if (true) break;
 
 case 4:
@@ -1362,9 +1485,9 @@ this.state = 6;
 case 6:
 //C
 this.state = 7;
- //BA.debugLineNum = 261;BA.debugLine="Dim s() As String = Regex.Split(\",\", status.Rep";
+ //BA.debugLineNum = 288;BA.debugLine="Dim s() As String = Regex.Split(\",\", status.Rep";
 _s = anywheresoftware.b4a.keywords.Common.Regex.Split(",",_status.replace("*Get settings: ",""));
- //BA.debugLineNum = 262;BA.debugLine="Sleep(100)";
+ //BA.debugLineNum = 289;BA.debugLine="Sleep(100)";
 anywheresoftware.b4a.keywords.Common.Sleep(mostCurrent.activityBA,this,(int) (100));
 this.state = 11;
 return;
@@ -1372,13 +1495,13 @@ case 11:
 //C
 this.state = 7;
 ;
- //BA.debugLineNum = 263;BA.debugLine="txtSSID.Text = s(0).Trim";
+ //BA.debugLineNum = 290;BA.debugLine="txtSSID.Text = s(0).Trim";
 parent.mostCurrent._txtssid.setText((Object)(_s[(int) (0)].trim()));
- //BA.debugLineNum = 264;BA.debugLine="txtPassword.Text = s(1).Trim";
+ //BA.debugLineNum = 291;BA.debugLine="txtPassword.Text = s(1).Trim";
 parent.mostCurrent._txtpassword.setText((Object)(_s[(int) (1)].trim()));
- //BA.debugLineNum = 265;BA.debugLine="txtOpenDelay.Text = s(2).Trim";
+ //BA.debugLineNum = 292;BA.debugLine="txtOpenDelay.Text = s(2).Trim";
 parent.mostCurrent._txtopendelay.setText((Object)(_s[(int) (2)].trim()));
- //BA.debugLineNum = 266;BA.debugLine="txtClosedDelay.Text = s(3).Trim";
+ //BA.debugLineNum = 293;BA.debugLine="txtClosedDelay.Text = s(3).Trim";
 parent.mostCurrent._txtcloseddelay.setText((Object)(_s[(int) (3)].trim()));
  if (true) break;
 
@@ -1392,7 +1515,7 @@ case 9:
 //C
 this.state = 10;
 this.catchState = 0;
- //BA.debugLineNum = 269;BA.debugLine="Log(LastException)";
+ //BA.debugLineNum = 296;BA.debugLine="Log(LastException)";
 anywheresoftware.b4a.keywords.Common.Log(BA.ObjectToString(anywheresoftware.b4a.keywords.Common.LastException(mostCurrent.activityBA)));
  if (true) break;
 if (true) break;
@@ -1402,7 +1525,7 @@ case 10:
 this.state = -1;
 this.catchState = 0;
 ;
- //BA.debugLineNum = 271;BA.debugLine="End Sub";
+ //BA.debugLineNum = 298;BA.debugLine="End Sub";
 if (true) break;
 }} 
        catch (Exception e0) {
@@ -1416,6 +1539,26 @@ processBA.setLastException(e0);}
         }
     }
 }
+public static andy.home.system.settings._record  _objectstorecord(Object[] _objects) throws Exception{
+andy.home.system.settings._record _r = null;
+ //BA.debugLineNum = 308;BA.debugLine="Sub ObjectsToRecord(Objects() As Object) As Record";
+ //BA.debugLineNum = 309;BA.debugLine="Dim r As Record";
+_r = new andy.home.system.settings._record();
+ //BA.debugLineNum = 310;BA.debugLine="r.Initialize";
+_r.Initialize();
+ //BA.debugLineNum = 311;BA.debugLine="r.SSID = Objects(0)";
+_r.SSID = BA.ObjectToString(_objects[(int) (0)]);
+ //BA.debugLineNum = 312;BA.debugLine="r.Password = Objects(1)";
+_r.Password = BA.ObjectToString(_objects[(int) (1)]);
+ //BA.debugLineNum = 313;BA.debugLine="r.OpenDelay = Objects(2)";
+_r.OpenDelay = BA.ObjectToString(_objects[(int) (2)]);
+ //BA.debugLineNum = 314;BA.debugLine="r.ClosedDelay = Objects(3)";
+_r.ClosedDelay = BA.ObjectToString(_objects[(int) (3)]);
+ //BA.debugLineNum = 315;BA.debugLine="Return r";
+if (true) return _r;
+ //BA.debugLineNum = 316;BA.debugLine="End Sub";
+return null;
+}
 public static String  _process_globals() throws Exception{
  //BA.debugLineNum = 7;BA.debugLine="Sub Process_Globals";
  //BA.debugLineNum = 10;BA.debugLine="Private MQTT As MqttClient";
@@ -1428,7 +1571,30 @@ _mqttpassword = "Nc3F4APoO801";
 _mqttserveruri = "tcp://m14.cloudmqtt.com:15093";
  //BA.debugLineNum = 14;BA.debugLine="Private BC As ByteConverter";
 _bc = new anywheresoftware.b4a.agraham.byteconverter.ByteConverter();
- //BA.debugLineNum = 15;BA.debugLine="End Sub";
+ //BA.debugLineNum = 15;BA.debugLine="Private astream As AsyncStreams";
+_astream = new anywheresoftware.b4a.randomaccessfile.AsyncStreams();
+ //BA.debugLineNum = 16;BA.debugLine="Type Record (SSID As String, Password As String,";
+;
+ //BA.debugLineNum = 17;BA.debugLine="Private rec As Record";
+_rec = new andy.home.system.settings._record();
+ //BA.debugLineNum = 18;BA.debugLine="Private ser As B4RSerializator";
+_ser = new andy.home.system.b4rserializator();
+ //BA.debugLineNum = 19;BA.debugLine="End Sub";
 return "";
+}
+public static Object[]  _recordtoobjects(andy.home.system.settings._record _record) throws Exception{
+ //BA.debugLineNum = 300;BA.debugLine="Sub RecordToObjects (Record As Record) As Object()";
+ //BA.debugLineNum = 301;BA.debugLine="Record.SSID = txtSSID.Text";
+_record.SSID = mostCurrent._txtssid.getText();
+ //BA.debugLineNum = 302;BA.debugLine="Record.Password = txtPassword.Text";
+_record.Password = mostCurrent._txtpassword.getText();
+ //BA.debugLineNum = 303;BA.debugLine="Record.OpenDelay = txtOpenDelay.Text";
+_record.OpenDelay = mostCurrent._txtopendelay.getText();
+ //BA.debugLineNum = 304;BA.debugLine="Record.ClosedDelay = txtClosedDelay.Text";
+_record.ClosedDelay = mostCurrent._txtcloseddelay.getText();
+ //BA.debugLineNum = 305;BA.debugLine="Return Array(Record.SSID, Record.Password, Record";
+if (true) return new Object[]{(Object)(_record.SSID),(Object)(_record.Password),(Object)(_record.OpenDelay),(Object)(_record.ClosedDelay)};
+ //BA.debugLineNum = 306;BA.debugLine="End Sub";
+return null;
 }
 }

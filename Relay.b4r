@@ -40,7 +40,7 @@ Sub Process_Globals
 	Private WiFiPassword As String = "adjj6347"
 	Private RelayOpenDelay As String = "5000"
 	Private RelayClosedDelay As String = "15000"
-	Private eeprom As EEPROM
+	Public eeprom As EEPROM
 	Private bc As ByteConverter
 	Private const MAGIC_EEPROM As Byte = 123
 	Private ser As B4RSerializator
@@ -58,6 +58,8 @@ Private Sub AppStart
 	' Pin 2 is the blue LED
 	' Pin 16 is the red LED
 	' D6 = pin 12 is the logic/signal pin. Use 3.3v pin of Node MCU.
+	RunNative("SetAPSTA", Null)
+	WiFiServer.Start
 	
 	d6.Initialize(d1pins.D6, d6.MODE_OUTPUT)
 	pin16.Initialize(16, pin16.MODE_OUTPUT)
@@ -67,9 +69,6 @@ Private Sub AppStart
 	ReadFromEEPROM
 	
 	IsWiFIConnectingAppStart = True
-	
-	Log("Stopping access point")
-	RunNative("SetSTA", Null)
 	
 	' Infinite relay toggle
 	RelayOpen(0)
@@ -219,9 +218,7 @@ Sub ConnectToWifi
 
 	If WiFi.IsConnected Then
 		' Stop access point
-		Log("Stopping access point")
 		Timer1.Enabled = False
-		RunNative("SetSTA", Null)
 		counter = 0
 		Log("Connected to WiFi = ",SSID,", Local IP = ", WiFi.LocalIp, ", Password = ",password)
 		' Connect to CloudMQTT broker
@@ -296,18 +293,14 @@ Sub ClearEEPROM 'ignore
 	Next
 End Sub
 
-Public Sub SaveNetworkDetails(SSID As String, Password As String, OpenDelay As String, ClosedDelay As String)
-	Log("Saving settings: ", SSID, ", ", Password, ", " ,OpenDelay,", ",ClosedDelay )
-	SSID = bc.StringFromBytes(WiFiServer.ReplaceString(SSID, "%20", " "))
-	WriteToEEPROM(SSID,Password,OpenDelay,ClosedDelay)
+Public Sub SaveNetworkDetails(Data() As Byte)
+	eeprom.WriteBytes(Array As Byte(MAGIC_EEPROM, Data.Length), 0)
+	eeprom.WriteBytes(Data, 2)
+	Delay(1000)
+	ConnectToNetwork
 End Sub
 
 Public Sub ConnectToNetwork
-'	WiFi.Disconnect
-'	' Read settings from EEPROM
-'	ReadFromEEPROM
-'	' Stop access point
-	'	ConnectToWifi
 	Log("Restarting controller")
 	ESP.Restart
 End Sub
@@ -316,8 +309,6 @@ Private Sub Timer1_Tick
 	' Blink red LED if in access point mode. And reconnect every 5 minutes.
 	counter = counter + 1
 	If counter >= 300 Then
-		Log("Stopping access point")
-		RunNative("SetSTA", Null)
 		IsWiFIConnectingAppStart = True
 		ConnectToWifi
 		If WiFi.IsConnected Then
@@ -371,9 +362,20 @@ Private Sub MQTTChangeSetting(message() As Byte)
 	ConnectToNetwork
 End Sub
 
+Public Sub GetStoredDataLength As Byte
+	Dim header() As Byte = eeprom.ReadBytes(0, 2)
+	If header(0) = MAGIC_EEPROM Then
+		Return header(1)
+	End If
+	Return 0
+End Sub
 
 #if C
 void SetSTA(B4R::Object* o) {
-   WiFi.mode(WIFI_STA);
+   //WiFi.mode(WIFI_STA);
+}
+
+void SetAPSTA(B4R::Object* o) {
+   WiFi.mode(WIFI_AP_STA);
 }
 #end if

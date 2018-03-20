@@ -18,6 +18,10 @@ Sub Process_Globals
 	Private MQTTPassword As String = "Nc3F4APoO801"
 	Private MQTTServerURI As String = "tcp://m14.cloudmqtt.com:15093"
 	Private BC As ByteConverter
+	Private astream As AsyncStreams
+	Type Record (SSID As String, Password As String, OpenDelay As String, ClosedDelay As String)
+	Private rec As Record
+	Private ser As B4RSerializator
 End Sub
 
 Sub Globals
@@ -33,6 +37,8 @@ Sub Globals
 	Private txtClosedDelay As FloatLabeledEditText
 	Private txtOpenDelay As FloatLabeledEditText
 	Private tglConnection As ToggleButton
+	Dim CheckInternetJob As HttpJob
+	Dim IsInternetConnected As Boolean
 End Sub
 
 Sub Activity_Create(FirstTime As Boolean)
@@ -52,6 +58,8 @@ Sub Activity_Create(FirstTime As Boolean)
 	txtClosedDelay.EditText.InputType = txtClosedDelay.EditText.INPUT_TYPE_NUMBERS
 	
 	tglConnection.Checked = True
+	
+	ser.Initialize
 End Sub
 
 Sub Activity_Resume
@@ -96,59 +104,49 @@ Sub btnSet_Click
 		Return
 	End If
 	
-	ProgressDialogShow("Attempting to set settings...")
-	Sleep(100)
-	
-	If MQTT.IsInitialized = False Or MQTT.Connected = False Then
-		MQTT_Connect
-	End If
-	
 	If tglConnection.Checked Then
 		' Online
+		ProgressDialogShow("Attempting to set settings...")
+		Sleep(100)
 		Try
-			If WiFi.isOnLine Then
+			CheckIfOnline
+			If IsInternetConnected Then
+				If MQTT.IsInitialized = False Or MQTT.Connected = False Then
+					MQTT_Connect
+				End If
 				Log(txtSSID.Text & "|" & txtPassword.Text & "|" & txtOpenDelay.Text & "|" & txtClosedDelay.Text)
 				MQTT.Publish("Andy", BC.StringToBytes(txtSSID.Text & "|" & txtPassword.Text & "|" & txtOpenDelay.Text & "|" & txtClosedDelay.Text, "utf8"))
 			Else
+				ProgressDialogHide
 				ToastMessageShow("No internet connection", False)
 			End If
 		Catch
 			Log(LastException)
+			ProgressDialogHide
 		End Try
 	Else
 		' Access Point
 		Try
-			Dim forceWiFiConnect As WiFiConnect
-			For i = 1 To 40
-				If forceWiFiConnect.IsWiFiEnabled Then
-					If WiFi.SSID <> "AndyRelayAccessPoint" Then
-						forceWiFiConnect.connectToSSID(forceWiFiConnect.WIFI_OPEN,"AndyRelayAccessPoint","")
-					Else
-						Exit
-					End If
-				End If
-			Next
-			
-			Dim j As HttpJob
-			j.Initialize("", Me)
-			Dim a As String = txtSSID.Text.trim
-			Dim b As String = txtPassword.Text.trim
-			Dim c As String = txtOpenDelay.Text.trim
-			Dim d As String = txtClosedDelay.Text.trim
-			Dim encodedURL As String = "http://192.168.4.1/set/" & a & "/" & b & "/" & c & "/" & d
-			encodedURL = encodedURL.Replace(" ", "%20")
-			j.Download(encodedURL)
-			j.GetRequest.SetHeader("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:27.0) Gecko/20100101 Firefox/27.0")
-			j.GetRequest.Timeout = 2000
-			Wait For (j) JobDone(j As HttpJob)
-			If j.Success Then
-		
-			Else
-				ToastMessageShow(LastException,False)
+			Sleep(100)
+			ProgressDialogHide
+			Sleep(100)
+			ProgressDialogShow("Connecting to AndyRelayAccessPoint...")
+			Sleep(100)
+			Disconnect
+			Dim sock As Socket
+			sock.Initialize("sock")
+			sock.Connect("192.168.4.1", 51042, 10000)
+			Wait For sock_Connected (Successful As Boolean)
+			If Successful Then
+				astream.InitializePrefix(sock.InputStream, False, sock.OutputStream, "astream")
+				astream.Write(ser.ConvertArrayToBytes(RecordToObjects(rec)))
+				Sleep(2000)
+				ToastMessageShow("Successfully saved the settings", False)
 			End If
-			j.Release
+			Disconnect
 		Catch
 			Log(LastException)
+			ProgressDialogHide
 		End Try
 	End If
 	ProgressDialogHide
@@ -156,32 +154,39 @@ End Sub
 
 Sub btnGet_Click
 	'ToastMessageShow("Attempting to retrieve settings", False)
-	ProgressDialogShow("Attempting to retrieve settings...")
-	Sleep(100)
+
 	Dim x As String = ""
 	txtSSID.Text = x
 	txtPassword.Text = x
 	txtOpenDelay.Text = x
 	txtClosedDelay.Text = x
-	
-	If MQTT.IsInitialized = False Or MQTT.Connected = False Then
-		MQTT_Connect
-	End If
-	' 1. Attempt via MQTT
+
 	If tglConnection.Checked Then
 		' Online
+		ProgressDialogShow("Attempting to retrieve settings...")
+		Sleep(100)
 		Try
-			If WiFi.isOnLine Then
+			CheckIfOnline
+			If IsInternetConnected Then
+				If MQTT.IsInitialized = False Or MQTT.Connected = False Then
+					MQTT_Connect
+				End If
 				MQTT.Publish("Andy", BC.StringToBytes("Get settings", "utf8"))
 			Else
+				ProgressDialogHide
 				ToastMessageShow("No internet connection", False)
 			End If
 		Catch
 			Log(LastException)
+			ProgressDialogHide
 		End Try
 	Else
-		' Access Point
 		Try
+			Sleep(100)
+			ProgressDialogHide
+			Sleep(100)
+			ProgressDialogShow("Connecting to AndyRelayAccessPoint...")
+			Sleep(100)
 			Dim forceWiFiConnect As WiFiConnect
 			For i = 1 To 40
 				If forceWiFiConnect.IsWiFiEnabled Then
@@ -192,34 +197,56 @@ Sub btnGet_Click
 					End If
 				End If
 			Next
-
-			Dim j As HttpJob
-			j.Initialize("", Me)
-			j.Download("http://192.168.4.1/getsettings")
-			j.GetRequest.SetHeader("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:27.0) Gecko/20100101 Firefox/27.0")
-			j.GetRequest.Timeout = 2000
-			Wait For (j) JobDone(j As HttpJob)
-			If j.Success Then
-				Log(j.GetString)
-				Dim htmlstring As String = j.GetString
-				Dim s() As String = Regex.Split(",", htmlstring)
-				If s.Length = 4 Then
-					Sleep(100)
-					txtSSID.Text = s(0).Trim
-					txtPassword.Text = s(1).Trim
-					txtOpenDelay.Text = s(2).Trim
-					txtClosedDelay.Text = s(3).Trim
-					'ToastMessageShow("Settings retrieved via access point", False)
+			ProgressDialogShow("Attempting to retrieve settings...")
+			Sleep(100)
+			Disconnect
+			Dim sock As Socket
+			sock.Initialize("sock")
+			sock.Connect("192.168.4.1", 51042, 10000)
+			Wait For sock_Connected (Successful As Boolean)
+			If Successful Then
+				astream.InitializePrefix(sock.InputStream, False, sock.OutputStream, "astream")
+				Wait For astream_NewData (Buffer() As Byte)
+				If Buffer(0) = 0 Then
+					txtSSID.Text = x
+					txtPassword.Text = x
+					txtOpenDelay.Text = x
+					txtClosedDelay.Text = x
+					ProgressDialogHide
+					ToastMessageShow("No settings found", False)
+				Else
+					Wait For astream_NewData (Buffer() As Byte)
+					rec = ObjectsToRecord(ser.ConvertBytesToArray(Buffer))
+					txtSSID.Text = rec.SSID
+					txtPassword.Text = rec.Password
+					txtOpenDelay.Text = rec.OpenDelay
+					txtClosedDelay.Text = rec.ClosedDelay
+					ProgressDialogHide
+					ToastMessageShow("Successfully retrieved the settings", False)
 				End If
 			Else
-				ToastMessageShow(LastException, False)
 			End If
-			j.Release
+			Disconnect
 		Catch
 			Log(LastException)
+			ProgressDialogHide
 		End Try
 	End If
 	ProgressDialogHide
+End Sub
+
+Sub JobDone(job As HttpJob)
+	If job.JobName="CheckInternetJob" And job.Success=False Then
+		IsInternetConnected = False
+	Else
+		IsInternetConnected = True
+	End If
+	job.Release
+End Sub
+
+Sub CheckIfOnline
+	CheckInternetJob.Initialize("CheckInternetJob", Me)
+	CheckInternetJob.Download("http://www.google.com")
 End Sub
 
 'Connect to CloudMQTT broker
@@ -276,3 +303,51 @@ Private Sub MQTT_MessageArrived (Topic As String, Payload() As Byte)
 	End Try
 End Sub
 
+Sub RecordToObjects (Record As Record) As Object()
+	Record.SSID = txtSSID.Text
+	Record.Password = txtPassword.Text
+	Record.OpenDelay = txtOpenDelay.Text
+	Record.ClosedDelay = txtClosedDelay.Text
+	Return Array(Record.SSID, Record.Password, Record.OpenDelay, Record.ClosedDelay)
+End Sub
+
+Sub ObjectsToRecord(Objects() As Object) As Record
+	Dim r As Record
+	r.Initialize
+	r.SSID = Objects(0)
+	r.Password = Objects(1)
+	r.OpenDelay = Objects(2)
+	r.ClosedDelay = Objects(3)
+	Return r
+End Sub
+
+Sub AStream_Error
+	Log("Error")
+End Sub
+
+Sub AStream_Terminated
+	Log("Terminated")
+End Sub
+
+Sub Disconnect
+	Log("Disconnect")
+	If astream.IsInitialized Then astream.Close
+	ProgressDialogHide
+End Sub
+
+'Return true to allow the default exceptions handler to handle the uncaught exception.
+Sub Application_Error (Error As Exception, StackTrace As String) As Boolean
+	Return True
+End Sub
+
+Sub IsConnectedToInternet As Boolean 'ignore
+	Dim P As Phone
+	Dim WF As ServerSocket 'ignore
+	Dim B As Boolean=False
+
+	If P.GetDataState="CONNECTED" Then B=True
+	If WF.GetMyWiFiIP<>"127.0.0.1" Then B=True  'ignore
+	If WF.GetMyIP<>"127.0.0.1" Then B=True
+
+	Return B
+End Sub
