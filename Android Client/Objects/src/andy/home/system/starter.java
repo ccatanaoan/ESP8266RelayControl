@@ -10,10 +10,11 @@ public class starter extends  android.app.Service{
 
 		@Override
 		public void onReceive(android.content.Context context, android.content.Intent intent) {
+            BA.LogInfo("** Receiver (starter) OnReceive **");
 			android.content.Intent in = new android.content.Intent(context, starter.class);
 			if (intent != null)
 				in.putExtra("b4a_internal_intent", intent);
-			context.startService(in);
+            ServiceHelper.StarterHelper.startServiceFromReceiver (context, in, true, BA.class);
 		}
 
 	}
@@ -95,13 +96,7 @@ public class starter extends  android.app.Service{
     	java.lang.reflect.Method startEvent = processBA.htSubs.get("service_start");
     	if (startEvent != null) {
     		if (startEvent.getParameterTypes().length > 0) {
-    			anywheresoftware.b4a.objects.IntentWrapper iw = new anywheresoftware.b4a.objects.IntentWrapper();
-    			if (intent != null) {
-    				if (intent.hasExtra("b4a_internal_intent"))
-    					iw.setObject((android.content.Intent) intent.getParcelableExtra("b4a_internal_intent"));
-    				else
-    					iw.setObject(intent);
-    			}
+    			anywheresoftware.b4a.objects.IntentWrapper iw = ServiceHelper.StarterHelper.handleStartIntent(intent, _service, processBA);
     			processBA.raiseEvent(null, "service_start", iw);
     		}
     		else {

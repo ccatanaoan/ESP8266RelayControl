@@ -32,6 +32,7 @@ Sub Globals
 	Private txtSSID As FloatLabeledEditText
 	Private txtClosedDelay As FloatLabeledEditText
 	Private txtOpenDelay As FloatLabeledEditText
+	Private tglConnection As ToggleButton
 End Sub
 
 Sub Activity_Create(FirstTime As Boolean)
@@ -49,6 +50,8 @@ Sub Activity_Create(FirstTime As Boolean)
 
 	txtOpenDelay.EditText.InputType = txtOpenDelay.EditText.INPUT_TYPE_NUMBERS
 	txtClosedDelay.EditText.InputType = txtClosedDelay.EditText.INPUT_TYPE_NUMBERS
+	
+	tglConnection.Checked = True
 End Sub
 
 Sub Activity_Resume
@@ -96,21 +99,36 @@ Sub btnSet_Click
 	ProgressDialogShow("Attempting to set settings...")
 	Sleep(100)
 	
-	' 1. Attempt via MQTT
-	Try
-		If WiFi.isOnLine Then
-			Log(txtSSID.Text & "|" & txtPassword.Text & "|" & txtOpenDelay.Text & "|" & txtClosedDelay.Text)
-			MQTT.Publish("Andy", BC.StringToBytes(txtSSID.Text & "|" & txtPassword.Text & "|" & txtOpenDelay.Text & "|" & txtClosedDelay.Text, "utf8"))
-		Else
-			'ToastMessageShow("No internet connection", False)
-		End If
-	Catch
-		Log(LastException)
-	End Try
-
+	If MQTT.IsInitialized = False Or MQTT.Connected = False Then
+		MQTT_Connect
+	End If
 	
-	' 2. Attempt access point first
-	Try
+	If tglConnection.Checked Then
+		' Online
+		Try
+			If WiFi.isOnLine Then
+				Log(txtSSID.Text & "|" & txtPassword.Text & "|" & txtOpenDelay.Text & "|" & txtClosedDelay.Text)
+				MQTT.Publish("Andy", BC.StringToBytes(txtSSID.Text & "|" & txtPassword.Text & "|" & txtOpenDelay.Text & "|" & txtClosedDelay.Text, "utf8"))
+			Else
+				ToastMessageShow("No internet connection", False)
+			End If
+		Catch
+			Log(LastException)
+		End Try
+	Else
+		' Access Point
+		Try
+			Dim forceWiFiConnect As WiFiConnect
+			For i = 1 To 40
+				If forceWiFiConnect.IsWiFiEnabled Then
+					If WiFi.SSID <> "AndyRelayAccessPoint" Then
+						forceWiFiConnect.connectToSSID(forceWiFiConnect.WIFI_OPEN,"AndyRelayAccessPoint","")
+					Else
+						Exit
+					End If
+				End If
+			Next
+			
 			Dim j As HttpJob
 			j.Initialize("", Me)
 			Dim a As String = txtSSID.Text.trim
@@ -124,14 +142,15 @@ Sub btnSet_Click
 			j.GetRequest.Timeout = 2000
 			Wait For (j) JobDone(j As HttpJob)
 			If j.Success Then
-			
+		
 			Else
-				'ToastMessageShow(LastException, False)
+				ToastMessageShow(LastException,False)
 			End If
 			j.Release
-	Catch
-		Log(LastException)
-	End Try
+		Catch
+			Log(LastException)
+		End Try
+	End If
 	ProgressDialogHide
 End Sub
 
@@ -145,20 +164,35 @@ Sub btnGet_Click
 	txtOpenDelay.Text = x
 	txtClosedDelay.Text = x
 	
+	If MQTT.IsInitialized = False Or MQTT.Connected = False Then
+		MQTT_Connect
+	End If
 	' 1. Attempt via MQTT
-	Try
-		If WiFi.isOnLine Then
-			MQTT.Publish("Andy", BC.StringToBytes("Get settings", "utf8"))
-		Else
-			ToastMessageShow("No internet connection", False)
-		End If
-	Catch
-		Log(LastException)
-	End Try
-	
-	' 2. Attempt access point first
-	Try
-		If WiFi.SSID="AndyRelayAccessPoint" Then
+	If tglConnection.Checked Then
+		' Online
+		Try
+			If WiFi.isOnLine Then
+				MQTT.Publish("Andy", BC.StringToBytes("Get settings", "utf8"))
+			Else
+				ToastMessageShow("No internet connection", False)
+			End If
+		Catch
+			Log(LastException)
+		End Try
+	Else
+		' Access Point
+		Try
+			Dim forceWiFiConnect As WiFiConnect
+			For i = 1 To 40
+				If forceWiFiConnect.IsWiFiEnabled Then
+					If WiFi.SSID <> "AndyRelayAccessPoint" Then
+						forceWiFiConnect.connectToSSID(forceWiFiConnect.WIFI_OPEN,"AndyRelayAccessPoint","")
+					Else
+						Exit
+					End If
+				End If
+			Next
+
 			Dim j As HttpJob
 			j.Initialize("", Me)
 			j.Download("http://192.168.4.1/getsettings")
@@ -181,10 +215,10 @@ Sub btnGet_Click
 				ToastMessageShow(LastException, False)
 			End If
 			j.Release
-		End If
-	Catch
-		Log(LastException)
-	End Try
+		Catch
+			Log(LastException)
+		End Try
+	End If
 	ProgressDialogHide
 End Sub
 
@@ -236,7 +270,6 @@ Private Sub MQTT_MessageArrived (Topic As String, Payload() As Byte)
 			txtPassword.Text = s(1).Trim
 			txtOpenDelay.Text = s(2).Trim
 			txtClosedDelay.Text = s(3).Trim
-			'ToastMessageShow("Settings retrieved via internet", False)
 		End If
 	Catch
 		Log(LastException)

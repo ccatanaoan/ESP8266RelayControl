@@ -31,6 +31,7 @@ public class main extends android.support.v7.app.AppCompatActivity implements B4
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+        mostCurrent = this;
 		if (processBA == null) {
 			processBA = new BA(this.getApplicationContext(), null, null, "andy.home.system", "andy.home.system.main");
 			processBA.loadHtSubs(this.getClass());
@@ -45,6 +46,7 @@ public class main extends android.support.v7.app.AppCompatActivity implements B4
 				p.finish();
 			}
 		}
+        processBA.setActivityPaused(true);
         processBA.runHook("oncreate", this, null);
 		if (!includeTitle) {
         	this.getWindow().requestFeature(android.view.Window.FEATURE_NO_TITLE);
@@ -53,7 +55,7 @@ public class main extends android.support.v7.app.AppCompatActivity implements B4
         	getWindow().setFlags(android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN,   
         			android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN);
         }
-		mostCurrent = this;
+		
         processBA.sharedProcessBA.activityBA = null;
 		layout = new BALayout(this);
 		setContentView(layout);
@@ -259,8 +261,10 @@ public class main extends android.support.v7.app.AppCompatActivity implements B4
     @Override 
 	public void onPause() {
 		super.onPause();
-        if (_activity == null) //workaround for emulator bug (Issue 2423)
+        if (_activity == null)
             return;
+        if (this != mostCurrent)
+			return;
 		anywheresoftware.b4a.Msgbox.dismiss(true);
         BA.LogInfo("** Activity (main) Pause, UserClosed = " + activityBA.activity.isFinishing() + " **");
         if (mostCurrent != null)
