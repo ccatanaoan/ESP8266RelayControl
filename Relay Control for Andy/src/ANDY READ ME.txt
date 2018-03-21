@@ -1,0 +1,17 @@
+=======================================
+      Andy's Greenhouse System
+    Developed by Cloyd Catanaoan
+=======================================
+
+Pin D6 = Hydroponic pump
+Pin D3 = Grow light
+
+=======================================
+   HOW TO CHANGE THE RELAY DURATION
+=======================================
+1. Open the src.ino in the Arduino IDE.
+2. Navigate to b4r_main.cpp tab.
+3. Find the START - ANDY'S CONFIGURATION section.
+4. Change each relay's duration in milliseconds.
+5. Upload to your NodeMCU.
+6. Test.
