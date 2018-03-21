@@ -1,16 +1,12 @@
 ﻿Version=2.2
-NumberOfModules=2
-Module1=GlobalStore
-Module2=WiFiServer
+NumberOfModules=0
 Build1=Default,B4RDev
 NumberOfFiles=0
-NumberOfLibraries=6
+NumberOfLibraries=4
 Library1=rcore
 Library2=resp8266
 Library3=resp8266wifi
-Library4=rmqtt
-Library5=reeprom
-Library6=rrandomaccessfile
+Library4=reeprom
 @EndOfDesignText@
 
 #Region Project Attributes
@@ -25,30 +21,15 @@ Sub Process_Globals
 	Public Serial1 As Serial
 	Private d1pins As D1Pins
 	Private pin16 As Pin
-	Private d6 As Pin
+	Private d6 As Pin ' Hydroponic pump
+	Private d3 As Pin ' Grow light
 	Public WiFi As ESP8266WiFi
-	Private WiFiStr As WiFiSocket
-	Private MQTT As MqttClient
-	Private MQTTOpt As MqttConnectOptions
-	Private MQTTUser As String = "dbgdbcqw"
-	Private MQTTPassword As String = "Nc3F4APoO801"
-	Private MQTTHostName As String = "m14.cloudmqtt.com"
-	Private MQTTPort As Int = 15093
-	Private StopRelay As Boolean = False
 	Public ESP As ESP8266
-	Private WiFiSSID As String = "CloydNote8"
-	Private WiFiPassword As String = "adjj6347"
-	Private RelayOpenDelay As String = "5000"
-	Private RelayClosedDelay As String = "15000"
+	Private RelayOpenHydroponicDelay As String = "5000"
+	Private RelayCloseHydroponicDelay As String = "15000"
+	Private RelayOpenGrowLightDelay As String = "10000"
+	Private RelayCloseGrowLightDelay As String = "20000"
 	Public eeprom As EEPROM
-	Private bc As ByteConverter
-	Private const MAGIC_EEPROM As Byte = 123
-	Private ser As B4RSerializator
-	Private ObjectsBuffer(10) As Object
-	Private IsWiFIConnectingAppStart As Boolean
-	Private Timer1 As Timer
-	Private Timer2 As Timer
-	Private counter As ULong
 End Sub
 
 Private Sub AppStart
@@ -57,325 +38,42 @@ Private Sub AppStart
 	Log("AppStart")
 	' Pin 2 is the blue LED
 	' Pin 16 is the red LED
-	' D6 = pin 12 is the logic/signal pin. Use 3.3v pin of Node MCU.
-	RunNative("SetAPSTA", Null)
-	WiFiServer.Start
+	' D6 = pin 12 is the logic/signal/data pin. Use 3.3v pin of Node MCU.
+	' D3 = pin 0 is the logic/signal/data pin. Use 3.3v pin of Node MCU.
 	
-	d6.Initialize(d1pins.D6, d6.MODE_OUTPUT)
+	d6.Initialize(d1pins.D6, d6.MODE_OUTPUT)  ' Hydroponic pump
+	d3.Initialize(d1pins.D3, d3.MODE_OUTPUT) ' Grow Light
+	
 	pin16.Initialize(16, pin16.MODE_OUTPUT)
 	pin16.DigitalWrite(True)
 	
-	'WriteToEEPROM("SSID","Password","5000","15000")
-	ReadFromEEPROM
-	
-	IsWiFIConnectingAppStart = True
-	
 	' Infinite relay toggle
-	RelayOpen(0)
-	
-	Dim attempts As Int = 0
-	Do Until attempts = 3
-		ConnectToWifi
-		If WiFi.IsConnected Then 
-			Timer1.Enabled = False
-			IsWiFIConnectingAppStart = False
-			Exit
-		End If
-		attempts = attempts + 1
-	Loop
-	If WiFi.IsConnected Then
-		Timer1.Enabled = False
-		IsWiFIConnectingAppStart = False
-	Else
-		Log("Starting as an access point.")
-		Timer1.Initialize("Timer1_Tick", 1000) '1000ms = 1 second
-		Timer1.Enabled = True
-		WiFiServer.Start
-	End If
+	RelayOpenHydroponic(0)
+	RelayOpenGrowLight(0)
 End Sub
 
-Sub MQTT_Connect(Unused As Byte)
-	If WiFi.IsConnected = False And IsWiFIConnectingAppStart = False Then
-		ConnectToWifi
-	End If
-	If MQTT.Connect = False Then
-		pin16.DigitalWrite(True)
-		Log("Connecting to broker")
-		MQTT.Connect2(MQTTOpt)
-		CallSubPlus("MQTT_Connect", 1000, 0)
-	Else
-		pin16.DigitalWrite(False)
-		Log("Connected to broker")
-		MQTT.Subscribe("Andy", 0)
-	End If
+Private Sub RelayCloseGrowLight (tag As Byte)
+	Log("Relay grow light closed. Duration: ", RelayCloseGrowLightDelay)
+	d3.DigitalWrite(True)
+	CallSubPlus("RelayOpenGrowLight", RelayCloseGrowLightDelay, 0)
 End Sub
 
-Private Sub RelayClose (tag As Byte)
-	If WiFi.IsConnected = False And IsWiFIConnectingAppStart = False Then
-		ConnectToWifi
-	End If
-	If StopRelay Then
-		Return
-	End If
-	Log("*Relay has been closed")
-	If WiFi.IsConnected  Then
-		MQTT.Publish("Andy","*Relay has been closed")
-	End If
+Private Sub RelayOpenGrowLight (tag As Byte)
+	Log("Relay grow light opened. Duration: ", RelayOpenGrowLightDelay)
+	d3.DigitalWrite(False)
+	CallSubPlus("RelayCloseGrowLight", RelayOpenGrowLightDelay, 0)
+End Sub
+
+Private Sub RelayCloseHydroponic (tag As Byte)
+	Log("Relay hydroponic closed. Duration: ", RelayCloseHydroponicDelay)
 	d6.DigitalWrite(True)
-	Dim closedDelay As String = bc.StringFromBytes(GlobalStore.Slot3)
-	If closedDelay.Length = 0 Then
-		closedDelay = RelayClosedDelay
-		GlobalStore.Put(3,RelayClosedDelay)
-	End If
-	Log("ClosedDelay: ",closedDelay)
-	CallSubPlus("RelayOpen", closedDelay, 0)
+	CallSubPlus("RelayOpenHydroponic", RelayCloseHydroponicDelay, 0)
 End Sub
 
-Private Sub RelayOpen (tag As Byte)
-	If WiFi.IsConnected = False And IsWiFIConnectingAppStart = False Then
-		ConnectToWifi
-	End If
-	If StopRelay Then
-		Return
-	End If
-	Log("*Relay has been opened")
-	If WiFi.IsConnected  Then
-		MQTT.Publish("Andy","*Relay has been opened")
-	End If
+Private Sub RelayOpenHydroponic (tag As Byte)
+	Log("Relay hydroponic opened. Duration: ", RelayOpenHydroponicDelay)
 	d6.DigitalWrite(False)
-	Dim openDelay As String = bc.StringFromBytes(GlobalStore.Slot2)
-	If openDelay.Length = 0  Then
-		openDelay = RelayOpenDelay
-		GlobalStore.Put(2,RelayOpenDelay)
-	End If
-	Log("openDelay: ",openDelay)
-	CallSubPlus("RelayClose", openDelay, 0)
+	CallSubPlus("RelayCloseHydroponic", RelayOpenHydroponicDelay, 0)
 End Sub
 
-Sub mqtt_MessageArrived (Topic As String, Payload() As Byte)
-	pin16.DigitalWrite(False)
-	Log("Message arrived. Topic=", Topic, " Payload=", Payload)
-	If Payload="Remotely close relay" Then
-		MQTT.Publish("Andy","*Closing relay by remote")
-		d6.DigitalWrite(True)
-		StopRelay = True
-	Else If Payload="Remotely open relay" Then
-		MQTT.Publish("Andy","*Opening relay by remote")
-		StopRelay = False
-		RelayOpen(0)
-	Else If Payload = "Restart controller" Then
-		MQTT.Publish("Andy","*Restarting relay by remote")
-		ESP.Restart
-	Else If Payload = "Get settings" Then
-		Dim c As String = JoinStrings(Array As String("*Get settings: ", bc.StringFromBytes(GlobalStore.Slot0), ",", bc.StringFromBytes(GlobalStore.Slot1), ",",bc.StringFromBytes(GlobalStore.Slot2),",",bc.StringFromBytes(GlobalStore.Slot3)))
-		MQTT.Publish("Andy",c)
-	Else If Payload = "Check relay status" Then
-		If StopRelay Then
-			MQTT.Publish("Andy","*Relay is permanently closed")
-		else If d6.DigitalRead Then
-			MQTT.Publish("Andy","*Relay is closed")
-		Else
-			MQTT.Publish("Andy","*Relay is open")
-		End If
-	Else
-		If bc.IndexOf(Payload,"|") > 0 Then
-			MQTTChangeSetting(Payload)
-		End If
-	End If
-End Sub
 
-Sub mqtt_Disconnected
-	Log("Disconnected from broker")
-	pin16.DigitalWrite(True)
-	MQTT.Close
-	MQTT_Connect(0)
-End Sub
-
-Sub ConnectToWifi
-	Log("ConnectToWifi")
-	Dim SSID As String
-	Dim password As String
-	
-	SSID = bc.StringFromBytes(GlobalStore.Slot0)
-	If SSID.Length = 0 Then 
-		SSID = WiFiSSID
-		GlobalStore.Put(0,SSID)
-		WriteToEEPROM(bc.StringFromBytes(GlobalStore.Slot0),bc.StringFromBytes(GlobalStore.Slot1),bc.StringFromBytes(GlobalStore.Slot2),bc.StringFromBytes(GlobalStore.Slot3))
-	End If
-	
-	password = bc.StringFromBytes(GlobalStore.Slot1)
-	If password.Length = 0 Then
-		password = WiFiPassword
-		GlobalStore.Put(1,password)
-		WriteToEEPROM(bc.StringFromBytes(GlobalStore.Slot0),bc.StringFromBytes(GlobalStore.Slot1),bc.StringFromBytes(GlobalStore.Slot2),bc.StringFromBytes(GlobalStore.Slot3))
-	End If
-	
-	Timer2.Initialize("Timer2_Tick", 50) '1000ms = 1 second
-	Timer2.Enabled = True
-	'WiFi.Connect(SSID)
-	WiFi.Connect2(SSID, password)
-	Timer2.Enabled = False
-
-	If WiFi.IsConnected Then
-		' Stop access point
-		Timer1.Enabled = False
-		counter = 0
-		Log("Connected to WiFi = ",SSID,", Local IP = ", WiFi.LocalIp, ", Password = ",password)
-		' Connect to CloudMQTT broker
-		Dim ClientId As String = Rnd(0, 999999999) 'create a unique id
-		MQTT.Initialize2(WiFiStr.stream, MQTTHostName, MQTTPort, ClientId, "MQTT_MessageArrived", "MQTT_Disconnected")
-		MQTTOpt.Initialize(MQTTUser, MQTTPassword)
-		MQTT_Connect(0)
-	Else
-		Log("Failed to connect to ",SSID, " WiFi")
-	End If
-	
-End Sub
-
-Sub WriteToEEPROM(SSID As String, Password As String, OpenDelay As String, ClosedDelay As String)
-	Log("Writing setiings into the EEPROM")
-	Dim ListOfObjectsToStore() As Object = Array(SSID, Password, OpenDelay,ClosedDelay)
-	Dim ByteDataToStore() As Byte
-
-	' Convert the array of objects into a sequence of bytes.
-	ByteDataToStore = ser.ConvertArrayToBytes(ListOfObjectsToStore)
-	
-	' Store the length of the data being written into the EEPROM as an Integer taking up two bytes at Storage Location 700 in the EEPROM
-	eeprom.WriteBytes(Array As Byte(MAGIC_EEPROM, ByteDataToStore.Length), 0)
-	' Now write out all the bytes into the EEPROM
-	eeprom.WriteBytes(ByteDataToStore, 2)
-End Sub
-
-Sub ReadFromEEPROM
-	Log("Reading settings from the EEPROM")
-	
-	Dim header() As Byte = eeprom.ReadBytes(0, 2)
-	If header(0) = MAGIC_EEPROM Then
-		Dim data() As Byte = eeprom.ReadBytes(2, header(1))
-		Dim i As Int = bc.IndexOf(data, Array As Byte(0))
-		If i = -1 Then
-			Log("Error parsing settings. Starting as an access point.")
-			WiFi.Disconnect
-			IsWiFIConnectingAppStart = True
-			Timer1.Initialize("Timer1_Tick", 1000) '1000ms = 1 second
-			Timer1.Enabled = True
-			WiFiServer.Start
-			Return
-		End If
-		Dim Objects() As Object = ser.ConvertBytesToArray(data, ObjectsBuffer)
-		Dim SSID As String = Objects(0) 'ignore
-		Dim Password As String = Objects(1) 'ignore
-		Dim OpenDelay As String = Objects(2) 'ignore
-		Dim ClosedDelay As String = Objects(3) 'ignore
-		GlobalStore.Put(0,SSID) ' SSID
-		GlobalStore.Put(1,Password) ' Password
-		GlobalStore.Put(2,OpenDelay) ' Open delay
-		GlobalStore.Put(3,ClosedDelay) ' Closed delay
-		Log("ReadFromEEPROM "," Slot0: ",GlobalStore.Slot0," Slot1: ",GlobalStore.Slot1," Slot2: ",GlobalStore.Slot2," Slot3: ",GlobalStore.Slot3)
-	Else
-		Log("Settings data not found. Starting as an access point.")
-		WiFi.Disconnect
-		IsWiFIConnectingAppStart = True
-		Timer1.Initialize("Timer1_Tick", 1000) '1000ms = 1 second
-		Timer1.Enabled = True
-		WiFiServer.Start
-	End If
-
-End Sub
-
-Sub ClearEEPROM 'ignore
-	Dim i As UInt
-	
-	Log("Size: ", eeprom.Size, " bytes")
-	For i = 0 To eeprom.Size
-		eeprom.WriteBytes(Array As Byte(0), i)
-		Log(i)
-	Next
-End Sub
-
-Public Sub SaveNetworkDetails(Data() As Byte)
-	eeprom.WriteBytes(Array As Byte(MAGIC_EEPROM, Data.Length), 0)
-	eeprom.WriteBytes(Data, 2)
-	Delay(1000)
-	ConnectToNetwork
-End Sub
-
-Public Sub ConnectToNetwork
-	Log("Restarting controller")
-	ESP.Restart
-End Sub
-
-Private Sub Timer1_Tick
-	' Blink red LED if in access point mode. And reconnect every 5 minutes.
-	counter = counter + 1
-	If counter >= 300 Then
-		IsWiFIConnectingAppStart = True
-		ConnectToWifi
-		If WiFi.IsConnected Then
-			Timer1.Enabled = False
-			IsWiFIConnectingAppStart = False
-		Else
-			Log("Starting as an access point.")
-			Timer1.Initialize("Timer1_Tick", 1000) '1000ms = 1 second
-			Timer1.Enabled = True
-			WiFiServer.Start
-		End If
-		counter = 0
-	End If
-	Dim currentState As Boolean = pin16.DigitalRead
-	Dim NewState As Boolean = Not(currentState)
-	pin16.DigitalWrite(NewState)
-End Sub
-
-Private Sub Timer2_Tick
-	' To keep Wifi.Connect2 alive
-	Log("")
-End Sub
-
-Private Sub MQTTChangeSetting(message() As Byte)
-	Dim c As Int
-	For Each s() As Byte In bc.Split(message, "|")
-		If c = 0 Then
-			GlobalStore.Put(0,s) ' SSID
-		End If
-		If c = 1 Then
-			GlobalStore.Put(1,s) ' Password
-		End If
-		If c = 2 Then
-			GlobalStore.Put(2,s) ' Open delay
-		End If
-		If c = 3 Then
-			GlobalStore.Put(3,s) ' Closed delay
-		End If
-		c = c + 1
-	Next
-	If IsNumber(bc.StringFromBytes(GlobalStore.Slot2)) = False Or bc.StringFromBytes(GlobalStore.Slot2).Length = 0 Then
-		MQTT.Publish("Andy","*Open delay value is invalid!")
-		Return
-	End If
-	If IsNumber(bc.StringFromBytes(GlobalStore.Slot3)) = False Or bc.StringFromBytes(GlobalStore.Slot3).Length = 0 Then
-		MQTT.Publish("Andy","*Closed delay value is invalid!")
-		Return
-	End If
-	Log("MQTTChangeSetting.Slot0: ",GlobalStore.Slot0," GlobalStore.Slot1: ",GlobalStore.Slot1," GlobalStore.Slot2: ",GlobalStore.Slot2," GlobalStore.Slot3: ",GlobalStore.Slot3)
-	WriteToEEPROM(bc.StringFromBytes(GlobalStore.Slot0),bc.StringFromBytes(GlobalStore.Slot1),bc.StringFromBytes(GlobalStore.Slot2),bc.StringFromBytes(GlobalStore.Slot3))
-	ConnectToNetwork
-End Sub
-
-Public Sub GetStoredDataLength As Byte
-	Dim header() As Byte = eeprom.ReadBytes(0, 2)
-	If header(0) = MAGIC_EEPROM Then
-		Return header(1)
-	End If
-	Return 0
-End Sub
-
-#if C
-void SetSTA(B4R::Object* o) {
-   //WiFi.mode(WIFI_STA);
-}
-
-void SetAPSTA(B4R::Object* o) {
-   WiFi.mode(WIFI_AP_STA);
-}
-#end if
